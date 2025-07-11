@@ -71,3 +71,17 @@ refresh-xcompose() {
   pkill fcitx5
   setsid fcitx5 &>/dev/null &
 }
+
+
+function f() {
+  cd "$(fd . '/' --type d --exclude={proc,.git,.cache,node_modules} | fzf --preview 'ls -l {}')"
+}
+
+
+function j() {
+  if [[ $# -eq 0 ]]; then
+    cd "$(zoxide query -l | fzf --reverse --preview 'ls -alh {}')"
+  else
+    zoxide query "$@" | cd
+  fi
+}
