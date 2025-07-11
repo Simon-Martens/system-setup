@@ -1,39 +1,127 @@
 * {
-  border: none;
-  border-radius: 0;
+  font-family: JetbrainsMono Nerd Font;
+  font-size: 11px;
   min-height: 0;
-  font-family: CaskaydiaMono Nerd Font Propo;
-  font-size: 12px;
+  padding-right: 2px;
+  padding-left: 2px;
+  color: #0a0a0a;
+  padding-bottom: 0px;
+}
+
+#waybar {
+  background: transparent;
+  color: #0a0a0a;
+  margin: 2px 2px;
 }
 
 #workspaces {
-  margin-left: 7px;
+  color: #0a0a0a;
+  border-radius: 5px;
+  margin: 2px;
+  margin-left: 1rem;
 }
 
 #workspaces button {
-  all: initial;
-  padding: 2px 6px;
-  margin-right: 3px;
+  border-radius: 5px;
+  padding: 0.4rem;
 }
 
-#custom-dropbox,
-#cpu,
-#battery,
-#network,
-#bluetooth,
-#pulseaudio,
+#workspaces button.active {
+  border-radius: 5px;
+}
+
+#custom-music,
+#tray,
+#backlight,
+#keyboard-state,
 #clock,
-#custom-power-menu {
-  min-width: 12px;
-  margin-right: 13px;
+#battery,
+#pulseaudio,
+#network,
+#memory,
+#bluetooth,
+#custom-lock,
+#custom-power {
+  padding: 0.5rem 1rem;
+  margin: 5px 0;
 }
 
-tooltip {
-  padding: 2px;
+#custom-tmux {
+  padding: 0rem 1rem;
+  margin: 5px 0;
 }
 
-tooltip label {
-  padding: 2px;
+#memory {
+  border-radius: 0px 5px 5px 0px;
 }
 
-@import "../omarchy/current/theme/waybar.css";
+#cpu {
+  padding: 0.5rem 0rem;
+  padding-right: 1rem;
+  margin: 5px 0;
+}
+
+#custom-polycat {
+  padding: 0rem 0rem;
+  padding-left: 1rem;
+  margin: 5px 0;
+  font-family: polycat;
+  font-size: 16px;
+}
+
+#window {
+  padding-left: 1rem;
+  min-width: 32rem;
+}
+
+#clock {
+  border-radius: 5px;
+  margin-right: 1rem;
+}
+
+#battery {
+  color: #a6d189;
+}
+
+#battery.charging {
+  color: #a6d189;
+}
+
+#battery.warning:not(.charging) {
+  color: #e78284;
+}
+
+#backlight {
+  color: #e5c890;
+}
+
+#backlight,
+#battery {
+  border-radius: 0;
+}
+
+#pulseaudio {
+  color: #ea999c;
+  border-radius: 5px 0px 0px 5%;
+  margin-left: 1rem;
+}
+
+#custom-music {
+  color: #ca9ee6;
+  border-radius: 5px;
+}
+
+#bluetooth {
+  border-radius: 5px 0px 0px 5px;
+}
+
+#custom-power {
+  margin-right: 1rem;
+  border-radius: 0px 5px 5px 0px;
+}
+
+#tray {
+  margin-right: 1rem;
+  margin-left: 1rem;
+  border-radius: 5px;
+}
