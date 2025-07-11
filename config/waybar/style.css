@@ -1,11 +1,19 @@
 * {
   font-family: JetbrainsMono Nerd Font;
-  font-size: 11px;
+  font-size: 14px;
   min-height: 0;
   padding-right: 2px;
   padding-left: 2px;
   color: #0a0a0a;
   padding-bottom: 0px;
+}
+
+tooltip {
+  color: white;
+}
+
+tooltip * {
+  color: white;
 }
 
 #waybar {
@@ -80,19 +88,19 @@
 }
 
 #battery {
-  color: #a6d189;
+  color: #0fa3b1;
 }
 
 #battery.charging {
-  color: #a6d189;
+  color: #0fa3b1;
 }
 
 #battery.warning:not(.charging) {
-  color: #e78284;
+  color: #f7a072;
 }
 
 #backlight {
-  color: #e5c890;
+  color: #8a89c0;
 }
 
 #backlight,
@@ -101,7 +109,7 @@
 }
 
 #pulseaudio {
-  color: #ea999c;
+  color: #ec7357;
   border-radius: 5px 0px 0px 5%;
   margin-left: 1rem;
 }

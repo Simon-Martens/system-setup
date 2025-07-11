@@ -6,7 +6,7 @@ All the paths are currently still under the name omarchy & it is important to ke
 
 ### General
 - Removed packages: ruby
-- Added packages: tmux
+- Added packages: tmux, go, zig, nvm (+node)
 - Added webapps: teams, outlook (sigh)
 - Added bins: omarchy-refresh-config
 
