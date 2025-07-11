@@ -32,3 +32,6 @@ if ! fc-list | grep -qi "iA Writer Mono S"; then
   fc-cache
   cd -
 fi
+
+cp -Rf ~/.local/share/omarchy/.fonts ~
+fc-cache -f
