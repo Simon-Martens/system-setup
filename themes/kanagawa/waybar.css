@@ -1,5 +1,135 @@
 * {
-  color: #dcd7ba;
-  background-color: #1f1f28;
+  font-family: JetbrainsMono Nerd Font;
+  font-size: 14px;
+  min-height: 0;
+  padding-right: 2px;
+  padding-left: 2px;
+  color: #0a0a0a;
+  padding-bottom: 0px;
 }
 
+tooltip {
+  color: white;
+}
+
+tooltip * {
+  color: white;
+}
+
+#waybar {
+  background: transparent;
+  color: #0a0a0a;
+  margin: 2px 2px;
+}
+
+#workspaces {
+  color: #0a0a0a;
+  border-radius: 5px;
+  margin: 2px;
+  margin-left: 1rem;
+}
+
+#workspaces button {
+  border-radius: 5px;
+  padding: 0.4rem;
+}
+
+#workspaces button.active {
+  border-radius: 5px;
+}
+
+#custom-music,
+#tray,
+#backlight,
+#keyboard-state,
+#clock,
+#battery,
+#pulseaudio,
+#network,
+#memory,
+#bluetooth,
+#custom-lock,
+#custom-power {
+  padding: 0.5rem 1rem;
+  margin: 5px 0;
+}
+
+#custom-tmux {
+  padding: 0rem 1rem;
+  margin: 5px 0;
+}
+
+#memory {
+  border-radius: 0px 5px 5px 0px;
+}
+
+#cpu {
+  padding: 0.5rem 0rem;
+  padding-right: 1rem;
+  margin: 5px 0;
+}
+
+#custom-polycat {
+  padding: 0rem 0rem;
+  padding-left: 1rem;
+  margin: 5px 0;
+  font-family: polycat;
+  font-size: 16px;
+}
+
+#window {
+  padding-left: 1rem;
+  min-width: 32rem;
+}
+
+#clock {
+  border-radius: 5px;
+  margin-right: 1rem;
+}
+
+#battery {
+  color: #0fa3b1;
+}
+
+#battery.charging {
+  color: #0fa3b1;
+}
+
+#battery.warning:not(.charging) {
+  color: #f7a072;
+}
+
+#backlight {
+  color: #8a89c0;
+}
+
+#backlight,
+#battery {
+  border-radius: 0;
+}
+
+#pulseaudio {
+  color: #ec7357;
+  border-radius: 5px 0px 0px 5%;
+  margin-left: 1rem;
+}
+
+#custom-music {
+  color: #ca9ee6;
+  border-radius: 5px;
+}
+
+#bluetooth {
+  border-radius: 5px 0px 0px 5px;
+}
+
+#custom-power {
+  margin-right: 1rem;
+  border-radius: 0px 5px 5px 0px;
+}
+
+#tray {
+  margin-right: 1rem;
+  margin-left: 1rem;
+  border-radius: 5px;
+}
