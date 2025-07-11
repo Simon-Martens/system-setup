@@ -1,0 +1,2 @@
+-- Plugin for notifications
+-- return { 'rcarriga/nvim-notify' }

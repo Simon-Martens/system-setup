@@ -1,0 +1,29 @@
+# General
+mouse-hide-while-typing = true
+cursor-style-blink = true
+cursor-style = "bar"
+clipboard-read = allow
+clipboard-write = allow
+confirm-close-surface = false
+theme = "DimmedMonokai"
+copy-on-select = true
+window-padding-x = 8
+window-padding-y = 6
+window-decoration = none
+# background-opacity = 0.98
+
+# Font settings
+font-family = "GeistMono Nerd Font"
+font-size = 13.0
+# font-feature = -calt, -liga, -dlig # Disables programming font ligatures as they look ugly af
+# adjust-cell-height = 1%
+# adjust-cell-width = 3%
+
+# Keybindings
+keybind = ctrl+shift+f=toggle_fullscreen
+keybind = ctrl+shift+d=toggle_window_decorations
+keybind = ctrl+t=text:t\n
+
+# Startup command
+# command = bash -c "~/scripts/tmux-startup.sh"
+command = bash -c "tmux new-session -A -s main"

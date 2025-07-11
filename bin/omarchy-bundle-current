@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cp -rf ~/.config/alacritty ~/.local/share/omarchy/config
+cp -rf ~/.config/btop ~/.local/share/omarchy/config
+cp -rf ~/.config/environment.d ~/.local/share/omarchy/config 
+cp -rf ~/.config/fastfetch ~/.local/share/omarchy/config
+cp -rf ~/.config/hypr ~/.local/share/omarchy/config
+cp -rf ~/.config/lazygit ~/.local/share/omarchy/config
+cp -rf ~/.config/nvim ~/.local/share/omarchy/config
+cp -rf ~/.config/systemd ~/.local/share/omarchy/config
+cp -rf ~/.config/tmux ~/.local/share/omarchy/config
+cp -rf ~/.config/Typora ~/.local/share/omarchy/config
+cp -rf ~/.config/ghostty ~/.local/share/omarchy/config
+cp -rf ~/.config/waybar ~/.local/share/omarchy/config
+cp -rf ~/.config/wofi ~/.local/share/omarchy/config
+cp -rf ~/.config/xournalpp ~/.local/share/omarchy/config
