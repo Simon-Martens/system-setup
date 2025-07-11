@@ -16,9 +16,6 @@ set show-all-if-unmodified on
 # Immediately add a trailing slash when autocompleting symlinks to directories
 set mark-symlinked-directories on
 
-# Do not autocomplete hidden files unless the pattern explicitly begins with a dot
-set match-hidden-files off
-
 # Show all autocomplete results at once
 set page-completions off
 

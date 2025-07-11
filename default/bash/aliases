@@ -1,5 +1,5 @@
 # File system
-alias ls='eza -lh --group-directories-first --icons=auto'
+alias ls='eza -alh --group-directories-first --icons=auto'
 alias lsa='ls -a'
 alias lt='eza --tree --level=2 --long --icons --git'
 alias lta='lt -a'
@@ -36,3 +36,8 @@ alias gcad='git commit -a --amend'
 
 # Find packages without leaving the terminal
 alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=down:75% | xargs -ro yay -S"
+
+# Other
+alias e='nvim'
+
+alias t='~/.config/tmux/plugins/tmux-session-wizard-rewired/bin/t'
