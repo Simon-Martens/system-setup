@@ -29,7 +29,7 @@ git config --global user.signingkey 61F5BD22CF3388F9
 if [[ -n "${OMARCHY_USER_NAME//[[:space:]]/}" ]]; then
   git config --global user.name "$OMARCHY_USER_NAME"
 else
-	git config --global user.name Simon Martens
+	git config --global user.name "Simon Martens"
 fi
 
 if [[ -n "${OMARCHY_USER_EMAIL//[[:space:]]/}" ]]; then
