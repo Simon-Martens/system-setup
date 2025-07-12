@@ -7,6 +7,7 @@ gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
 gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
 
 # Setup theme links
+rm -rf ~/.config/omarchy/themes
 mkdir -p ~/.config/omarchy/themes
 for f in ~/.local/share/omarchy/themes/*; do ln -s "$f" ~/.config/omarchy/themes/; done
 
@@ -19,8 +20,9 @@ ln -snf ~/.config/omarchy/current/backgrounds/1-Pawel-Czerwinski-Abstract-Purple
 
 # Set specific app links for current theme
 ln -snf ~/.config/omarchy/current/theme/wofi.css ~/.config/wofi/style.css
-ln -snf ~/.config/omarchy/current/theme/neovim.lua ~/.config/nvim/lua/plugins/theme.lua
+ln -snf ~/.config/omarchy/current/theme/neovim.lua ~/.config/nvim/lua/theme.lua
 mkdir -p ~/.config/btop/themes
 ln -snf ~/.config/omarchy/current/theme/btop.theme ~/.config/btop/themes/current.theme
 mkdir -p ~/.config/mako
 ln -snf ~/.config/omarchy/current/theme/mako.ini ~/.config/mako/config
+cp ~/.config/omarchy/current/theme/waybar.css ~/.config/waybar/style.css

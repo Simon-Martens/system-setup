@@ -1,4 +1,5 @@
 # File system
+alias cat='bat'
 alias ls='eza -alh --group-directories-first --icons=auto'
 alias lsa='ls -a'
 alias lt='eza --tree --level=2 --long --icons --git'

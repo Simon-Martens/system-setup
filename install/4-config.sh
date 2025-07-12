@@ -20,20 +20,22 @@ git config --global alias.co checkout
 git config --global alias.br branch
 git config --global alias.ci commit
 git config --global alias.st status
-git config --global pull.rebase true
-git config --global init.defaultBranch master
 
-# # WARNING 
+# WARNING 
 # You'll need to import the appropriate signing key
 git config --global user.signingkey 61F5BD22CF3388F9
 
 # Set identification from install inputs
 if [[ -n "${OMARCHY_USER_NAME//[[:space:]]/}" ]]; then
   git config --global user.name "$OMARCHY_USER_NAME"
+else
+	git config --global user.name Simon Martens
 fi
 
 if [[ -n "${OMARCHY_USER_EMAIL//[[:space:]]/}" ]]; then
   git config --global user.email "$OMARCHY_USER_EMAIL"
+else
+	git config --global user.email simon.martens@mailbox.org
 fi
 
 # Set default XCompose that is triggered with CapsLock

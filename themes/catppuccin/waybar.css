@@ -46,8 +46,9 @@ tooltip * {
 #custom-lock,
 #custom-polycat,
 #custom-power {
-	margin-right: 1rem;
-	margin-left: 1rem;
+	font-size: 14px;
+	margin-right: 1em;
+	margin-left: 1em;
 }
 
 #custom-tmux {

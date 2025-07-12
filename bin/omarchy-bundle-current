@@ -6,9 +6,19 @@ cp -rf ~/.config/environment.d ~/.local/share/omarchy/config
 cp -rf ~/.config/fastfetch ~/.local/share/omarchy/config
 cp -rf ~/.config/hypr ~/.local/share/omarchy/config
 cp -rf ~/.config/lazygit ~/.local/share/omarchy/config
+
+# Neovim
+rm -rf ~/.local/share/omarchy/config/nvim
+mkdir -p ~/.local/share/omarchy/config/nvim
+find ~/.config/nvim/ -type f -exec cp --parents {} ~/.local/share/omarchy/config/nvim \;
+
+# TMUX
+rm -rf ~/.local/share/omarchy/config/tmux/
+mkdir -p ~/.local/share/omarchy/config/tmux/
+cp -rf ~/.config/tmux/tmux.conf ~/.local/share/omarchy/config/tmux/tmux.conf
+
 cp -rf ~/.config/nvim ~/.local/share/omarchy/config
 cp -rf ~/.config/systemd ~/.local/share/omarchy/config
-cp -rf ~/.config/tmux ~/.local/share/omarchy/config
 cp -rf ~/.config/Typora ~/.local/share/omarchy/config
 cp -rf ~/.config/ghostty ~/.local/share/omarchy/config
 cp -rf ~/.config/waybar ~/.local/share/omarchy/config

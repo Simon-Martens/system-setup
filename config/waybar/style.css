@@ -1,11 +1,11 @@
 * {
   font-family: JetbrainsMono Nerd Font;
-  font-size: 14px;
-  min-height: 0;
-  padding-right: 2px;
-  padding-left: 2px;
+	font-size: 14px;
+	margin-top: 2px;
+	margin-bottom: 1px;
+	margin-left: 2px;
+	margin-right: 6px;
   color: #0a0a0a;
-  padding-bottom: 0px;
 }
 
 tooltip {
@@ -19,23 +19,18 @@ tooltip * {
 #waybar {
   background: transparent;
   color: #0a0a0a;
-  margin: 2px 2px;
 }
 
 #workspaces {
   color: #0a0a0a;
-  border-radius: 5px;
-  margin: 2px;
-  margin-left: 1rem;
 }
 
 #workspaces button {
-  border-radius: 5px;
-  padding: 0.4rem;
+	margin-top: 0px;
+	padding: 0px 0px;
 }
 
 #workspaces button.active {
-  border-radius: 5px;
 }
 
 #custom-music,
@@ -49,42 +44,33 @@ tooltip * {
 #memory,
 #bluetooth,
 #custom-lock,
+#custom-polycat,
 #custom-power {
-  padding: 0.5rem 1rem;
-  margin: 5px 0;
+	font-size: 14px;
+	margin-right: 1em;
+	margin-left: 1em;
 }
 
 #custom-tmux {
-  padding: 0rem 1rem;
-  margin: 5px 0;
 }
 
 #memory {
-  border-radius: 0px 5px 5px 0px;
 }
 
 #cpu {
-  padding: 0.5rem 0rem;
-  padding-right: 1rem;
-  margin: 5px 0;
 }
 
 #custom-polycat {
-  padding: 0rem 0rem;
-  padding-left: 1rem;
-  margin: 5px 0;
+	margin-right: 0px;
   font-family: polycat;
   font-size: 16px;
 }
 
 #window {
-  padding-left: 1rem;
   min-width: 32rem;
 }
 
 #clock {
-  border-radius: 5px;
-  margin-right: 1rem;
 }
 
 #battery {
@@ -110,26 +96,17 @@ tooltip * {
 
 #pulseaudio {
   color: #ec7357;
-  border-radius: 5px 0px 0px 5%;
-  margin-left: 1rem;
 }
 
 #custom-music {
   color: #ca9ee6;
-  border-radius: 5px;
 }
 
 #bluetooth {
-  border-radius: 5px 0px 0px 5px;
 }
 
 #custom-power {
-  margin-right: 1rem;
-  border-radius: 0px 5px 5px 0px;
 }
 
 #tray {
-  margin-right: 1rem;
-  margin-left: 1rem;
-  border-radius: 5px;
 }
