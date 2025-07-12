@@ -41,7 +41,7 @@
 		},
     "tooltip": false,
 		"separate-outputs": true,
-		"on-scroll-up": "hyprctl dispatch workspace r-1",
+		"on-scroll-up": "hyprctl dispatch workspace r1",
 		"on-scroll-down": "hyprctl dispatch workspace r+1"
 	},
   "tray": {
@@ -81,7 +81,7 @@
     "format-ethernet": "󰈀  {bandwidthDownBits}",
     "format-disconnected": "󰤠  No Network",
     "interval": 10,
-		"on-click": "alacritty -e nmtui"
+		"on-click": "alacritty --class nmtui -e bash -c \"sleep 0.5; nmtui\""
   },
   "cpu": {
     "interval": 5,
@@ -100,7 +100,7 @@
     "format-icons": {
       "default": ["", "", " "]
     },
-    "on-click": "pavucontrol",
+    "on-click": "alacritty --class wiremix -e bash -c \"sleep 0.5; wiremix\"",
 		"on-scroll-up": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 2%+",
 		"on-scroll-down": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 2%-"
   },
@@ -114,7 +114,7 @@
 		"format-disabled": "󰂲",
 		"format-connected": "",
 		"tooltip-format": "Devices connected: {num_connections}",
-		"on-click": "GTK_THEME=Adwaita-dark blueberry"
+		"on-click": "alacritty --class bluetui -e bash -c \"sleep 0.5; bluetui\""
 	},
 	"custom/tmux": {
 		"exec": "bash -c 'list=$(tmux ls 2>/dev/null | tr \"\\n\" \"\\r\"); lo=$(tmux ls 2>/dev/null); [ -n \"$lo\" ] && count=$(echo \"$lo\" | wc -l | grep -x \"[1-9][0-9]*\") && echo \"$count\" && echo \"$list\"'",
