@@ -10,7 +10,7 @@
 ## https://github.com/zigzap/zap
 ## https://github.com/karlseguin/http.zig
 
-cd ~/Downloads
+cd /tmp
 V=0.14.0
 VERSION=zig-linux-x86_64
 wget https://ziglang.org/download/${V}/${VERSION}-${V}.tar.xz
@@ -27,3 +27,5 @@ export PATH=$PATH:/usr/local/zig
 
 zig help
 zig version
+
+cd -

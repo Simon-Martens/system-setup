@@ -3,4 +3,4 @@ if ! command -v tmux &>/dev/null; then
 fi
 
 # Tmux setup
-git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm

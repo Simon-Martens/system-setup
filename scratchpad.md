@@ -1,0 +1,4 @@
+- Go Install
+- Nvim Lazy does not work
+- Fonts
+- German lang packs
