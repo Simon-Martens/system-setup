@@ -101,8 +101,8 @@
       "default": ["", "", " "]
     },
     "on-click": "alacritty --class wiremix -e bash -c \"sleep 0.2; wiremix -v output\"",
-		"on-scroll-up": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 2%+",
-		"on-scroll-down": "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 2%-"
+		"on-scroll-up": "wpctl set-volume -l 2.0 @DEFAULT_AUDIO_SINK@ 2%+",
+		"on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
   },
 	// "custom/bluetooth": {
 	// 	"format": "",
