@@ -244,38 +244,45 @@ require('lazy').setup({
 
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
+      pcall(require('telescope').load_extension, 'scope')
       pcall(require('telescope').load_extension, 'ui-select')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
+      local themes = require 'telescope.themes'
+
+      -- Help & Keymaps
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
-      vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
-      vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-      vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-      vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>sn', function()
+        builtin.find_files { cwd = vim.fn.stdpath 'config' }
+      end, { desc = '[S]earch [N]eovim files' })
 
-      -- Slightly advanced example of overriding default behavior and theme
+      -- Files
+      vim.keymap.set('n', '<leader>sf', function()
+        builtin.find_files(themes.get_ivy {})
+      end, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>s.', function()
+        builtin.oldfiles(themes.get_ivy {})
+      end, { desc = '[S]earch Recent Files ("." for repeat)' })
+      vim.keymap.set('n', '<leader><leader>', '<Cmd>Telescope buffers sort_mru=true sort_lastused=true theme=ivy<cr>', { desc = '[ ] Find existing buffers' })
+
+      -- Grep
+      vim.keymap.set('n', '<leader>sw', function()
+        builtin.grep_string(themes.get_ivy {})
+      end, { desc = '[S]earch current [W]ord' })
+      vim.keymap.set('n', '<leader>sg', function()
+        builtin.live_grep(themes.get_ivy {})
+      end, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>/', function()
-        -- You can pass additional configuration to Telescope to change the theme, layout, etc.
-        builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+        builtin.current_buffer_fuzzy_find(themes.get_ivy {
           winblend = 10,
           previewer = false,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
-      -- It's also possible to pass additional configuration options.
-      --  See `:help telescope.builtin.live_grep()` for information about particular keys
-      vim.keymap.set('n', '<leader>s/', function()
-        builtin.live_grep {
-          grep_open_files = true,
-          prompt_title = 'Live Grep in Open Files',
-        }
-      end, { desc = '[S]earch [/] in Open Files' })
+      vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
+      vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
 
       -- Shortcut for searching your Neovim configuration files
       vim.keymap.set('n', '<leader>sn', function()
@@ -395,6 +402,16 @@ require('lazy').setup({
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
           map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
+
+          -- Diagnostic keymaps
+          vim.keymap.set('n', 'gM', function()
+            vim.diagnostic.jump { count = -1 }
+          end, { desc = 'Go to previous Diagnostic [m]essage' })
+          vim.keymap.set('n', 'gm', function()
+            vim.diagnostic.jump { count = 1 }
+          end, { desc = 'Go to next Diagnostic [m]essage' })
+
+          vim.keymap.set('n', 'gq', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
@@ -577,6 +594,25 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'stylua', -- Used to format lua code
+        'bash-language-server',
+        'css-lsp',
+        'go-debug-adapter',
+        'goimports',
+        'goimports-reviser',
+        'gopls',
+        'html-lsp',
+        'svelte-language-server',
+        'htmx-lsp',
+        'marksman',
+        'omnisharp',
+        'prettierd',
+        'prettier',
+        'tailwindcss',
+        'typescript-language-server',
+        'lemminx',
+        'rust-analyzer',
+        'taplo',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -630,6 +666,11 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         go = { 'goimports', 'gofumpt' },
+        gohtmltmpl = { 'prettierd', 'prettier', stop_after_first = true },
+        -- you can use a sub-list to tell conform to run *until* a formatter
+        -- is found.
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        css = { 'prettierd', 'prettier', stop_after_first = true },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -865,7 +906,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
