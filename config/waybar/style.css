@@ -1,11 +1,11 @@
 * {
   font-family: JetbrainsMono Nerd Font;
-  font-size: 14px;
+	font-size: 14px;
 	margin-top: 2px;
 	margin-bottom: 1px;
 	margin-left: 2px;
 	margin-right: 6px;
-  color: white;
+  color: #0a0a0a;
 }
 
 tooltip {
@@ -18,60 +18,97 @@ tooltip * {
 
 #waybar {
   background: transparent;
-  color: white;
-}
-
-#workspaces {
-  color: white;
+  color: #0a0a0a;
 }
 
 #workspaces button {
 	margin-top: 0px;
 	padding: 0px 0px;
+	padding-left: 2px;
+	padding-right: 2px;
+	border-radius: 3px;
+}
+
+#window {
+	border: 1px solid black;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 3px;
+	background-color: #303030;
+	box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
+#window * {
+	color: white;
 }
 
 #workspaces button.active {
+	color: #0a0a0a;
+	background: transparent;
+}
+
+#clock {
+	/* padding-left: 6px; */
+	/* padding-right: 6px; */
+	/* border-radius: 3px; */
+	/* border: 1px solid black; */
+}
+
+#custom-tmux {
+	/* border: 1px solid black; */
+	/* padding-left: 10px; */
+	/* padding-right: 10px; */
+	/* border-radius: 3px; */
+	/* background-color: #303030; */
+	/* box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px; */
+	color: green;
+	font-size: 14px;
 }
 
 #custom-music,
 #tray,
 #backlight,
 #keyboard-state,
-#clock,
 #battery,
 #pulseaudio,
 #network,
-#memory,
 #bluetooth,
 #custom-lock,
-#custom-polycat,
 #custom-power {
+	margin-right: 28px;
+	color: white;
+}
+
+.modules-right {
+	color: white;
 	font-size: 14px;
-	margin-right: 1em;
-	margin-left: 1em;
+	padding-left: 8px;
+	padding-right: 8px;
+	border-radius: 3px;
+	border: 1px solid black;
+	background-color: #303030;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
 
-#custom-tmux {
-}
-
-#memory {
-}
-
-#cpu {
+#pulseaudio {
+	padding-left: 12px;
 }
 
 #custom-polycat {
-	margin-right: 0px;
+	padding-left: 8px;
+	padding-right: 8px;
   font-family: polycat;
   font-size: 16px;
 }
 
-#window {
-  min-width: 32rem;
+#cpu,
+#memory {
+	color: white;
 }
 
-#clock {
-}
+
 
 #battery {
   color: #0fa3b1;
