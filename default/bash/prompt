@@ -2,3 +2,4 @@
 force_color_prompt=yes
 color_prompt=yes
 
+PS1='[\[\e[1m\]\u@\h\[\e[0m\] \[\e[2m\]\w\[\e[0m\]] '
