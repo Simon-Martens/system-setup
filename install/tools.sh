@@ -1,1 +1,1 @@
-yay -S --needed --noconfirm inotify-tools
+yay -S --needed --noconfirm inotify-tools gnome-disk-utility

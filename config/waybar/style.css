@@ -1,11 +1,24 @@
+@define-color fg #0a0a0a;
+@define-color bg whitesmoke;
+
+@define-color bg-window #0a0a0a;
+@define-color fg-window whitesmoke;
+
+@define-color clock #0a0a0a;
+@define-color polycat #0a0a0a;
+@define-color battery #0fa3b1;
+@define-color battery-charging #0fa3b1;
+@define-color battery-warning #f7a072;
+@define-color backlight #8a89c0;
+@define-color pulseaudio #ec7357;
+@define-color network #aa6ee6;
+@define-color bluetooth #0fa3e1;
+@define-color tmux #0f9391;
+
 * {
   font-family: JetbrainsMono Nerd Font;
-	font-size: 14px;
-	margin-top: 2px;
-	margin-bottom: 1px;
-	margin-left: 2px;
-	margin-right: 6px;
-  color: #0a0a0a;
+  font-size: 14px;
+  color: @fg;
 }
 
 tooltip {
@@ -18,51 +31,40 @@ tooltip * {
 
 #waybar {
   background: transparent;
-  color: #0a0a0a;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+  margin-top: 8px;
+}
+
+.modules-left {
+  padding-left: 0.7em;
+}
+
+.modules-right {
+  padding-right: 0.7em;
+}
+
+#workspaces {
+  color: @fg;
 }
 
 #workspaces button {
-	margin-top: 0px;
-	padding: 0px 0px;
-	padding-left: 2px;
-	padding-right: 2px;
-	border-radius: 3px;
-}
-
-#window {
-	border: 1px solid black;
-	padding-left: 10px;
-	padding-right: 10px;
-	border-radius: 3px;
-	background-color: #303030;
-	box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-}
-
-#window * {
-	color: white;
+  border: 1px solid transparent;
+  margin-top: 0px;
+  margin-right: 0px;
+  padding: 0px 0px;
+  padding-left: 0.3em;
+  padding-right: 0.3em;
+  margin-right: 1em;
 }
 
 #workspaces button.active {
-	color: #0a0a0a;
-	background: transparent;
-}
-
-#clock {
-	/* padding-left: 6px; */
-	/* padding-right: 6px; */
-	/* border-radius: 3px; */
-	/* border: 1px solid black; */
-}
-
-#custom-tmux {
-	/* border: 1px solid black; */
-	/* padding-left: 10px; */
-	/* padding-right: 10px; */
-	/* border-radius: 3px; */
-	/* background-color: #303030; */
-	/* box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px; */
-	color: green;
-	font-size: 14px;
+  background: transparent;
+  font-weight: bold;
+  border: 1px solid @fg;
 }
 
 #custom-music,
@@ -72,58 +74,52 @@ tooltip * {
 #battery,
 #pulseaudio,
 #network,
+#memory,
 #bluetooth,
 #custom-lock,
+#custom-tmux,
 #custom-power {
-	margin-right: 28px;
-	color: white;
-}
-
-.modules-right {
-	color: white;
-	font-size: 14px;
-	padding-left: 8px;
-	padding-right: 8px;
-	border-radius: 3px;
-	border: 1px solid black;
-	background-color: #303030;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-}
-
-#pulseaudio {
-	padding-left: 12px;
+  font-size: 14px;
+  margin-right: 1em;
+  margin-left: 1em;
 }
 
 #custom-polycat {
-	padding-left: 8px;
-	padding-right: 8px;
+  margin-right: 1em;
+  margin-left: 0.8em;
   font-family: polycat;
   font-size: 16px;
 }
 
-#cpu,
-#memory {
-	color: white;
+#window {
+  padding-left: 0.7em;
+  padding-right: 0.7em;
+  border-radius: 4px;
+  background-color: @bg-window;
+  color: @fg-window;
+  box-shadow:
+    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
-
+#window * {
+  color: @fg-window;
+}
 
 #battery {
-  color: #0fa3b1;
+  color: @battery;
 }
 
 #battery.charging {
-  color: #0fa3b1;
+  color: @battery-charging;
 }
 
 #battery.warning:not(.charging) {
-  color: #f7a072;
+  color: @battery-warning;
 }
 
 #backlight {
-  color: #8a89c0;
+  color: @backlight;
 }
 
 #backlight,
@@ -132,18 +128,27 @@ tooltip * {
 }
 
 #pulseaudio {
-  color: #ec7357;
+  color: @pulseaudio;
 }
 
-#custom-music {
-  color: #ca9ee6;
+#network {
+  color: @network;
+}
+
+#clock {
+  color: @clock;
+}
+
+#custom-polycat {
+  color: @polycat;
 }
 
 #bluetooth {
+  color: @bluetooth;
 }
 
-#custom-power {
+#custom-tmux {
+  color: @tmux;
 }
 
-#tray {
-}
+/* TODO: Farben TMUX, Network, Bluetooth, Polycat */

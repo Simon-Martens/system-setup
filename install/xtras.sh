@@ -2,9 +2,10 @@ if [ -z "$OMARCHY_BARE" ]; then
   yay -S --noconfirm --needed \
     gnome-calculator \
     signal-desktop spotify zoom \
-    libreoffice obs-studio kdenlive \
+    libreoffice \
+		telegram-desktop \
     gnome-keyring \
-    pinta xournalpp localsend-bin
+    xournalpp localsend-bin
 fi
 
 # Copy over Omarchy applications

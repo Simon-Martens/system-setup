@@ -1,4 +1,5 @@
 {
+	"reload_style_on_change": true,
   "layer": "top",
   "position": "top",
 	"mode": "dock",
@@ -20,7 +21,7 @@
 		"format-icons": ["󰃜", "󰃛", "󰃚", "󰃞", "󰃟", "󰃠" ]
 	},
   "hyprland/workspaces": {
-    "format": "{name} {icon}",
+    "format": "{name}",
     "format-icons": {
       "active": "",
       "default": ""
@@ -70,21 +71,34 @@
     //"format": "{:%d.%m. %H:%M}"
 		"format": "{:%H:%M}",
   },
-	"battery": {
-    "interval": 20,
-    "states": {
-        "warning": 30,
-        "critical": 15
+	  "battery": {
+    "format": "{capacity} {icon}",
+    "format-discharging": "{icon}  {capacity}|{power:0.2f}",
+    "format-charging":    "{icon}",
+    "format-plugged":     "",
+    "format-icons": {
+      "charging": [
+        "󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"
+      ],
+      "default": [
+        "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
+      ]
     },
-    "format": "{icon}  {capacity}|{power:0.2f}",
-    "format-icons": ["", "", "", "", ""],
-    "max-length": 25
-	},
+    "format-full": "󰂅",
+    "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
+    "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
+    "interval": 5,
+    "states": {
+      "warning": 20,
+      "critical": 10
+    }
+  },
   "network": {
     "format-wifi": "󰤢  {essid}",
 		"tooltip": true,
 		"tooltip-format-wifi": "{signaldBm} dBm\n{frequency} GHz\n{ipaddr}\n{gwaddr}",
-    "format-ethernet": "󰈀  {bandwidthDownBits}",
+    "format-ethernet": "󰈀  {ipaddr}",
+		"tooltip-format-ethernet": "{ifname}\n{bandwidthDownBits}\n{bandwidthUpBits}\n{gwaddr}",
     "format-disconnected": "󰤠  No Network",
     "interval": 10,
 		"on-click": "alacritty --class nmtui -e bash -c \"sleep 0.5; nmtui\""
