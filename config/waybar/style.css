@@ -24,6 +24,11 @@ tooltip * {
   margin-top: 8px;
 }
 
+.modules-center {
+  padding-left: 1.4em;
+  padding-right: 1.4em;
+}
+
 .modules-left {
   padding-left: 0.7em;
 }
