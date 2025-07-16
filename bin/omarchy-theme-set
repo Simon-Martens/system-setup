@@ -25,15 +25,14 @@ fi
 ln -nsf "$BACKGROUND_PATH" "$HOME/.config/omarchy/current/backgrounds"
 ln -nsf "$THEME_PATH" "$CURRENT_THEME_DIR"
 ln -nsf "$HOME/.config/omarchy/current/theme/neovim.lua" "$HOME/.config/nvim/lua/theme.lua"
-cp "$HOME/.config/omarchy/current/theme/waybar.css" "$HOME/.config/waybar/style.css"
 
 # Trigger alacritty config reload
 touch "$HOME/.config/alacritty/alacritty.toml"
 
 # Restart components to apply new theme
-pkill -SIGUSR2 waybar
-makoctl reload
 hyprctl reload
+makoctl reload
+pkill -SIGUSR2 waybar
 
 # Set new background
 first_bg=$(find "$HOME/.config/omarchy/current/backgrounds/" -type f | head -n 1)
