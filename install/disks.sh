@@ -1,1 +1,1 @@
-yay -S gnome-disk-utility dosfstools
+yay -S --noconfirm --needed gnome-disk-utility dosfstools
