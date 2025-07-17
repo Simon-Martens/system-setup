@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# Script to show a power governor choosing menu using wofi.
+# It allows selecting an available CPU scaling governor and applying it.
+
+# Constants for power governor paths in the sysfs
+GOVERNOR_BASE_PATH="/sys/devices/system/cpu"
+GOVERNOR_FILE_SUFFIX="/cpufreq/scaling_governor"
+AVAILABLE_GOVERNORS_FILE_SUFFIX="/cpufreq/scaling_available_governors"
+
+# --- Helper Functions ---
+
+# Function to get the current power governor for the system.
+# It reads the governor from cpu0, which is generally representative for all cores.
+get_current_governor() {
+  if [[ -f "${GOVERNOR_BASE_PATH}/cpu0${GOVERNOR_FILE_SUFFIX}" ]]; then
+    cat "${GOVERNOR_BASE_PATH}/cpu0${GOVERNOR_FILE_SUFFIX}"
+  else
+    # Return "unknown" if the file doesn't exist (e.g., cpufreq not loaded)
+    echo "unknown"
+  fi
+}
+
+# Function to get all available power governors for the system.
+# It reads from cpu0's available_governors file, converts space-separated
+# list to newline-separated, and sorts them alphabetically.
+get_available_governors() {
+  if [[ -f "${GOVERNOR_BASE_PATH}/cpu0${AVAILABLE_GOVERNORS_FILE_SUFFIX}" ]]; then
+    cat "${GOVERNOR_BASE_PATH}/cpu0${AVAILABLE_GOVERNORS_FILE_SUFFIX}" | tr ' ' '\n' | sort
+  else
+    # Return empty string if the file doesn't exist
+    echo ""
+  fi
+}
+
+# Function to apply the selected power governor to all CPU cores.
+# This operation requires elevated privileges, so 'pkexec' is used to prompt
+# the user for a password if necessary.
+apply_governor() {
+  local new_governor="$1"
+  # Find all CPU directories (e.g., cpu0, cpu1, etc.)
+  local cpu_dirs=($(find "${GOVERNOR_BASE_PATH}" -maxdepth 1 -type d -name "cpu[0-9]*"))
+
+  if [[ -z "$cpu_dirs" ]]; then
+    echo "Error: No CPU directories found under ${GOVERNOR_BASE_PATH}/. Cannot apply governor." >&2
+    return 1
+  fi
+
+  # Build a single command string that will be executed by pkexec.
+  # This ensures all governor files are updated in one go.
+  local command_string=""
+  for cpu_dir in "${cpu_dirs[@]}"; do
+    local governor_file="${cpu_dir}${GOVERNOR_FILE_SUFFIX}"
+    if [[ -f "$governor_file" ]]; then
+      # Append the echo command for each CPU's governor file
+      command_string+="echo \"$new_governor\" > \"$governor_file\"; "
+    fi
+  done
+
+  if [[ -z "$command_string" ]]; then
+    echo "Error: No scaling_governor files found to update. Cannot apply governor." >&2
+    return 1
+  fi
+
+  # Execute the command string using pkexec.
+  # pkexec will provide a graphical password prompt if needed.
+  echo "Attempting to set governor to '$new_governor' (requires elevated privileges)..."
+  pkexec bash -c "$command_string"
+  local exit_code=$?
+
+  if [[ $exit_code -eq 0 ]]; then
+    echo "Successfully set governor to: $new_governor"
+  else
+    echo "Error: Failed to apply governor. Exit code: $exit_code." >&2
+    echo "Please ensure 'pkexec' is installed and configured to allow your user to write to /sys/devices/system/cpu/*/cpufreq/scaling_governor." >&2
+    return 1
+  fi
+}
+
+# --- Main Menu Function ---
+
+# Displays the governor selection menu using wofi.
+show_governor_menu() {
+  local current_governor=$(get_current_governor)
+  local available_governors=($(get_available_governors))
+
+  if [[ -z "$available_governors" ]]; then
+    echo "Error: Could not retrieve available governors." >&2
+    echo "Please check if 'cpufreq' kernel modules are loaded and if paths like /sys/devices/system/cpu/cpu0/cpufreq/ exist." >&2
+    exit 1
+  fi
+
+  # Prepare the input string for wofi.
+  # The current governor is placed at the top, prefixed with a glyph.
+  local wofi_input=$'\uf0a9 '"${current_governor}" # Using the same glyph as your theme script
+
+  # Filter out the current governor from the available list to avoid duplication
+  # in the main list, as it's already at the top.
+  local filtered_governors=()
+  for gov in "${available_governors[@]}"; do
+    if [[ "$gov" != "$current_governor" ]]; then
+      filtered_governors+=("$gov")
+    fi
+  done
+
+  # Append the filtered governors to the wofi input, each on a new line.
+  for gov in "${filtered_governors[@]}"; do
+    wofi_input+="\n${gov}"
+  done
+
+  # Display the wofi menu with specified dimensions and style.
+  local selection=$(echo -e "$wofi_input" | wofi \
+    --show dmenu \
+    --width 300 \
+    --height 225 \
+    --style ~/.local/share/omarchy/default/wofi/select.css) # Re-using your provided style file
+
+  # Extract the selected governor name from wofi's output.
+  # It removes the leading glyph and any surrounding whitespace.
+  local selected_governor=$(echo "$selection" | sed 's/^\s*\uf0a9 \?//' | xargs)
+
+  # Exit gracefully if no selection was made (e.g., user pressed ESC or closed wofi),
+  # or if the user re-selected the currently active governor.
+  if [[ -z "$selected_governor" || "$selected_governor" == "$current_governor" ]]; then
+    exit 0
+  fi
+
+  # If a new, valid governor was selected, attempt to apply it.
+  apply_governor "$selected_governor"
+}
+
+# --- Main Execution ---
+show_governor_menu
