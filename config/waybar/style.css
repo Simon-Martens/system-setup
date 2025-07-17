@@ -74,11 +74,11 @@ tooltip * {
   padding-left: 0.7em;
   padding-right: 0.7em;
   border-radius: 4px;
-  background-color: @bg-window;
-  color: @fg-window;
   box-shadow:
     rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  background-color: @bg-window;
+  color: @fg-window;
 }
 
 #window * {
@@ -92,7 +92,8 @@ tooltip * {
 #pulseaudio:hover,
 #custom-tmux:hover,
 #custom-polycat:hover,
-#network:hover {
+#network:hover,
+#workspaces button:not(.active):hover {
   font-weight: bold;
   background-color: rgba(255, 255, 255, 0.2);
   box-shadow:
@@ -100,12 +101,7 @@ tooltip * {
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
-#workspaces button:not(.active):hover {
-  background: @bg-window;
-}
-
 #workspaces button:not(.active):hover * {
-  color: @fg-window;
 }
 
 #custom-music,
