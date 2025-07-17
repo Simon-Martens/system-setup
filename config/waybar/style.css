@@ -1,9 +1,15 @@
 @import "../omarchy/current/theme/waybar.css";
 
-* {
+.module {
   font-family: JetbrainsMono Nerd Font;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border-radius: 4px;
   font-size: 14px;
   color: @fg;
+}
+
+.module:hover {
 }
 
 tooltip {
@@ -50,6 +56,11 @@ tooltip * {
   margin-right: 0.4em;
 }
 
+#workspaces button * {
+  color: @bg-window;
+  font-weight: normal;
+}
+
 #workspaces button.active {
   background: @bg-window;
   font-weight: bold;
@@ -74,6 +85,29 @@ tooltip * {
   color: @fg-window;
 }
 
+#backlight:hover,
+#memory:hover,
+#cpu:hover,
+#bluetooth:hover,
+#pulseaudio:hover,
+#custom-tmux:hover,
+#custom-polycat:hover,
+#network:hover {
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+#workspaces button:not(.active):hover {
+  background: @bg-window;
+}
+
+#workspaces button:not(.active):hover * {
+  color: @fg-window;
+}
+
 #custom-music,
 #tray,
 #backlight,
@@ -86,16 +120,15 @@ tooltip * {
 #custom-lock,
 #custom-tmux,
 #custom-power {
-  font-size: 14px;
   margin-right: 1em;
   margin-left: 1em;
 }
 
 #custom-polycat {
-  margin-right: 1em;
-  margin-left: 0.8em;
+  margin-right: 0.5em;
+  margin-left: 0.5em;
   font-family: polycat;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 #battery {
