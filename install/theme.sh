@@ -35,4 +35,3 @@ mkdir -p ~/.config/btop/themes
 ln -snf ~/.config/omarchy/current/theme/btop.theme ~/.config/btop/themes/current.theme
 mkdir -p ~/.config/mako
 ln -snf ~/.config/omarchy/current/theme/mako.ini ~/.config/mako/config
-cp ~/.config/omarchy/current/theme/waybar.css ~/.config/waybar/style.css
