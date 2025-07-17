@@ -8,6 +8,7 @@ All the paths are currently still under the name omarchy & it is important to ke
 - Removed packages: ruby
 - Added packages: tmux, go, zig, node, some disk utilities
 - Added webapps: teams, outlook (sigh)
+- Removed all 37signals apps
 - Added bins: omarchy-refresh-config, omarchy-governor-menu
 - Changed lock screen on all themes
 - Lots of tmux scripts (+ own tmux session manager)
