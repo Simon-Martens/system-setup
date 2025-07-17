@@ -74,7 +74,7 @@
 	  "battery": {
     "format": "{capacity} {icon}",
     "format-discharging": "{icon}  {capacity}|{power:0.2f}",
-    "format-charging":    "{icon}",
+    "format-charging":    "{icon} {time}",
     "format-plugged":     "",
     "format-icons": {
       "charging": [
@@ -85,8 +85,8 @@
       ]
     },
     "format-full": "󰂅",
-    "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
-    "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
+    "tooltip-format-discharging": "{power:>1.0f}W↓\n{capacity}%\n{time}",
+    "tooltip-format-charging": "{power:>1.0f}W↑\n{capacity}%\n{time}",
     "interval": 5,
     "states": {
       "warning": 20,
