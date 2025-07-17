@@ -824,6 +824,7 @@ require('lazy').setup({
 
       require('mini.indentscope').setup()
       require('mini.cursorword').setup()
+      require('mini.jump').setup()
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
