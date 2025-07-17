@@ -92,6 +92,7 @@ tooltip * {
 #pulseaudio:hover,
 #custom-tmux:hover,
 #custom-polycat:hover,
+#battery:hover,
 #network:hover,
 #workspaces button:not(.active):hover {
   font-weight: bold;
