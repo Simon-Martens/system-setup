@@ -1,26 +1,74 @@
 #!/bin/bash
+#
+# Abort the script if any command fails (-e) or if any command in a pipeline fails (-o pipefail).
+set -e
+set -o pipefail
 
-cp -rf ~/.config/alacritty ~/.local/share/omarchy/config
-cp -rf ~/.config/btop ~/.local/share/omarchy/config
-cp -rf ~/.config/environment.d ~/.local/share/omarchy/config 
-cp -rf ~/.config/fastfetch ~/.local/share/omarchy/config
-cp -rf ~/.config/hypr ~/.local/share/omarchy/config
-cp -rf ~/.config/lazygit ~/.local/share/omarchy/config
+# 1. Configuration
+# -----------------
+# Set the source and destination directories.
+SOURCE_DIR="$HOME/.config"
+DEST_DIR_TEMP="/tmp/omarchy_config_tmp"
+DEST_DIR="$HOME/.local/share/omarchy/config"
+FILES_FOLDERS=("alacritty" "btop" "lazygit" "fastfetch" "hypr" "environment.d" "nvim" "ghostty" "systemd" "Typora" "waybar" "wofi" "xournalpp" "tmux/tmux.conf" "fontconfig.conf" "polycat-config.json")
 
-# Neovim
-rm -rf ~/.local/share/omarchy/config/nvim
-mkdir -p ~/.local/share/omarchy/config/nvim
-find ~/.config/nvim/ -type f -exec cp --parents {} ~/.local/share/omarchy/config/nvim \;
+rm -rf "$DEST_DIR_TEMP"
 
-# TMUX
-rm -rf ~/.local/share/omarchy/config/tmux/
-mkdir -p ~/.local/share/omarchy/config/tmux/
-cp -rf ~/.config/tmux/tmux.conf ~/.local/share/omarchy/config/tmux/tmux.conf
+# 2. Main Script
+# -----------------
+# Loop through each folder/file name in the array.
+for folder in "${FILES_FOLDERS[@]}"; do
+    src_path="$SOURCE_DIR/$folder"
+    dest_path="$DEST_DIR_TEMP/$folder"
 
-cp -rf ~/.config/nvim ~/.local/share/omarchy/config
-cp -rf ~/.config/systemd ~/.local/share/omarchy/config
-cp -rf ~/.config/Typora ~/.local/share/omarchy/config
-cp -rf ~/.config/ghostty ~/.local/share/omarchy/config
-cp -rf ~/.config/waybar ~/.local/share/omarchy/config
-cp -rf ~/.config/wofi ~/.local/share/omarchy/config
-cp -rf ~/.config/xournalpp ~/.local/share/omarchy/config
+    echo "--- Processing '$folder' ---"
+
+    if [ -d "$src_path" ]; then
+        mkdir -p "$dest_path"
+
+        # Check if the folder is a git repository to decide copy strategy.
+				if [ -f "$src_path/.gitignore" ]; then
+            echo "Copying from '$src_path' (respecting .gitignore)..."
+
+            # Use rsync with --exclude-from to read patterns from the .gitignore file.
+            # -r: recursive mode
+            # --no-links: This is the key flag to ignore all symbolic links.
+            # --exclude-from: Reads ignore patterns from the specified file.
+            # The trailing slash on `$src_path/` is important; it means "copy the
+            # contents of the directory," not the directory itself.
+						#
+						# WARNING: .gitignore and rsync exclude syntax are an imperfect match!
+						# Negation (!): rsync doesn't understand Git's ! prefix for re-including files; it treats it as a literal character.
+						# Path Anchoring: Git patterns can match anywhere in a project, while rsync patterns are fixed to the transfer's root directory by default.
+						# Wildcards (**): The behavior of wildcards, especially ** for matching directories recursively, is not identical between Git and rsync.
+            rsync -a --exclude-from="$src_path/.gitignore" "$src_path/" "$dest_path/"
+            
+            echo "✅ Done (with .gitignore)."
+        else
+            echo "Copying from non-Git folder '$src_path'..."
+
+            # INFO: The trailing slash on `$src_path/` is important; it means "copy the
+            # contents of the directory," not the directory itself.
+            rsync -a "$src_path/" "$dest_path/"
+
+            echo "✅ Done (non-Git)."
+        fi
+			elif [ -f "$src_path" ]; then
+          echo "Copying file '$src_path'..."
+            
+					dest_file_path="$DEST_DIR_TEMP/$folder" 
+					mkdir -p "$(dirname "$dest_file_path")"
+					rsync -a "$src_path" "$dest_file_path"
+					
+					echo "✅ Done (single file)."
+    else
+        echo "🔎 Skipping '$src_path': Not found."
+    fi
+done
+
+
+# 3. Move to Final Destination
+# -----------------------------
+rm -rf "$DEST_DIR"
+mkdir -p "$DEST_DIR"
+cp -r "$DEST_DIR_TEMP"/* "$DEST_DIR/"
