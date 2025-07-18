@@ -54,15 +54,19 @@ vim.api.nvim_create_autocmd('FileType', {
 local TARGET_DIR = vim.fn.expand '~' .. '/source/texte'
 local AUTO_COMMIT_NOTES_GROUP = vim.api.nvim_create_augroup('AutoCommitNotesGroup', { clear = true })
 
+-- --- Check the environment variable for notes mode ---
+-- vim.env is a table in Lua that holds environment variables
+local is_notes_mode = vim.env.NVIM_NOTES_MODE == 'true'
+-- ----------------------------------------------------
+
 -- Function to check for changes and prompt for commit
 local function prompt_and_commit_notes()
-  -- OPTION A: Handle unsaved changes
-  -- If you have unsaved changes, Neovim will first prompt you to save/discard.
-  -- The commit prompt will appear *after* you've handled those unsaved changes.
-  -- This is generally the safest approach.
+  -- This entire block only runs if is_notes_mode is true
+  if not is_notes_mode then
+    return -- Exit early if not in notes mode
+  end
 
   -- OPTION B: Force write all modified buffers before proceeding
-  -- WARNING: This will save any unsaved changes in any buffer across all windows!
   -- Uncomment the line below if you want this behavior.
   -- vim.cmd('wa')
 
@@ -80,7 +84,7 @@ local function prompt_and_commit_notes()
       local confirm = vim.fn.confirm('Changes detected in notes. Commit? (y/n)', '&Yes\n&No', 2) -- Default to No
 
       if confirm == 1 then -- User chose 'Yes'
-        -- Prompt for commit message - FIX: Removed 'string' completion argument
+        -- Prompt for commit message
         local commit_msg = vim.fn.input('Enter commit message: ', 'Auto-commit: Notes update')
 
         -- If user provided a message, or default is acceptable
@@ -101,8 +105,7 @@ local function prompt_and_commit_notes()
               print 'Successfully pushed changes.'
             else
               print 'Git push failed. You may need to push manually.'
-              -- Optionally print the push output for debugging if needed:
-              -- print("Push output: \n" .. push_result)
+              -- print("Push output: \n" .. push_result) -- Uncomment for detailed push errors
             end
           else
             print 'Git commit failed. Output:'
@@ -121,8 +124,10 @@ local function prompt_and_commit_notes()
 end
 
 -- Create an autocommand to run the function before Neovim quits
+-- This autocommand is always set, but the callback function itself
+-- will conditionally execute based on the environment variable.
 vim.api.nvim_create_autocmd('QuitPre', {
   group = AUTO_COMMIT_NOTES_GROUP,
   callback = prompt_and_commit_notes,
-  desc = 'Prompt to commit and push notes on Neovim exit if in target directory',
+  desc = 'Prompt to commit and push notes on Neovim exit if in target directory (only if notes mode)',
 })
