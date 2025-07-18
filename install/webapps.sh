@@ -8,4 +8,5 @@ if [ -z "$OMARCHY_BARE" ]; then
   web2app "Teams" https://teams.microsoft.com/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/microsoft-teams.png
   web2app "Outlook" https://outlook.office.com/mail/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/microsoft-outlook.png
 	web2app "OneDrive" https://tsstiftung-my.sharepoint.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/microsoft-onedrive.png
-fi
+	web2app "Gemini" https://gemini.google.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/google-gemini.png
+	fi
