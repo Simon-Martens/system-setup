@@ -1,0 +1,5 @@
+#!/bin/bash
+
+  # Restart waybar
+pkill waybar
+setsid waybar 

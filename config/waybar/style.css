@@ -43,11 +43,9 @@ tooltip * {
   padding-right: 0.7em;
 }
 
-#workspaces {
-  color: @fg;
-}
-
 #workspaces button {
+  border: none;
+  background: @bg-window;
   margin-top: 0px;
   margin-right: 0px;
   padding: 0px 0px;
@@ -57,17 +55,21 @@ tooltip * {
 }
 
 #workspaces button * {
-  color: @bg-window;
+  border: none;
+  font-weight: bold;
+  color: @fg-window;
   font-weight: normal;
 }
 
 #workspaces button.active {
-  background: @bg-window;
+  border: none;
+  background: @bg-window-active;
   font-weight: bold;
 }
 
 #workspaces button.active * {
-  color: @fg-window;
+  border: none;
+  color: @fg-window-active;
 }
 
 #window {
@@ -77,15 +79,18 @@ tooltip * {
   box-shadow:
     rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-  background-color: @bg-window;
-  color: @fg-window;
+  background-color: @bg-window-active;
 }
 
 #window * {
-  color: @fg-window;
+  color: @fg-window-active;
 }
 
-.modules-center,
+.modules-center {
+  border-radius: 4px;
+  background-color: @bg-center;
+}
+
 #backlight,
 #memory,
 #cpu,
@@ -93,10 +98,20 @@ tooltip * {
 #pulseaudio,
 #custom-tmux,
 #battery,
-#network,
-#workspaces button:not(.active) {
-  font-weight: bold;
-  background-color: rgba(255, 255, 255, 0.1);
+#network {
+  transition: background-color 0.1s ease-in-out;
+  background-color: @bg-right;
+}
+
+#workspaces button:not(.active):hover {
+  background-color: @bg-window-hover;
+  box-shadow:
+    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+#workspaces button:not(.active):hover * {
+  color: @fg-window-hover;
 }
 
 #backlight:hover,
@@ -107,16 +122,11 @@ tooltip * {
 #custom-tmux:hover,
 #custom-polycat:hover,
 #battery:hover,
-#network:hover,
-#workspaces button:not(.active):hover {
-  font-weight: bold;
-  background-color: rgba(255, 255, 255, 0.2);
+#network:hover {
+  background-color: @bg-hover;
   box-shadow:
     rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-}
-
-#workspaces button:not(.active):hover * {
 }
 
 #custom-music,
@@ -131,6 +141,7 @@ tooltip * {
 #custom-lock,
 #custom-tmux,
 #custom-power {
+  font-weight: bold;
   margin-right: 0.5em;
   margin-left: 0.5em;
 }
@@ -176,6 +187,7 @@ tooltip * {
 }
 
 #custom-polycat {
+  transition: all 0.1s ease-in-out;
   color: @polycat;
 }
 

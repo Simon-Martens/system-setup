@@ -7,6 +7,8 @@
   "modules-left": [ "hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock#day", "custom/polycat", "clock#time"],
   "modules-right": [
+		"custom/weather",
+    "group/tray-expander",
 		"battery",
 		"backlight",
     "pulseaudio",
@@ -44,9 +46,24 @@
 		"on-scroll-up": "hyprctl dispatch workspace r1",
 		"on-scroll-down": "hyprctl dispatch workspace r+1"
 	},
+  "group/tray-expander": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 600,
+      "children-class": "tray-group-item"
+    },
+    "modules": [
+      "custom/expand-icon",
+    	"tray"
+    ]
+  },
+  "custom/expand-icon": {
+    "format": " ",
+    "tooltip": false
+  },
   "tray": {
-    "icon-size": 21,
-    "spacing": 10
+    "icon-size": 12,
+    "spacing": 12
   },
   "custom/music": {
     "format": "  {}",
@@ -152,7 +169,35 @@
 		"return-type": "text",
 		"tooltip": false,
 		"on-click": "alacritty --class btop -e btop"
-	}
+	},
+	"keyboard-state": {
+			"numlock": true,
+			"capslock": true,
+			"format": "{name} {icon}",
+			"format-icons": {
+					"locked": "",
+					"unlocked": ""
+			}
+	},
+	"custom/weather": {
+		"exec": "bash -c '/home/simon/.local/share/omarchy/bin/weather'",
+		"return-type": "json",
+		"tooltip": true,
+		"format": "{}",
+		"on-click": "gnome-weather",
+		"interval": 600
+	},
+"power-profiles-daemon": {
+  "format": "{icon}",
+  "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+  "tooltip": true,
+  "format-icons": {
+    "default": "",
+    "performance": "",
+    "balanced": "",
+    "power-saver": ""
+  }
+}
   // "custom/power": {
   //   "tooltip": false,
   //   "on-click": "shutdown 0 &",
