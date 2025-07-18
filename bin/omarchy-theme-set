@@ -13,7 +13,11 @@ fi
 
 THEME_NAME="$1"
 THEME_PATH="$THEMES_DIR/$THEME_NAME"
-BACKGROUND_PATH="$HOME/.config/omarchy/backgrounds/$THEME_NAME"
+if [[ -d "$HOME/.config/omarchy/themes/$THEME_NAME/backgrounds" ]]; then
+  BACKGROUND_PATH="$HOME/.config/omarchy/themes/$THEME_NAME/backgrounds"
+else
+  BACKGROUND_PATH="$HOME/.config/omarchy/backgrounds/$THEME_NAME"
+fi
 
 # Check if the theme entered exists
 if [[ ! -d "$THEME_PATH" ]]; then
@@ -32,7 +36,8 @@ touch "$HOME/.config/alacritty/alacritty.toml"
 # Restart components to apply new theme
 hyprctl reload
 makoctl reload
-pkill -SIGUSR2 waybar
+pkill waybar &>/dev/null
+setsid waybar &>/dev/null &
 
 # Set new background
 first_bg=$(find "$HOME/.config/omarchy/current/backgrounds/" -type f | head -n 1)
