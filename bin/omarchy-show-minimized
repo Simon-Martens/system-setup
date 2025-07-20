@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# Script to show a menu of minimized windows and restore the selected one.
+# It uses hyprctl to find windows on the 'special:minimized' workspace
+# and wofi to display the selection menu.
+
+# --- Dependency Check ---
+
+# This script requires 'jq' to parse JSON from hyprctl.
+if ! command -v jq &> /dev/null; then
+    # You can use wofi to display the error message itself.
+    wofi --show dmenu --prompt="Error: 'jq' is not installed. Please install it to use this script."
+    exit 1
+fi
+
+# --- Helper Functions ---
+
+# Function to get all windows currently on the special:minimized workspace.
+# It populates a bash associative array (map) where:
+#   Key   -> "Window Title (Window Class)"
+#   Value -> "window_address"
+# This avoids issues with parsing strings that might contain special characters.
+get_minimized_windows() {
+    # The associative array is declared globally so the menu function can access it.
+    declare -gA minimized_windows_map
+
+    local clients_json
+    clients_json=$(hyprctl -j clients)
+
+    # Use jq to parse the json, filter for minimized windows, and output
+    # in a "key|value" format for easy reading in the while loop.
+    local windows_data
+    windows_data=$(echo "$clients_json" | jq -r '
+        .[] | 
+        select(.workspace.name == "special:minimized") | 
+        "\(.title) (\(.class))|\(.address)"
+    ')
+
+    # If there's no output, no windows are minimized.
+    if [[ -z "$windows_data" ]]; then
+        return 1
+    fi
+
+    # Read the data line by line and populate the associative array.
+    while IFS='|' read -r display_name address; do
+        minimized_windows_map["$display_name"]="$address"
+    done <<< "$windows_data"
+
+    return 0
+}
+
+# Function to restore a selected window to the currently active workspace.
+# It takes the window's address as an argument.
+restore_window() {
+    local window_address="$1"
+
+    # Get the ID of the currently active workspace.
+    local active_workspace_id
+    active_workspace_id=$(hyprctl -j activeworkspace | jq -r '.id')
+
+    if [[ -z "$active_workspace_id" ]]; then
+        wofi --show dmenu --prompt="Error: Could not determine active workspace."
+        exit 1
+    fi
+    
+    # Dispatch two commands:
+    # 1. Move the selected window to the active workspace.
+    # 2. Focus the window after moving it.
+    hyprctl dispatch movetoworkspace "$active_workspace_id,address:$window_address"
+    hyprctl dispatch focuswindow "address:$window_address"
+}
+
+# --- Main Menu Function ---
+
+# Displays the window selection menu using wofi.
+show_restore_menu() {
+    # Populate the map of minimized windows.
+    get_minimized_windows
+
+    # Check the return code. If it's 1, no windows were found.
+    if [[ $? -ne 0 ]]; then
+        wofi --show dmenu --prompt="Restore" --mesg="No windows are currently minimized."
+        exit 0
+    fi
+
+    # Format the display names (the keys of our map) for wofi input,
+    # with each name on a new line.
+    local menu_input
+    menu_input=$(printf "%s\n" "${!minimized_windows_map[@]}")
+
+    # Show the wofi menu with styling options.
+    # The '--prompt' flag sets the prompt text.
+    local selection
+    selection=$(echo -e "$menu_input" | wofi \
+        --show dmenu \
+        --prompt "Restore Window" \
+        --width 450 \
+        --height 300 \
+        --style ~/.local/share/omarchy/default/wofi/select.css \
+        -i) # -i for case-insensitive
+
+    # If the user pressed ESC or didn't make a selection, exit gracefully.
+    if [[ -z "$selection" ]]; then
+        exit 0
+    fi
+
+    # Retrieve the window address from the map using the user's selection.
+    local selected_address="${minimized_windows_map[$selection]}"
+
+    # If a valid address was found, call the restore function.
+    if [[ -n "$selected_address" ]]; then
+        restore_window "$selected_address"
+    else
+        wofi --show dmenu --prompt="Error: Could not find address for '$selection'."
+        exit 1
+    fi
+}
+
+# --- Main Execution ---
+show_restore_menu
