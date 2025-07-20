@@ -16,43 +16,32 @@ fi
 # --- Helper Functions ---
 
 # Function to get all windows currently on the special:minimized workspace.
-# It populates a bash associative array (map) where:
-#   Key   -> "Window Title (Window Class)"
-#   Value -> "window_address"
-# This avoids issues with parsing strings that might contain special characters.
-get_minimized_windows() {
-    # The associative array is declared globally so the menu function can access it.
-    declare -gA minimized_windows_map
-
+# It returns a simple list of strings, with each string containing both the
+# display name and the window address for robust parsing later.
+get_minimized_windows_list() {
     local clients_json
     clients_json=$(hyprctl -j clients)
 
     # Use jq to parse the json, filter for minimized windows, and output
-    # in a "key|value" format for easy reading in the while loop.
-    local windows_data
-    windows_data=$(echo "$clients_json" | jq -r '
+    # a formatted string: "Title (Class) [Address]"
+    # This format makes it easy to extract the address later.
+    echo "$clients_json" | jq -r '
         .[] | 
         select(.workspace.name == "special:minimized") | 
-        "\(.title) (\(.class))|\(.address)"
-    ')
-
-    # If there's no output, no windows are minimized.
-    if [[ -z "$windows_data" ]]; then
-        return 1
-    fi
-
-    # Read the data line by line and populate the associative array.
-    while IFS='|' read -r display_name address; do
-        minimized_windows_map["$display_name"]="$address"
-    done <<< "$windows_data"
-
-    return 0
+        "\(.title) (\(.class)) [\(.address)]"
+    '
 }
 
 # Function to restore a selected window to the currently active workspace.
 # It takes the window's address as an argument.
 restore_window() {
     local window_address="$1"
+
+    # Defensive check to ensure we have a valid address.
+    if [[ -z "$window_address" ]]; then
+        wofi --show dmenu --prompt="Error: Cannot restore window with empty address."
+        exit 1
+    fi
 
     # Get the ID of the currently active workspace.
     local active_workspace_id
@@ -74,22 +63,17 @@ restore_window() {
 
 # Displays the window selection menu using wofi.
 show_restore_menu() {
-    # Populate the map of minimized windows.
-    get_minimized_windows
+    # Get the list of minimized windows.
+    local menu_input
+    menu_input=$(get_minimized_windows_list)
 
-    # Check the return code. If it's 1, no windows were found.
-    if [[ $? -ne 0 ]]; then
+    # Check if the list is empty.
+    if [[ -z "$menu_input" ]]; then
         wofi --show dmenu --prompt="Restore" --mesg="No windows are currently minimized."
         exit 0
     fi
 
-    # Format the display names (the keys of our map) for wofi input,
-    # with each name on a new line.
-    local menu_input
-    menu_input=$(printf "%s\n" "${!minimized_windows_map[@]}")
-
     # Show the wofi menu with styling options.
-    # The '--prompt' flag sets the prompt text.
     local selection
     selection=$(echo -e "$menu_input" | wofi \
         --show dmenu \
@@ -104,14 +88,17 @@ show_restore_menu() {
         exit 0
     fi
 
-    # Retrieve the window address from the map using the user's selection.
-    local selected_address="${minimized_windows_map[$selection]}"
+    # NEW: Extract the address directly from the selected string.
+    # This uses grep with a regular expression to find the [0x...] part
+    # and then `tr` to remove the brackets. This is very robust.
+    local selected_address
+    selected_address=$(echo "$selection" | grep -o '\[0x[a-fA-F0-9]\+\]' | tr -d '[]')
 
-    # If a valid address was found, call the restore function.
+    # If a valid address was found, restore the window.
     if [[ -n "$selected_address" ]]; then
         restore_window "$selected_address"
     else
-        wofi --show dmenu --prompt="Error: Could not find address for '$selection'."
+        wofi --show dmenu --prompt="Error: Could not parse address from '$selection'."
         exit 1
     fi
 }
