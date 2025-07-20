@@ -66,7 +66,9 @@
     "icon-size": 12,
     "spacing": 12,
 		"icons": {
-			"Alacritty": "utilities-terminal-symbolic"
+			"Alacritty": "utilities-terminal-symbolic",
+			"chrome-outlook.office.com__mail_-Default": "microsoft-outlook",
+			"chrome-teams.microsoft.com__-Default": "microsoft-teams"
 		}
   },
  "custom/niflveil": {
