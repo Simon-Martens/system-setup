@@ -62,8 +62,20 @@
     "tooltip": false
   },
   "tray": {
+		"show-passive-items": true,
     "icon-size": 12,
-    "spacing": 12
+    "spacing": 12,
+		"icons": {
+			"Alacritty": "utilities-terminal"
+		}
+  },
+ "custom/niflveil": {
+        "format": "{}",
+        "exec": "~/.local/share/omarchy/bin/niflveil show",
+        "on-click": "~/.local/share/omarchy/bin/niflveil restore",
+        "return-type": "json",
+        "interval": "once",
+        "signal": 8
   },
   "custom/music": {
     "format": "  {}",
