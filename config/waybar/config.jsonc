@@ -105,8 +105,8 @@
 	  "battery": {
     "format": "{capacity} {icon}",
     "format-discharging": "{icon}  {capacity}|{power:0.2f}",
-    "format-charging":    "{icon} {time}",
-    "format-plugged":     "",
+    "format-charging":    "{icon}",
+		"format-full":     "",
     "format-icons": {
       "charging": [
         "󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"
@@ -115,7 +115,6 @@
         "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
       ]
     },
-    "format-full": "󰂅",
     "tooltip-format-discharging": "{power:>1.0f}W↓\n{capacity}%\n{time}",
     "tooltip-format-charging": "{power:>1.0f}W↑\n{capacity}%\n{time}",
     "interval": 5,
@@ -148,7 +147,7 @@
   },
   "pulseaudio": {
     "format": "{icon}  {volume}",
-    "format-muted": "",
+    "format-muted": " ",
     "format-icons": {
       "default": ["", "", " "]
     },
