@@ -196,7 +196,8 @@ tooltip * {
   color: @battery-full;
 }
 
-#battery.warning:not(.charging) {
+#battery.warning:not(.charging),
+#battery.critical:not(.charging) {
   animation: blink 1s infinite ease-in-out;
   color: @battery-warning;
 }
