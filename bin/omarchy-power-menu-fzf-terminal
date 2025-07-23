@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Terminal wrapper for power menu
+alacritty \
+  --class=menu \
+  --title="Power Options" \
+  --option window.dimensions.columns=30 \
+  --option window.dimensions.lines=10 \
+  --option 'window.decorations="none"' \
+  --option window.opacity=0.95 \
+  -e "$HOME/.local/share/omarchy/bin/omarchy-power-menu-fzf"

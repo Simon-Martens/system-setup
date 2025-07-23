@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Theme menu for Omarchy using fzf
+# Provides an interactive menu to switch between available themes
+
+THEMES_DIR="$HOME/.config/omarchy/themes/"
+CURRENT_THEME_DIR="$HOME/.config/omarchy/current/theme"
+
+# Show theme selection menu using fzf
+show_theme_menu() {
+  # Get current theme name
+  if [[ -e "$CURRENT_THEME_DIR" ]]; then
+    CURRENT_THEME_NAME=$(basename "$(realpath "$CURRENT_THEME_DIR")")
+  else
+    CURRENT_THEME_NAME="unknown"
+  fi
+  
+  # Build menu options from available themes
+  local themes=($(find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -printf "%f\n" | sort))
+  
+  # Build menu with current theme marked
+  local menu_input=""
+  for theme in "${themes[@]}"; do
+    if [[ "$theme" == "$CURRENT_THEME_NAME" ]]; then
+      menu_input+=" $theme"$'\033[90m'" · current"$'\033[0m'"\n"
+    else
+      menu_input+="$theme\n"
+    fi
+  done
+  
+  local selection=$(echo -e "$menu_input" | fzf \
+    --prompt="🎨 Theme: " \
+    --height=100% \
+    --layout=reverse \
+    --margin=1,2 \
+    --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
+    --info=hidden \
+    --ansi)
+  
+  # Extract theme name from selection (remove current marker)
+  local selected_theme=$(echo "$selection" | sed 's/ · current$//' | sed 's/^ //' | xargs)
+
+  # Exit if the selected theme is the current theme or empty
+  if [[ -z "$selected_theme" || "$selected_theme" == "$CURRENT_THEME_NAME" ]]; then
+    exit 0
+  fi
+
+  # Apply the new theme
+  "$HOME/.local/share/omarchy/bin/omarchy-theme-set" "$selected_theme"
+}
+
+# Main execution
+show_theme_menu

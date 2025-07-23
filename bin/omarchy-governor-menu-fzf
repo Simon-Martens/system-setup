@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# CPU Governor menu for Omarchy using fzf
+# Allows selecting an available CPU scaling governor and applying it
+
+# Constants for power governor paths in the sysfs
+GOVERNOR_BASE_PATH="/sys/devices/system/cpu"
+GOVERNOR_FILE_SUFFIX="/cpufreq/scaling_governor"
+AVAILABLE_GOVERNORS_FILE_SUFFIX="/cpufreq/scaling_available_governors"
+
+# Function to get the current power governor
+get_current_governor() {
+  if [[ -f "${GOVERNOR_BASE_PATH}/cpu0${GOVERNOR_FILE_SUFFIX}" ]]; then
+    cat "${GOVERNOR_BASE_PATH}/cpu0${GOVERNOR_FILE_SUFFIX}"
+  else
+    echo "unknown"
+  fi
+}
+
+# Function to get all available power governors
+get_available_governors() {
+  if [[ -f "${GOVERNOR_BASE_PATH}/cpu0${AVAILABLE_GOVERNORS_FILE_SUFFIX}" ]]; then
+    cat "${GOVERNOR_BASE_PATH}/cpu0${AVAILABLE_GOVERNORS_FILE_SUFFIX}" | tr ' ' '\n' | sort
+  else
+    echo ""
+  fi
+}
+
+# Function to apply the selected power governor to all CPU cores
+apply_governor() {
+  local new_governor="$1"
+  local cpu_dirs=($(find "${GOVERNOR_BASE_PATH}" -maxdepth 1 -type d -name "cpu[0-9]*"))
+
+  if [[ -z "$cpu_dirs" ]]; then
+    echo "Error: No CPU directories found under ${GOVERNOR_BASE_PATH}/. Cannot apply governor." >&2
+    return 1
+  fi
+
+  local command_string=""
+  for cpu_dir in "${cpu_dirs[@]}"; do
+    local governor_file="${cpu_dir}${GOVERNOR_FILE_SUFFIX}"
+    if [[ -f "$governor_file" ]]; then
+      command_string+="echo \"$new_governor\" > \"$governor_file\"; "
+    fi
+  done
+
+  if [[ -z "$command_string" ]]; then
+    echo "Error: No scaling_governor files found to update. Cannot apply governor." >&2
+    return 1
+  fi
+
+  echo "Attempting to set governor to '$new_governor' (requires elevated privileges)..."
+  pkexec bash -c "$command_string"
+  local exit_code=$?
+
+  if [[ $exit_code -eq 0 ]]; then
+    echo "Successfully set governor to: $new_governor"
+  else
+    echo "Error: Failed to apply governor. Exit code: $exit_code." >&2
+    return 1
+  fi
+}
+
+# Display the governor selection menu using fzf
+show_governor_menu() {
+  local current_governor=$(get_current_governor)
+  local available_governors=($(get_available_governors))
+
+  if [[ -z "$available_governors" ]]; then
+    echo "Error: Could not retrieve available governors." >&2
+    exit 1
+  fi
+
+  # Build menu with current governor marked and icons
+  local menu_input=""
+  for gov in "${available_governors[@]}"; do
+    # Add appropriate icon for each governor
+    local icon=""
+    case "$gov" in
+      "performance") icon="🚀" ;;
+      "powersave") icon="🔋" ;;
+      "ondemand") icon="⚡" ;;
+      "conservative") icon="🐌" ;;
+      "userspace") icon="👤" ;;
+      "schedutil") icon="📊" ;;
+      *) icon="⚙️" ;;
+    esac
+    
+    if [[ "$gov" == "$current_governor" ]]; then
+      menu_input+="$icon $gov"$'\033[90m'" · current"$'\033[0m'"\n"
+    else
+      menu_input+="$icon $gov\n"
+    fi
+  done
+
+  local selection=$(echo -e "$menu_input" | fzf \
+    --prompt="🔧 Governor: " \
+    --height=100% \
+    --layout=reverse \
+    --margin=1,2 \
+    --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
+    --info=hidden \
+    --ansi)
+
+  # Extract the governor name (remove current marker)
+  local selected_governor=$(echo "$selection" | sed 's/ · current$//' | sed 's/^ //' | xargs)
+
+  if [[ -z "$selected_governor" || "$selected_governor" == "$current_governor" ]]; then
+    exit 0
+  fi
+
+  apply_governor "$selected_governor"
+}
+
+# Main execution
+show_governor_menu

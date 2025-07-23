@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Terminal wrapper for theme menu with proper theme application
+alacritty \
+  --class=menu \
+  --title="Theme Selection" \
+  --option window.dimensions.columns=40 \
+  --option window.dimensions.lines=15 \
+  --option 'window.decorations="none"' \
+  --option window.opacity=0.95 \
+  -e bash -c '"$HOME/.local/share/omarchy/bin/omarchy-theme-menu-fzf"; sleep 1'
