@@ -178,7 +178,7 @@
 		"interval": 20,
 		"tooltip": true,
 		"format": "  {text}",
-		"on-click": "alacritty -e tmux attach -t $(tmux list-sessions -F '#{session_name} #{session_attached}' | awk '$2 == \"0\" {print $1; exit}') || tmux new"
+		"on-click": "~/.local/share/omarchy/bin/omarchy-tmux-menu"
 	},
   "custom/lock": {
     "tooltip": false,
