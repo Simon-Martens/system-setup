@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Interactive Command Runner
+# Usage: ./runner.sh <command> [--input "prompt1" --input "prompt2" ...]
+
+show_usage() {
+    echo "Usage: $0 <command> [--input \"prompt1\" --input \"prompt2\" ...] [--minimal]"
+    echo ""
+    echo "Examples:"
+    echo "  $0 \"echo 'Hello World'\""
+    echo "  $0 \"translate\" --input \"Enter word or phrase to translate:\""
+    echo "  $0 \"curl -X POST -d '{}' {}\" --input \"Enter JSON data:\" --input \"Enter URL:\""
+    echo "  $0 \"translate\" --input \"Enter word:\" --minimal"
+    echo ""
+    echo "Options:"
+    echo "  --input \"prompt\"   Interactive input with gum prompt"
+    echo "  --minimal          Hide command name and return status"
+    echo ""
+    echo "The command can contain {} placeholders that will be replaced with user inputs in order."
+    exit 1
+}
+
+# Check if command is provided
+if [ $# -eq 0 ]; then
+    show_usage
+fi
+
+# Parse arguments
+COMMAND="$1"
+shift
+
+INPUTS=()
+MINIMAL=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --input)
+            if [ -z "$2" ]; then
+                echo "Error: --input requires a prompt string"
+                exit 1
+            fi
+            INPUTS+=("$2")
+            shift 2
+            ;;
+        --minimal)
+            MINIMAL=true
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            ;;
+        *)
+            echo "Unknown option: $1"
+            show_usage
+            ;;
+    esac
+done
+
+# Check if gum is available when inputs are required
+if [ ${#INPUTS[@]} -gt 0 ] && ! command -v gum &> /dev/null; then
+    echo "Error: gum is required for interactive inputs but not found."
+    echo "Install gum: https://github.com/charmbracelet/gum"
+    exit 1
+fi
+
+# Collect inputs using gum
+USER_INPUTS=()
+for prompt in "${INPUTS[@]}"; do
+    echo ""
+    input=$(gum input --placeholder "$prompt")
+    if [ $? -ne 0 ]; then
+        echo "Input cancelled."
+        exit 1
+    fi
+    USER_INPUTS+=("$input")
+done
+
+# Build final command
+if [ ${#USER_INPUTS[@]} -gt 0 ]; then
+    # If we have inputs, we need to decide how to use them
+    if [[ "$COMMAND" == *"{}"* ]]; then
+        # Command has placeholders, replace them
+        FINAL_COMMAND="$COMMAND"
+        for i in "${!USER_INPUTS[@]}"; do
+            # Replace first occurrence of {} with the input (properly quoted)
+            FINAL_COMMAND=$(echo "$FINAL_COMMAND" | sed "s/{}/'${USER_INPUTS[$i]}'/")
+        done
+    else
+        # No placeholders, append inputs as arguments
+        FINAL_COMMAND="$COMMAND"
+        for input in "${USER_INPUTS[@]}"; do
+            FINAL_COMMAND="$FINAL_COMMAND '$input'"
+        done
+    fi
+else
+    # No inputs, use command as-is
+    FINAL_COMMAND="$COMMAND"
+fi
+
+# Clear screen and show what we're about to run (unless minimal)
+clear
+
+if [ "$MINIMAL" = false ]; then
+    if command -v gum &> /dev/null; then
+        gum style --border rounded --padding "1 2" --margin "1 0" --foreground "#00ff87" "Running: $FINAL_COMMAND"
+    else
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "Running: $FINAL_COMMAND"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    fi
+    echo ""
+fi
+
+# Add padding and spacing to command output
+echo ""
+eval "$FINAL_COMMAND" | sed 's/^/  /'
+EXIT_CODE=${PIPESTATUS[0]}
+echo ""
+
+if [ "$MINIMAL" = false ]; then
+    if command -v gum &> /dev/null; then
+        if [ $EXIT_CODE -eq 0 ]; then
+            gum style --border rounded --padding "1 2" --margin "1 0" --foreground "#50fa7b" "✓ Command completed successfully (exit code: $EXIT_CODE)"
+        else
+            gum style --border rounded --padding "1 2" --margin "1 0" --foreground "#ff5555" "✗ Command failed with exit code: $EXIT_CODE"
+        fi
+    else
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        if [ $EXIT_CODE -eq 0 ]; then
+            echo "Command completed successfully (exit code: $EXIT_CODE)"
+        else
+            echo "Command failed with exit code: $EXIT_CODE"
+        fi
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    fi
+    echo ""
+fi
+
+if command -v gum &> /dev/null; then
+    gum style --padding "0 2" --foreground "#6272a4" "Press any key to exit..."
+else
+    echo "Press any key to exit..."
+fi
+
+# Wait for any keypress
+read -n 1 -s

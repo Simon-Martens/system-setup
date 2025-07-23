@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Opens alacritty with the fzf launcher with nice styling
+alacritty \
+    --class=launcher \
+    --title="Application Launcher" \
+    --option window.dimensions.columns=80 \
+    --option window.dimensions.lines=20 \
+    --option 'window.decorations="none"' \
+    --option window.opacity=0.95 \
+    -e "$HOME/.local/share/omarchy/bin/fzf-launcher"

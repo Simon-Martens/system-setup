@@ -1,0 +1,156 @@
+#!/bin/bash
+
+# Fast FZF-based application launcher with caching
+# Builds cache in background, uses existing cache for immediate startup
+
+CACHE_DIR="$HOME/.cache/fzf-launcher"
+CACHE_FILE="$CACHE_DIR/apps.cache"
+LOCK_FILE="$CACHE_DIR/rebuild.lock"
+
+mkdir -p "$CACHE_DIR"
+
+process_desktop_file() {
+    local desktop_file="$1"
+    local name generic_name comment hidden nodisplay
+    
+    # Quick type check
+    grep -q "^Type=Application" "$desktop_file" || return
+    
+    # Check Hidden and NoDisplay fields
+    hidden=$(grep "^Hidden=" "$desktop_file" 2>/dev/null | cut -d'=' -f2)
+    nodisplay=$(grep "^NoDisplay=" "$desktop_file" 2>/dev/null | cut -d'=' -f2)
+    
+    [[ "$hidden" == "true" || "$nodisplay" == "true" ]] && return
+    
+    # Extract name fields
+    name=$(grep "^Name=" "$desktop_file" | head -1 | cut -d'=' -f2-)
+    generic_name=$(grep "^GenericName=" "$desktop_file" | head -1 | cut -d'=' -f2-)
+    comment=$(grep "^Comment=" "$desktop_file" | head -1 | cut -d'=' -f2-)
+    keywords=$(grep "^Keywords=" "$desktop_file" | head -1 | cut -d'=' -f2-)
+    
+    # Build display string: prefer generic name, show short comment if no generic name
+    display_name="$name"
+    if [[ -n "$generic_name" && "$generic_name" != "$name" ]]; then
+        # Use generic name if available
+        display_name="$name"$'\033[90m'" · $generic_name"$'\033[0m'
+    elif [[ -n "$comment" && ${#comment} -le 30 ]]; then
+        # Use short comment (30 chars or less) if no generic name
+        display_name="$name"$'\033[90m'" · $comment"$'\033[0m'
+    fi
+    
+    # Build search text (includes keywords but they won't be displayed)
+    search_text="$name"
+    [[ -n "$generic_name" ]] && search_text="$search_text $generic_name"
+    [[ -n "$comment" ]] && search_text="$search_text $comment"
+    [[ -n "$keywords" ]] && search_text="$search_text $keywords"
+    
+    basename=$(basename "$desktop_file" .desktop)
+    echo "$display_name"$'\t'"$search_text"$'\t'"$basename"
+}
+
+rebuild_cache() {
+    # Build search directories
+    declare -a search_dirs=()
+    [[ -n "$XDG_DATA_HOME" ]] && search_dirs+=("$XDG_DATA_HOME/applications")
+    [[ -z "$XDG_DATA_HOME" ]] && search_dirs+=("$HOME/.local/share/applications")
+
+    if [[ -n "$XDG_DATA_DIRS" ]]; then
+        IFS=':' read -ra dirs <<< "$XDG_DATA_DIRS"
+        for dir in "${dirs[@]}"; do
+            search_dirs+=("$dir/applications")
+        done
+    else
+        search_dirs+=("/usr/local/share/applications" "/usr/share/applications")
+    fi
+
+    # Process desktop files
+    declare -A seen_apps
+    for dir in "${search_dirs[@]}"; do
+        [[ -d "$dir" ]] || continue
+        find "$dir" -maxdepth 1 -name "*.desktop" 2>/dev/null
+    done | while read desktop_file; do
+        basename=$(basename "$desktop_file" .desktop)
+        [[ -n "${seen_apps[$basename]}" ]] && continue
+        seen_apps[$basename]=1
+        process_desktop_file "$desktop_file"
+    done | sort > "$CACHE_FILE.tmp" && mv "$CACHE_FILE.tmp" "$CACHE_FILE"
+}
+
+cache_is_stale() {
+    [[ ! -f "$CACHE_FILE" ]] && return 0
+    
+    # Check if any desktop directory is newer than cache
+    declare -a search_dirs=()
+    [[ -n "$XDG_DATA_HOME" ]] && search_dirs+=("$XDG_DATA_HOME/applications")
+    [[ -z "$XDG_DATA_HOME" ]] && search_dirs+=("$HOME/.local/share/applications")
+    
+    if [[ -n "$XDG_DATA_DIRS" ]]; then
+        IFS=':' read -ra dirs <<< "$XDG_DATA_DIRS"
+        for dir in "${dirs[@]}"; do
+            search_dirs+=("$dir/applications")
+        done
+    else
+        search_dirs+=("/usr/local/share/applications" "/usr/share/applications")
+    fi
+    
+    for dir in "${search_dirs[@]}"; do
+        [[ -d "$dir" && "$dir" -nt "$CACHE_FILE" ]] && return 0
+    done
+    
+    return 1
+}
+
+# Main execution
+if [[ ! -f "$CACHE_FILE" ]]; then
+    # No cache exists, build it now
+    rebuild_cache
+elif cache_is_stale && [[ ! -f "$LOCK_FILE" ]]; then
+    # Cache is stale and no rebuild in progress, start background rebuild
+    (
+        touch "$LOCK_FILE"
+        rebuild_cache
+        rm -f "$LOCK_FILE"
+    ) &
+fi
+
+# Use existing cache for immediate response
+if [[ -f "$CACHE_FILE" ]]; then
+    selected=$(cat "$CACHE_FILE" | fzf \
+        --delimiter=$'\t' \
+        --with-nth=1 \
+        --nth=1,2 \
+        --prompt="🚀 Launch: " \
+        --height=100% \
+        --layout=reverse \
+        --margin=1,2 \
+        --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
+        --info=hidden \
+        --ansi \
+        | cut -d$'\t' -f3)
+else
+    # Fallback if no cache (should rarely happen)
+    rebuild_cache
+    selected=$(cat "$CACHE_FILE" | fzf \
+        --delimiter=$'\t' \
+        --with-nth=1 \
+        --nth=1,2 \
+        --prompt="🚀 Launch: " \
+        --height=100% \
+        --layout=reverse \
+        --margin=1,2 \
+        --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
+        --info=hidden \
+        --ansi \
+        | cut -d$'\t' -f3)
+fi
+
+# Launch the selected application
+if [ -n "$selected" ]; then
+    # Use Hyprland's exec command to launch through window manager
+    if command -v hyprctl >/dev/null 2>&1; then
+        hyprctl dispatch -- exec "gtk-launch $selected"
+    else
+        # Fallback for non-Hyprland environments
+        setsid gtk-launch "$selected" >/dev/null 2>&1 &
+    fi
+fi
