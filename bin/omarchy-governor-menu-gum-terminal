@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Terminal wrapper for governor menu using gum
+alacritty \
+  --class=menu \
+  --title="CPU Governor" \
+  --option 'window.decorations="none"' \
+  --option window.opacity=0.95 \
+  -e "$HOME/.local/share/omarchy/bin/omarchy-governor-menu-gum"

@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Theme menu for Omarchy using gum filter
+# Provides an interactive menu to switch between available themes
+
+THEMES_DIR="$HOME/.config/omarchy/themes/"
+CURRENT_THEME_DIR="$HOME/.config/omarchy/current/theme"
+
+# Show theme selection menu using gum filter
+show_theme_menu() {
+  # Get current theme name
+  if [[ -e "$CURRENT_THEME_DIR" ]]; then
+    CURRENT_THEME_NAME=$(basename "$(realpath "$CURRENT_THEME_DIR")")
+  else
+    CURRENT_THEME_NAME="unknown"
+  fi
+  
+  # Build menu options from available themes
+  local themes=($(find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -printf "%f\n" | sort))
+  
+  # Build menu options with current theme marked
+  local menu_options=()
+  for theme in "${themes[@]}"; do
+    if [[ "$theme" == "$CURRENT_THEME_NAME" ]]; then
+      local option="🎨 $theme (current)"
+    else
+      local option="🎨 $theme"
+    fi
+    menu_options+=("$option")
+  done
+
+  local selection=$(printf '%s\n' "${menu_options[@]}" | gum filter \
+    --placeholder="🎨 Select Theme...")
+  
+  # Extract theme name from selection (remove icon and current marker)
+  local selected_theme=$(echo "$selection" | sed 's/^🎨 //' | sed 's/ (current)$//' | xargs)
+
+  # Exit if the selected theme is the current theme or empty
+  if [[ -z "$selected_theme" || "$selected_theme" == "$CURRENT_THEME_NAME" ]]; then
+    exit 0
+  fi
+
+  # Apply the new theme via hyprctl dispatch
+  hyprctl dispatch -- exec "$HOME/.local/share/omarchy/bin/omarchy-theme-set \"$selected_theme\""
+}
+
+# Main execution
+show_theme_menu
