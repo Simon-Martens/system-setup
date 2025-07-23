@@ -2,10 +2,8 @@
 
 # Terminal wrapper for minimized windows menu
 alacritty \
-  --class=menu \
+  --class=launcher \
   --title="Restore Minimized Window" \
-  --option window.dimensions.columns=60 \
-  --option window.dimensions.lines=15 \
   --option 'window.decorations="none"' \
   --option window.opacity=0.95 \
   -e "$HOME/.local/share/omarchy/bin/omarchy-show-minimized-fzf"
