@@ -130,7 +130,7 @@
       "warning": 20,
       "critical": 10
     },
-		"on-click": "~/.local/share/omarchy/bin/omarchy-governor-menu"
+		"on-click": "~/.local/share/omarchy/bin/omarchy-governor-menu-fzf-terminal"
   },
   "network": {
     "format-wifi": "󰤢  {essid}",
