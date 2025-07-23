@@ -9,4 +9,7 @@ if [ -z "$OMARCHY_BARE" ]; then
   web2app "Outlook" https://outlook.office.com/mail/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/microsoft-outlook.png
 	web2app "OneDrive" https://tsstiftung-my.sharepoint.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/microsoft-onedrive.png
 	web2app "Gemini" https://gemini.google.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/google-gemini.png
+	web2app "Claude" https://claude.ai https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/claude-ai.png
+	web2app "TouTube Music" https://music.youtube.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/youtube-music.png
+	web2app "Telegram" https://web.telegram.org https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/telegram.png
 	fi

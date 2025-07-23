@@ -68,7 +68,15 @@
 		"icons": {
 			"Alacritty": "utilities-terminal-symbolic",
 			"chrome-outlook.office.com__mail_-Default": "microsoft-outlook",
-			"chrome-teams.microsoft.com__-Default": "microsoft-teams"
+			"chrome-teams.microsoft.com__-Default": "microsoft-teams",
+			"chrome-web.whatsapp.com__-Default": "whatsapp",
+			"chrome-music.youtube.com__-Default": "youtube-music",
+			"chrome-translate.google.com__-Default": "google-translate",
+			"chrome-chatgpt.com__-Default": "chatgpt",
+			"chrome-gemini.google.com__-Default": "google-gemini",
+			"chrome-claude.ai__-Default": "claude-ai",
+			"chrome-chat.deepseek.com__-Default": "deepseek",
+			"chrome-web.telegram.org__-Default": "telegram"
 		}
   },
  "custom/niflveil": {
