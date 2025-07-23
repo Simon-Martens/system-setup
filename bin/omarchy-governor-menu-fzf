@@ -109,7 +109,18 @@ show_governor_menu() {
     exit 0
   fi
 
-  apply_governor "$selected_governor"
+  # Apply governor via hyprctl dispatch to execute outside terminal
+  hyprctl dispatch -- exec "bash -c '
+    cpu_dirs=(\$(find \"/sys/devices/system/cpu\" -maxdepth 1 -type d -name \"cpu[0-9]*\"))
+    command_string=\"\"
+    for cpu_dir in \"\${cpu_dirs[@]}\"; do
+      governor_file=\"\${cpu_dir}/cpufreq/scaling_governor\"
+      if [[ -f \"\$governor_file\" ]]; then
+        command_string+=\"echo \\\"$selected_governor\\\" > \\\"\$governor_file\\\"; \"
+      fi
+    done
+    pkexec bash -c \"\$command_string\"
+  '"
 }
 
 # Main execution

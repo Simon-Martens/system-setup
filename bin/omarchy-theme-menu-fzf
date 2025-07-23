@@ -45,8 +45,8 @@ show_theme_menu() {
     exit 0
   fi
 
-  # Apply the new theme
-  "$HOME/.local/share/omarchy/bin/omarchy-theme-set" "$selected_theme"
+  # Apply the new theme via hyprctl dispatch
+  hyprctl dispatch -- exec "$HOME/.local/share/omarchy/bin/omarchy-theme-set '$selected_theme'"
 }
 
 # Main execution
