@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Close the previously active window (not the launcher popup)
+# This script finds the window that was active before the current launcher popup
+
+# Get all windows sorted by focus history
+windows=$(hyprctl -j clients | jq -r '.[] | select(.focusHistoryID >= 0) | "\(.focusHistoryID) \(.address)"' | sort -n)
+
+# Get the second most recently focused window (first is the launcher popup)
+target_window=$(echo "$windows" | tail -n 2 | head -n 1 | awk '{print $2}')
+
+if [[ -n "$target_window" ]]; then
+    # Close the target window
+    hyprctl dispatch closewindow "address:$target_window"
+else
+    # Fallback: close active window (this might close the popup)
+    hyprctl dispatch killactive
+fi

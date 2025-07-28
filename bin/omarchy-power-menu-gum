@@ -15,10 +15,10 @@ show_power_menu() {
   )
   
   local selection=$(printf '%s\n' "${menu_options[@]}" | gum filter \
-    --placeholder="⚡ Select Power Option...")
+    --placeholder="Select Power Option... ⚡")
 
   case "$selection" in
-  *Lock*) hyprlock ;;
+  *Lock*) hyprctl dispatch exec hyprlock ;;
   *Suspend*) systemctl suspend ;;
   *Relaunch*) hyprctl dispatch exit ;;
   *Restart*) systemctl reboot ;;

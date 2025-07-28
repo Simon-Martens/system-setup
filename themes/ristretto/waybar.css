@@ -1,0 +1,16 @@
+@define-color fg whitesmoke;
+@define-color bg #0a0a0a;
+
+@define-color bg-window #0a0a0a;
+@define-color fg-window whitesmoke;
+@define-color bg-window-active rgba(201, 201, 201, 0.1);
+@define-color fg-window-active whitesmoke;
+@define-color fg-window-hover whitesmoke;
+@define-color bg-window-hover rgba(201, 201, 201, 0.2);
+
+@define-color clock whitesmoke;
+@define-color polycat whitesmoke;
+
+@define-color bg-center rgba(201, 201, 201, 0.1);
+@define-color bg-right rgba(201, 201, 201, 0.1);
+@define-color bg-hover rgba(201, 201, 201, 0.2);

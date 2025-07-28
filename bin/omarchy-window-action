@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Helper script to perform window actions on a target window
+# Usage: omarchy-window-action <action> [args...]
+
+ACTION="$1"
+shift
+ARGS="$@"
+
+# Strategy: Close launcher first, then perform action on whatever becomes active
+# This works because when launcher closes, focus returns to the previously active window
+
+case "$ACTION" in
+    "movetoworkspace")
+        # Close launcher and immediately move the focused window
+        hyprctl dispatch killactive && sleep 0.1 && hyprctl dispatch movetoworkspace "$ARGS"
+        ;;
+    "togglefloating")
+        hyprctl dispatch killactive && sleep 0.1 && hyprctl dispatch togglefloating
+        ;;
+    "centerwindow")
+        hyprctl dispatch killactive && sleep 0.1 && hyprctl dispatch centerwindow
+        ;;
+    "pin")
+        hyprctl dispatch killactive && sleep 0.1 && hyprctl dispatch pin
+        ;;
+    "pseudo")
+        hyprctl dispatch killactive && sleep 0.1 && hyprctl dispatch pseudo
+        ;;
+    "fullscreen")
+        hyprctl dispatch killactive && sleep 0.1 && hyprctl dispatch fullscreen
+        ;;
+    *)
+        echo "Unknown action: $ACTION"
+        exit 1
+        ;;
+esac

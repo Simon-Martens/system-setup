@@ -5,5 +5,4 @@ alacritty \
     --class=launcher \
     --title="Application Launcher" \
     --option 'window.decorations="none"' \
-    --option window.opacity=0.95 \
-    -e "$HOME/.local/share/omarchy/bin/omarchy-launcher"
+    -e "$HOME/.local/share/omarchy/bin/omarchy-launcher" "$@"
