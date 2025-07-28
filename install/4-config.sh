@@ -5,7 +5,7 @@ cp -R ~/.local/share/omarchy/config/* ~/.config/
 mkdir -p ~/.local/share/applications
 
 # Use default bashrc from Omarchy
-echo "source ~/.local/share/omarchy/default/bash/rc" >~/.bashrc
+~/.local/share/omarchy/scripts/generate-rc.sh bash
 
 # Login directly as user, rely on disk encryption + hyprlock for security
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
