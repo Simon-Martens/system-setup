@@ -297,7 +297,7 @@ if [[ "$3" == :* ]]; then
     load_system_actions
 elif [[ "$3" == "//"* ]]; then
     load_workspaces
-elif [[ "$3" == "\$"* ]]; then
+elif [[ "$3" == "%"* ]]; then
     load_tmux_sessions
 elif [[ "$3" == /* ]]; then
     load_windows
@@ -338,7 +338,7 @@ if [[ -f "$CACHE_FILE" || -n "$START_MODE" ]]; then
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == %* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
         | cut -d$'\t' -f3)
 else
@@ -356,7 +356,7 @@ else
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == %* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
         | cut -d$'\t' -f3)
 fi
