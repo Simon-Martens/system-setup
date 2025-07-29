@@ -148,9 +148,17 @@ load_system_actions() {
     done
 }
 
+# Helper functions to check if commands are available
+has_hyprctl() {
+    command -v hyprctl >/dev/null 2>&1
+}
+
+has_tmux() {
+    command -v tmux >/dev/null 2>&1
+}
+
 load_workspaces() {
-    # Check if hyprctl is available
-    command -v hyprctl >/dev/null 2>&1 || return
+    has_hyprctl || return
     
     # Get active workspaces with their last window titles
     hyprctl -j workspaces 2>/dev/null | jq -r '
@@ -164,8 +172,7 @@ load_workspaces() {
 }
 
 load_windows() {
-    # Check if hyprctl is available
-    command -v hyprctl >/dev/null 2>&1 || return
+    has_hyprctl || return
     
     # Get all windows with their details
     hyprctl -j clients 2>/dev/null | jq -r '
@@ -189,8 +196,7 @@ load_windows() {
 }
 
 load_tmux_sessions() {
-    # Check if tmux is available
-    command -v tmux >/dev/null 2>&1 || return
+    has_tmux || return
     
     # Use the same approach as tmux-session-wizard-rewired
     (
@@ -267,6 +273,34 @@ load_bash_commands() {
     echo "💻 Run '$cmd'"$'\t'"💻 Run '$cmd'"$'\t'"run_cmd_in_terminal:$cmd"
 }
 
+# Check if we're being called as a reload script
+if [[ "$1" == "--reload" ]]; then
+    CACHE_FILE="$2"
+    ACTIONS_SCRIPT="$3"
+    QUERY="$4"
+    
+    if [[ "$QUERY" == !* ]]; then
+        load_bash_commands "$QUERY"
+    elif [[ "$QUERY" == :governor* ]]; then
+        load_governor_actions
+    elif [[ "$QUERY" == :theme* ]]; then
+        load_theme_actions
+    elif [[ "$QUERY" == :power* ]]; then
+        load_power_actions
+    elif [[ "$QUERY" == :* ]]; then
+        load_system_actions
+    elif [[ "$QUERY" == "//"* ]]; then
+        load_workspaces
+    elif [[ "$QUERY" == "$"* ]]; then
+        load_tmux_sessions
+    elif [[ "$QUERY" == /* ]]; then
+        load_windows
+    else
+        cat "$CACHE_FILE"
+    fi
+    exit 0
+fi
+
 # Parse command line arguments
 START_MODE=""
 INITIAL_QUERY=""
@@ -342,200 +376,34 @@ elif cache_is_stale && [[ ! -f "$LOCK_FILE" ]]; then
     ) &
 fi
 
-# Create a script for dynamic reloading
-reload_script=$(mktemp)
-cat > "$reload_script" << 'EOF'
-#!/bin/bash
-CACHE_FILE="$1"
-ACTIONS_SCRIPT="$2"
+# Get the path to this script for reload calls
+SCRIPT_PATH="$0"
 
-load_system_actions() {
-    [[ ! -f "$ACTIONS_SCRIPT" ]] && return
-    
-    # Use the actions.sh script to get formatted actions
-    "$ACTIONS_SCRIPT" | while IFS=$'\t' read -r display_name search_text command; do
-        echo ":$display_name"$'\t'":$search_text"$'\t'"$command"
-    done
+# FZF styling configuration
+FZF_HEIGHT="100%"
+FZF_LAYOUT="reverse"
+FZF_MARGIN="1,2"
+FZF_COLORS="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff"
+FZF_DELIMITER=$'\t'
+FZF_WITH_NTH="1"
+FZF_NTH="1,2"
+
+# FZF transform logic helpers
+get_prompt_for_query() {
+    echo "if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == '\$'* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi"
 }
 
-load_workspaces() {
-    # Check if hyprctl is available
-    command -v hyprctl >/dev/null 2>&1 || return
-    
-    # Get active workspaces with their last window titles
-    hyprctl -j workspaces 2>/dev/null | jq -r '
-        .[] | 
-        select(.windows > 0) |
-        "// " + (.id | tostring) + ": " + .lastwindowtitle +
-        "\u001b[90m · " + (.windows | tostring) + " windows\u001b[0m" +
-        "\t// " + (.id | tostring) + " " + .lastwindowtitle +
-        "\tworkspace:" + (.id | tostring)
-    ' 2>/dev/null
+get_query_transform() {
+    echo "if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '\$' ]]; then echo -n '\$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi"
 }
 
-load_windows() {
-    # Check if hyprctl is available
-    command -v hyprctl >/dev/null 2>&1 || return
-    
-    # Get all windows with their details
-    hyprctl -j clients 2>/dev/null | jq -r '
-        .[] | 
-        select(.mapped == true) |
-        select(.class != "launcher") |
-        {
-            title: (if .title == "" then .initialTitle else .title end),
-            class: .class,
-            address: .address,
-            workspace: .workspace.name,
-            minimized: (.workspace.name == "special:minimized")
-        } |
-        "/ " + .title + 
-        (if .minimized then " (minimized)" else "" end) +
-        "\u001b[90m · " + .class + "\u001b[0m" +
-        "\t/ " + .title + " " + .class + 
-        (if .minimized then " minimized" else "" end) +
-        "\tfocus_window:" + .address
-    ' 2>/dev/null
+get_backspace_query_transform() {
+    echo "if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '\$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi"
 }
 
-load_tmux_sessions() {
-    # Check if tmux is available
-    command -v tmux >/dev/null 2>&1 || return
-    
-    # Use the same approach as tmux-session-wizard-rewired
-    (
-        # First: Get existing tmux sessions sorted by recency
-        if tmux list-sessions >/dev/null 2>&1; then
-            tmux list-sessions -F "#{session_last_attached} #{session_name}: #{session_windows} window(s)#{?session_attached, (attached),}" 2>/dev/null | \
-            sort -rn | cut -d' ' -f2- | while read -r session_info; do
-                session_name=$(echo "$session_info" | cut -d':' -f1)
-                session_desc=$(echo "$session_info" | cut -d':' -f2-)
-                echo "$ $session_name"$'\033[90m'" ·$session_desc"$'\033[0m'$'\t'"$ $session_name $session_desc"$'\t'"tmux_session:$session_name"
-            done
-        fi
-        
-        # Second: Add zoxide directories for new session creation
-        if command -v zoxide >/dev/null 2>&1; then
-            zoxide query -l | grep -v '^/$' | grep -v '^/tmp' | grep -v '^/var' | head -60 | while read -r dir; do
-                dir_tilde=$(echo "$dir" | sed "s|$HOME|~|g")
-                dir_name=$(basename "$dir_tilde")
-                echo "$ $dir_name"$'\033[90m'" · Create session in $dir_tilde"$'\033[0m'$'\t'"$ $dir_name $dir_tilde new session"$'\t'"tmux_new:$dir"
-            done
-        fi
-    )
+get_backspace_prompt_transform() {
+    echo "if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == '\$'* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi"
 }
-
-load_power_actions() {
-    [[ ! -f "$ACTIONS_SCRIPT" ]] && return
-    
-    # Get only power-related actions and add :power prefix
-    "$ACTIONS_SCRIPT" | grep -E "(Lock|Suspend|Relaunch|Restart|Shutdown)" | while IFS=$'\t' read -r display_name search_text command; do
-        echo ":power $display_name"$'\t'":power $search_text"$'\t'"$command"
-    done
-}
-
-load_governor_actions() {
-    # Get available CPU governors and create actions dynamically
-    if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" ]]; then
-        local current_governor=""
-        if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" ]]; then
-            current_governor=$(cat "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" 2>/dev/null)
-        fi
-        
-        while read -r gov; do
-            [[ -z "$gov" ]] && continue
-            
-            local display_name="$gov"
-            local command_string=""
-            
-            if [[ "$gov" == "$current_governor" ]]; then
-                display_name="$display_name"$'\033[90m'" · current"$'\033[0m'
-                # No-op command for current governor
-                command_string="echo 'Governor $gov is already active'"
-            else  
-                display_name="$display_name"$'\033[90m'" · set CPU governor"$'\033[0m'
-                # Use the dedicated governor script
-                command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-set-governor $gov\""
-            fi
-            
-            echo ":governor $display_name"$'\t'":governor $gov set CPU governor"$'\t'"$command_string"
-        done < <(cat "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" | tr ' ' '\n' | sort)
-    fi
-}
-
-load_theme_actions() {
-    local themes_dir="$HOME/.config/omarchy/themes/"
-    local current_theme_dir="$HOME/.config/omarchy/current/theme"
-    
-    # Check if themes directory exists
-    [[ -d "$themes_dir" ]] || return
-    
-    # Get current theme name
-    local current_theme_name=""
-    if [[ -e "$current_theme_dir" ]]; then
-        current_theme_name=$(basename "$(realpath "$current_theme_dir" 2>/dev/null)" 2>/dev/null)
-    fi
-    
-    # List available themes (both directories and symlinks)
-    find "$themes_dir" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) -printf "%f\n" 2>/dev/null | sort | while read -r theme; do
-        [[ -z "$theme" ]] && continue
-        
-        local display_name="🎨 $theme"
-        local command_string=""
-        
-        if [[ "$theme" == "$current_theme_name" ]]; then
-            display_name="$display_name"$'\033[90m'" · current"$'\033[0m'
-            # No-op command for current theme
-            command_string="echo 'Theme $theme is already active'"
-        else
-            display_name="$display_name"$'\033[90m'" · switch theme"$'\033[0m'
-            # Use the theme set script
-            command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-theme-set '$theme'\""
-        fi
-        
-        echo ":theme $display_name"$'\t'":theme $theme switch theme"$'\t'"$command_string"
-    done
-}
-
-load_bash_commands() {
-    local query="$1"
-    # Extract command after "!" prefix
-    local cmd="${query#!}"
-    
-    # Skip if no command or just "!"
-    [[ -z "$cmd" || "$cmd" == " " ]] && return
-    
-    # Remove leading space if present  
-    cmd="${cmd# }"
-    
-    # Skip if still empty
-    [[ -z "$cmd" ]] && return
-    
-    # Just show option to run the command in terminal
-    echo "💻 Run '$cmd'"$'\t'"💻 Run '$cmd'"$'\t'"run_cmd_in_terminal:$cmd"
-}
-
-if [[ "$3" == !* ]]; then
-    load_bash_commands "$3"
-elif [[ "$3" == :governor* ]]; then
-    load_governor_actions
-elif [[ "$3" == :theme* ]]; then
-    load_theme_actions
-elif [[ "$3" == :power* ]]; then
-    load_power_actions
-elif [[ "$3" == :* ]]; then
-    load_system_actions
-elif [[ "$3" == "//"* ]]; then
-    load_workspaces
-elif [[ "$3" == "$"* ]]; then
-    load_tmux_sessions
-elif [[ "$3" == /* ]]; then
-    load_windows
-else
-    cat "$CACHE_FILE"
-fi
-EOF
-chmod +x "$reload_script"
 
 # Set prompt and initial data based on mode
 if [[ "$START_MODE" == "windows" ]]; then
@@ -567,43 +435,41 @@ fi
 # Use existing cache for immediate response
 if [[ -f "$CACHE_FILE" || -n "$START_MODE" ]]; then
     selected=$(echo "$INITIAL_DATA" | fzf \
-        --delimiter=$'\t' \
-        --with-nth=1 \
-        --nth=1,2 \
+        --delimiter="$FZF_DELIMITER" \
+        --with-nth="$FZF_WITH_NTH" \
+        --nth="$FZF_NTH" \
         --query="$INITIAL_QUERY" \
-        --height=100% \
-        --layout=reverse \
-        --margin=1,2 \
-        --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
+        --height="$FZF_HEIGHT" \
+        --layout="$FZF_LAYOUT" \
+        --margin="$FZF_MARGIN" \
+        --color="$FZF_COLORS" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == '$'* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power:governor' ]]; then echo -n ':governor'; elif [[ {q} == ':power:theme' ]]; then echo -n ':theme'; elif [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi)" \
+        --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
-        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == '$'* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)" \
-        | cut -d$'\t' -f3)
+        --bind="bspace:backward-delete-char+transform-query($(get_backspace_query_transform))+transform-prompt($(get_backspace_prompt_transform))" \
+        | cut -d"$FZF_DELIMITER" -f3)
 else
     # Fallback if no cache (should rarely happen)
     rebuild_cache
     selected=$(cat "$CACHE_FILE" | fzf \
-        --delimiter=$'\t' \
-        --with-nth=1 \
-        --nth=1,2 \
+        --delimiter="$FZF_DELIMITER" \
+        --with-nth="$FZF_WITH_NTH" \
+        --nth="$FZF_NTH" \
         --prompt="🚀 " \
         --query="$INITIAL_QUERY" \
-        --height=100% \
-        --layout=reverse \
-        --margin=1,2 \
-        --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
+        --height="$FZF_HEIGHT" \
+        --layout="$FZF_LAYOUT" \
+        --margin="$FZF_MARGIN" \
+        --color="$FZF_COLORS" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == '$'* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power:governor' ]]; then echo -n ':governor'; elif [[ {q} == ':power:theme' ]]; then echo -n ':theme'; elif [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi)" \
+        --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
-        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == '$'* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)" \
-        | cut -d$'\t' -f3)
+        --bind="bspace:backward-delete-char+transform-query($(get_backspace_query_transform))+transform-prompt($(get_backspace_prompt_transform))" \
+        | cut -d"$FZF_DELIMITER" -f3)
 fi
 
-# Clean up temp script
-rm -f "$reload_script"
 
 # Launch the selected application or execute system action
 if [ -n "$selected" ]; then
@@ -611,14 +477,12 @@ if [ -n "$selected" ]; then
     if [[ "$selected" =~ ^workspace: ]]; then
         # Extract workspace number and switch to it
         workspace_id="${selected#workspace:}"
-        if command -v hyprctl >/dev/null 2>&1; then
-            hyprctl dispatch workspace "$workspace_id"
-        fi
+        has_hyprctl && hyprctl dispatch workspace "$workspace_id"
     # Check if it's a window focus command
     elif [[ "$selected" =~ ^focus_window: ]]; then
         # Extract window address and focus it
         window_address="${selected#focus_window:}"
-        if command -v hyprctl >/dev/null 2>&1; then
+        if has_hyprctl; then
             # Check if window is minimized (in special:minimized workspace)
             window_workspace=$(hyprctl -j clients | jq -r ".[] | select(.address == \"$window_address\") | .workspace.name")
             if [[ "$window_workspace" == "special:minimized" ]]; then
@@ -632,7 +496,7 @@ if [ -n "$selected" ]; then
     elif [[ "$selected" =~ ^tmux_session: ]]; then
         # Extract session name and attach to it
         session_name="${selected#tmux_session:}"
-        if command -v hyprctl >/dev/null 2>&1; then
+        if has_hyprctl; then
             hyprctl dispatch exec "alacritty -e tmux attach -t '$session_name'"
         else
             alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
@@ -642,7 +506,7 @@ if [ -n "$selected" ]; then
         # Extract directory path and create new session
         dir_path="${selected#tmux_new:}"
         session_name=$(basename "$dir_path" | tr '.[:upper:]' '_[:lower:]')
-        if command -v hyprctl >/dev/null 2>&1; then
+        if has_hyprctl; then
             if ! tmux has-session -t="$session_name" 2>/dev/null; then
                 hyprctl dispatch exec "alacritty -e tmux new-session -s '$session_name' -c '$dir_path'"
             else
@@ -659,7 +523,7 @@ if [ -n "$selected" ]; then
     elif [[ "$selected" =~ ^run_cmd_in_terminal: ]]; then
         # Extract command and run in interactive terminal
         cmd="${selected#run_cmd_in_terminal:}"
-        if command -v hyprctl >/dev/null 2>&1; then
+        if has_hyprctl; then
             hyprctl dispatch exec "alacritty -e bash -c '$cmd; exec bash'"
         else
             alacritty -e bash -c "$cmd; exec bash" >/dev/null 2>&1 &
@@ -676,7 +540,7 @@ if [ -n "$selected" ]; then
             "$selected"
         else
             # Launch desktop application
-            if command -v hyprctl >/dev/null 2>&1; then
+            if has_hyprctl; then
                 hyprctl dispatch -- exec "gtk-launch $selected"
             else
                 # Fallback for non-Hyprland environments
@@ -685,7 +549,7 @@ if [ -n "$selected" ]; then
         fi
     else
         # Launch desktop application
-        if command -v hyprctl >/dev/null 2>&1; then
+        if has_hyprctl; then
             hyprctl dispatch -- exec "gtk-launch $selected"
         else
             # Fallback for non-Hyprland environments
