@@ -249,6 +249,24 @@ load_theme_actions() {
     done
 }
 
+load_bash_commands() {
+    local query="$1"
+    # Extract command after "!" prefix
+    local cmd="${query#!}"
+    
+    # Skip if no command or just "!"
+    [[ -z "$cmd" || "$cmd" == " " ]] && return
+    
+    # Remove leading space if present  
+    cmd="${cmd# }"
+    
+    # Skip if still empty
+    [[ -z "$cmd" ]] && return
+    
+    # Just show option to run the command in terminal
+    echo "💻 Run '$cmd'"$'\t'"💻 Run '$cmd'"$'\t'"run_cmd_in_terminal:$cmd"
+}
+
 # Parse command line arguments
 START_MODE=""
 INITIAL_QUERY=""
@@ -479,7 +497,27 @@ load_theme_actions() {
     done
 }
 
-if [[ "$3" == :governor* ]]; then
+load_bash_commands() {
+    local query="$1"
+    # Extract command after "!" prefix
+    local cmd="${query#!}"
+    
+    # Skip if no command or just "!"
+    [[ -z "$cmd" || "$cmd" == " " ]] && return
+    
+    # Remove leading space if present  
+    cmd="${cmd# }"
+    
+    # Skip if still empty
+    [[ -z "$cmd" ]] && return
+    
+    # Just show option to run the command in terminal
+    echo "💻 Run '$cmd'"$'\t'"💻 Run '$cmd'"$'\t'"run_cmd_in_terminal:$cmd"
+}
+
+if [[ "$3" == !* ]]; then
+    load_bash_commands "$3"
+elif [[ "$3" == :governor* ]]; then
     load_governor_actions
 elif [[ "$3" == :theme* ]]; then
     load_theme_actions
@@ -539,9 +577,9 @@ if [[ -f "$CACHE_FILE" || -n "$START_MODE" ]]; then
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; else echo -n '{q}'; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
-        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         | cut -d$'\t' -f3)
 else
     # Fallback if no cache (should rarely happen)
@@ -558,9 +596,9 @@ else
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; else echo -n '{q}'; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
-        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         | cut -d$'\t' -f3)
 fi
 
@@ -616,6 +654,15 @@ if [ -n "$selected" ]; then
             else
                 alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
             fi
+        fi
+    # Check if it's a bash command run request
+    elif [[ "$selected" =~ ^run_cmd_in_terminal: ]]; then
+        # Extract command and run in interactive terminal
+        cmd="${selected#run_cmd_in_terminal:}"
+        if command -v hyprctl >/dev/null 2>&1; then
+            hyprctl dispatch exec "alacritty -e bash -c '$cmd; exec bash'"
+        else
+            alacritty -e bash -c "$cmd; exec bash" >/dev/null 2>&1 &
         fi
     # Check if it's a direct command (hyprctl, systemctl, etc.)
     elif [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|omarchy-|/home/[^/]+/.local/share/omarchy/bin/) ]]; then
