@@ -1,5 +1,5 @@
 #!/bin/bash
-
-  # Restart waybar
+#
+# Restart waybar
 pkill waybar
-setsid waybar 
+hyprctl dispatch exec waybar 

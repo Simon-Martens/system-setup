@@ -6,7 +6,7 @@
 CACHE_DIR="$HOME/.cache/fzf-launcher"
 CACHE_FILE="$CACHE_DIR/apps.cache"
 LOCK_FILE="$CACHE_DIR/rebuild.lock"
-ACTIONS_CONFIG="$HOME/.local/share/omarchy/bin/system-actions.conf"
+ACTIONS_SCRIPT="$HOME/.local/share/omarchy/bin/actions.sh"
 
 mkdir -p "$CACHE_DIR"
 
@@ -77,6 +77,44 @@ rebuild_cache() {
     done | sort > "$CACHE_FILE.tmp" && mv "$CACHE_FILE.tmp" "$CACHE_FILE"
 }
 
+load_power_actions() {
+    [[ ! -f "$ACTIONS_SCRIPT" ]] && return
+    
+    # Get only power-related actions and add :power prefix
+    "$ACTIONS_SCRIPT" | grep -E "(Lock|Suspend|Relaunch|Restart|Shutdown)" | while IFS=$'\t' read -r display_name search_text command; do
+        echo ":power $display_name"$'\t'":power $search_text"$'\t'"$command"
+    done
+}
+
+load_governor_actions() {
+    # Get available CPU governors and create actions dynamically
+    if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" ]]; then
+        local current_governor=""
+        if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" ]]; then
+            current_governor=$(cat "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" 2>/dev/null)
+        fi
+        
+        while read -r gov; do
+            [[ -z "$gov" ]] && continue
+            
+            local display_name="$gov"
+            local command_string=""
+            
+            if [[ "$gov" == "$current_governor" ]]; then
+                display_name="$display_name"$'\033[90m'" · current"$'\033[0m'
+                # No-op command for current governor
+                command_string="echo 'Governor $gov is already active'"
+            else  
+                display_name="$display_name"$'\033[90m'" · set CPU governor"$'\033[0m'
+                # Use the dedicated governor script
+                command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-set-governor $gov\""
+            fi
+            
+            echo ":governor $display_name"$'\t'":governor $gov set CPU governor"$'\t'"$command_string"
+        done < <(cat "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" | tr ' ' '\n' | sort)
+    fi
+}
+
 cache_is_stale() {
     [[ ! -f "$CACHE_FILE" ]] && return 0
     
@@ -102,15 +140,12 @@ cache_is_stale() {
 }
 
 load_system_actions() {
-    [[ ! -f "$ACTIONS_CONFIG" ]] && return
+    [[ ! -f "$ACTIONS_SCRIPT" ]] && return
     
-    while IFS=':' read -r action command description; do
-        # Skip empty lines and comments
-        [[ -z "$action" || "$action" =~ ^#.* ]] && continue
-        
-        # Format: action name with colored description
-        echo ":$action"$'\033[90m'" · $description"$'\033[0m'$'\t'":$action $description"$'\t'"$command"
-    done < "$ACTIONS_CONFIG"
+    # Use the actions.sh script to get formatted actions
+    "$ACTIONS_SCRIPT" | while IFS=$'\t' read -r display_name search_text command; do
+        echo ":$display_name"$'\t'":$search_text"$'\t'"$command"
+    done
 }
 
 load_workspaces() {
@@ -180,6 +215,40 @@ load_tmux_sessions() {
     )
 }
 
+load_theme_actions() {
+    local themes_dir="$HOME/.config/omarchy/themes/"
+    local current_theme_dir="$HOME/.config/omarchy/current/theme"
+    
+    # Check if themes directory exists
+    [[ -d "$themes_dir" ]] || return
+    
+    # Get current theme name
+    local current_theme_name=""
+    if [[ -e "$current_theme_dir" ]]; then
+        current_theme_name=$(basename "$(realpath "$current_theme_dir" 2>/dev/null)" 2>/dev/null)
+    fi
+    
+    # List available themes (both directories and symlinks)
+    find "$themes_dir" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) -printf "%f\n" 2>/dev/null | sort | while read -r theme; do
+        [[ -z "$theme" ]] && continue
+        
+        local display_name="🎨 $theme"
+        local command_string=""
+        
+        if [[ "$theme" == "$current_theme_name" ]]; then
+            display_name="$display_name"$'\x1b[90m'" · current"$'\x1b[0m'
+            # No-op command for current theme
+            command_string="echo 'Theme $theme is already active'"
+        else
+            display_name="$display_name"$'\x1b[90m'" · switch theme"$'\x1b[0m'
+            # Use the theme set script
+            command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-theme-set '$theme'\""
+        fi
+        
+        echo ":theme $display_name"$'\t'":theme $theme switch theme"$'\t'"$command_string"
+    done
+}
+
 # Parse command line arguments
 START_MODE=""
 INITIAL_QUERY=""
@@ -194,12 +263,12 @@ while [[ $# -gt 0 ]]; do
             ;;
         --windows)
             START_MODE="windows"
-            INITIAL_QUERY="/"
+            INITIAL_QUERY="/ "
             shift
             ;;
         --workspaces)
             START_MODE="workspaces"
-            INITIAL_QUERY="//"
+            INITIAL_QUERY="// "
             shift
             ;;
         --actions)
@@ -209,16 +278,34 @@ while [[ $# -gt 0 ]]; do
             ;;
         --tmux)
             START_MODE="tmux"
-            INITIAL_QUERY="$"
+            INITIAL_QUERY="$ "
+            shift
+            ;;
+        --power)
+            START_MODE="power"
+            INITIAL_QUERY=":power "
+            shift
+            ;;
+        --governor)
+            START_MODE="governor"
+            INITIAL_QUERY=":governor "
+            shift
+            ;;
+        --themes)
+            START_MODE="themes"
+            INITIAL_QUERY=":theme "
             shift
             ;;
         *)
-            echo "Usage: $0 [--update] [--windows] [--workspaces] [--actions] [--tmux]"
+            echo "Usage: $0 [--update] [--windows] [--workspaces] [--actions] [--tmux] [--power] [--governor] [--themes]"
             echo "  --update     Update application cache"
             echo "  --windows    Start in window switching mode"
             echo "  --workspaces Start in workspace switching mode"
             echo "  --actions    Start in system actions mode"
             echo "  --tmux       Start in tmux session mode"
+            echo "  --power      Start in power menu mode"
+            echo "  --governor   Start in CPU governor menu mode"
+            echo "  --themes     Start in theme selection mode"
             exit 1
             ;;
     esac
@@ -242,18 +329,15 @@ reload_script=$(mktemp)
 cat > "$reload_script" << 'EOF'
 #!/bin/bash
 CACHE_FILE="$1"
-ACTIONS_CONFIG="$2"
+ACTIONS_SCRIPT="$2"
 
 load_system_actions() {
-    [[ ! -f "$ACTIONS_CONFIG" ]] && return
+    [[ ! -f "$ACTIONS_SCRIPT" ]] && return
     
-    while IFS=':' read -r action command description; do
-        # Skip empty lines and comments
-        [[ -z "$action" || "$action" =~ ^#.* ]] && continue
-        
-        # Format: action name with colored description
-        echo ":$action"$'\033[90m'" · $description"$'\033[0m'$'\t'":$action $description"$'\t'"$command"
-    done < "$ACTIONS_CONFIG"
+    # Use the actions.sh script to get formatted actions
+    "$ACTIONS_SCRIPT" | while IFS=$'\t' read -r display_name search_text command; do
+        echo ":$display_name"$'\t'":$search_text"$'\t'"$command"
+    done
 }
 
 load_workspaces() {
@@ -323,7 +407,85 @@ load_tmux_sessions() {
     )
 }
 
-if [[ "$3" == :* ]]; then
+load_power_actions() {
+    [[ ! -f "$ACTIONS_SCRIPT" ]] && return
+    
+    # Get only power-related actions and add :power prefix
+    "$ACTIONS_SCRIPT" | grep -E "(Lock|Suspend|Relaunch|Restart|Shutdown)" | while IFS=$'\t' read -r display_name search_text command; do
+        echo ":power $display_name"$'\t'":power $search_text"$'\t'"$command"
+    done
+}
+
+load_governor_actions() {
+    # Get available CPU governors and create actions dynamically
+    if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" ]]; then
+        local current_governor=""
+        if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" ]]; then
+            current_governor=$(cat "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" 2>/dev/null)
+        fi
+        
+        while read -r gov; do
+            [[ -z "$gov" ]] && continue
+            
+            local display_name="$gov"
+            local command_string=""
+            
+            if [[ "$gov" == "$current_governor" ]]; then
+                display_name="$display_name"$'\033[90m'" · current"$'\033[0m'
+                # No-op command for current governor
+                command_string="echo 'Governor $gov is already active'"
+            else  
+                display_name="$display_name"$'\033[90m'" · set CPU governor"$'\033[0m'
+                # Use the dedicated governor script
+                command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-set-governor $gov\""
+            fi
+            
+            echo ":governor $display_name"$'\t'":governor $gov set CPU governor"$'\t'"$command_string"
+        done < <(cat "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" | tr ' ' '\n' | sort)
+    fi
+}
+
+load_theme_actions() {
+    local themes_dir="$HOME/.config/omarchy/themes/"
+    local current_theme_dir="$HOME/.config/omarchy/current/theme"
+    
+    # Check if themes directory exists
+    [[ -d "$themes_dir" ]] || return
+    
+    # Get current theme name
+    local current_theme_name=""
+    if [[ -e "$current_theme_dir" ]]; then
+        current_theme_name=$(basename "$(realpath "$current_theme_dir" 2>/dev/null)" 2>/dev/null)
+    fi
+    
+    # List available themes (both directories and symlinks)
+    find "$themes_dir" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) -printf "%f\n" 2>/dev/null | sort | while read -r theme; do
+        [[ -z "$theme" ]] && continue
+        
+        local display_name="🎨 $theme"
+        local command_string=""
+        
+        if [[ "$theme" == "$current_theme_name" ]]; then
+            display_name="$display_name"$'\033[90m'" · current"$'\033[0m'
+            # No-op command for current theme
+            command_string="echo 'Theme $theme is already active'"
+        else
+            display_name="$display_name"$'\033[90m'" · switch theme"$'\033[0m'
+            # Use the theme set script
+            command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-theme-set '$theme'\""
+        fi
+        
+        echo ":theme $display_name"$'\t'":theme $theme switch theme"$'\t'"$command_string"
+    done
+}
+
+if [[ "$3" == :governor* ]]; then
+    load_governor_actions
+elif [[ "$3" == :theme* ]]; then
+    load_theme_actions
+elif [[ "$3" == :power* ]]; then
+    load_power_actions
+elif [[ "$3" == :* ]]; then
     load_system_actions
 elif [[ "$3" == "//"* ]]; then
     load_workspaces
@@ -350,6 +512,15 @@ elif [[ "$START_MODE" == "actions" ]]; then
 elif [[ "$START_MODE" == "tmux" ]]; then
     PROMPT="📟 "
     INITIAL_DATA=$(load_tmux_sessions)
+elif [[ "$START_MODE" == "power" ]]; then
+    PROMPT="🔌 "
+    INITIAL_DATA=$(load_power_actions)
+elif [[ "$START_MODE" == "governor" ]]; then
+    PROMPT="⚙️ "
+    INITIAL_DATA=$(load_governor_actions)
+elif [[ "$START_MODE" == "themes" ]]; then
+    PROMPT="🎨 "
+    INITIAL_DATA=$(load_theme_actions)
 else
     PROMPT="🚀 "
     INITIAL_DATA=$(cat "$CACHE_FILE" 2>/dev/null || echo "")
@@ -368,8 +539,9 @@ if [[ -f "$CACHE_FILE" || -n "$START_MODE" ]]; then
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; else echo -n '{q}'; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
+        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         | cut -d$'\t' -f3)
 else
     # Fallback if no cache (should rarely happen)
@@ -386,8 +558,9 @@ else
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; else echo -n '{q}'; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
+        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         | cut -d$'\t' -f3)
 fi
 
@@ -444,10 +617,17 @@ if [ -n "$selected" ]; then
                 alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
             fi
         fi
-    # Check if it's a system action (starts with commands from actions config)
-    elif [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|omarchy-) ]]; then
+    # Check if it's a direct command (hyprctl, systemctl, etc.)
+    elif [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|omarchy-|/home/[^/]+/.local/share/omarchy/bin/) ]]; then
         # Execute system action directly
         eval "$selected"
+    # Check if it's a system action (function name from actions.sh)
+    elif [[ -f "$HOME/.local/share/omarchy/bin/actions.sh" ]]; then
+        # Source actions.sh first, then check if function exists
+        source "$HOME/.local/share/omarchy/bin/actions.sh"
+        if declare -f "$selected" >/dev/null 2>&1; then
+            "$selected"
+        fi
     else
         # Launch desktop application
         if command -v hyprctl >/dev/null 2>&1; then
