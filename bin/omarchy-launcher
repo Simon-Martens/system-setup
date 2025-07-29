@@ -121,9 +121,9 @@ load_workspaces() {
     hyprctl -j workspaces 2>/dev/null | jq -r '
         .[] | 
         select(.windows > 0) |
-        "//" + (.id | tostring) + ": " + .lastwindowtitle +
+        "// " + (.id | tostring) + ": " + .lastwindowtitle +
         "\u001b[90m · " + (.windows | tostring) + " windows\u001b[0m" +
-        "\t//" + (.id | tostring) + " " + .lastwindowtitle +
+        "\t// " + (.id | tostring) + " " + .lastwindowtitle +
         "\tworkspace:" + (.id | tostring)
     ' 2>/dev/null
 }
@@ -144,10 +144,10 @@ load_windows() {
             workspace: .workspace.name,
             minimized: (.workspace.name == "special:minimized")
         } |
-        "/" + .title + 
+        "/ " + .title + 
         (if .minimized then " (minimized)" else "" end) +
         "\u001b[90m · " + .class + "\u001b[0m" +
-        "\t/" + .title + " " + .class + 
+        "\t/ " + .title + " " + .class + 
         (if .minimized then " minimized" else "" end) +
         "\tfocus_window:" + .address
     ' 2>/dev/null
@@ -157,24 +157,27 @@ load_tmux_sessions() {
     # Check if tmux is available
     command -v tmux >/dev/null 2>&1 || return
     
-    # Get existing tmux sessions
-    if tmux list-sessions >/dev/null 2>&1; then
-        tmux list-sessions -F "#{session_last_attached} #{session_name}: #{session_windows} window(s)#{?session_attached, (attached),}" 2>/dev/null | \
-        sort -rn | cut -d' ' -f2- | while read -r session_info; do
-            session_name=$(echo "$session_info" | cut -d':' -f1)
-            session_desc=$(echo "$session_info" | cut -d':' -f2-)
-            echo "%$session_name"$'\033[90m'" ·$session_desc"$'\033[0m'$'\t'"%$session_name $session_desc"$'\t'"tmux_session:$session_name"
-        done
-    fi
-    
-    # Add zoxide directories for new session creation
-    if command -v zoxide >/dev/null 2>&1; then
-        zoxide query -l | while read -r dir; do
-            dir_tilde=$(echo "$dir" | sed "s|$HOME|~|g")
-            dir_name=$(basename "$dir_tilde")
-            echo "%$dir_name"$'\033[90m'" · Create session in $dir_tilde"$'\033[0m'$'\t'"%$dir_name $dir_tilde new session"$'\t'"tmux_new:$dir"
-        done
-    fi
+    # Use the same approach as tmux-session-wizard-rewired
+    (
+        # First: Get existing tmux sessions sorted by recency
+        if tmux list-sessions >/dev/null 2>&1; then
+            tmux list-sessions -F "#{session_last_attached} #{session_name}: #{session_windows} window(s)#{?session_attached, (attached),}" 2>/dev/null | \
+            sort -rn | cut -d' ' -f2- | while read -r session_info; do
+                session_name=$(echo "$session_info" | cut -d':' -f1)
+                session_desc=$(echo "$session_info" | cut -d':' -f2-)
+                echo "$ $session_name"$'\033[90m'" ·$session_desc"$'\033[0m'$'\t'"$ $session_name $session_desc"$'\t'"tmux_session:$session_name"
+            done
+        fi
+        
+        # Second: Add zoxide directories for new session creation
+        if command -v zoxide >/dev/null 2>&1; then
+            zoxide query -l | grep -v '^/$' | grep -v '^/tmp' | grep -v '^/var' | head -60 | while read -r dir; do
+                dir_tilde=$(echo "$dir" | sed "s|$HOME|~|g")
+                dir_name=$(basename "$dir_tilde")
+                echo "$ $dir_name"$'\033[90m'" · Create session in $dir_tilde"$'\033[0m'$'\t'"$ $dir_name $dir_tilde new session"$'\t'"tmux_new:$dir"
+            done
+        fi
+    )
 }
 
 # Parse command line arguments
@@ -206,7 +209,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         --tmux)
             START_MODE="tmux"
-            INITIAL_QUERY="%"
+            INITIAL_QUERY="$"
             shift
             ;;
         *)
@@ -261,9 +264,9 @@ load_workspaces() {
     hyprctl -j workspaces 2>/dev/null | jq -r '
         .[] | 
         select(.windows > 0) |
-        "//" + (.id | tostring) + ": " + .lastwindowtitle +
+        "// " + (.id | tostring) + ": " + .lastwindowtitle +
         "\u001b[90m · " + (.windows | tostring) + " windows\u001b[0m" +
-        "\t//" + (.id | tostring) + " " + .lastwindowtitle +
+        "\t// " + (.id | tostring) + " " + .lastwindowtitle +
         "\tworkspace:" + (.id | tostring)
     ' 2>/dev/null
 }
@@ -284,20 +287,47 @@ load_windows() {
             workspace: .workspace.name,
             minimized: (.workspace.name == "special:minimized")
         } |
-        "/" + .title + 
+        "/ " + .title + 
         (if .minimized then " (minimized)" else "" end) +
         "\u001b[90m · " + .class + "\u001b[0m" +
-        "\t/" + .title + " " + .class + 
+        "\t/ " + .title + " " + .class + 
         (if .minimized then " minimized" else "" end) +
         "\tfocus_window:" + .address
     ' 2>/dev/null
+}
+
+load_tmux_sessions() {
+    # Check if tmux is available
+    command -v tmux >/dev/null 2>&1 || return
+    
+    # Use the same approach as tmux-session-wizard-rewired
+    (
+        # First: Get existing tmux sessions sorted by recency
+        if tmux list-sessions >/dev/null 2>&1; then
+            tmux list-sessions -F "#{session_last_attached} #{session_name}: #{session_windows} window(s)#{?session_attached, (attached),}" 2>/dev/null | \
+            sort -rn | cut -d' ' -f2- | while read -r session_info; do
+                session_name=$(echo "$session_info" | cut -d':' -f1)
+                session_desc=$(echo "$session_info" | cut -d':' -f2-)
+                echo "$ $session_name"$'\033[90m'" ·$session_desc"$'\033[0m'$'\t'"$ $session_name $session_desc"$'\t'"tmux_session:$session_name"
+            done
+        fi
+        
+        # Second: Add zoxide directories for new session creation
+        if command -v zoxide >/dev/null 2>&1; then
+            zoxide query -l | grep -v '^/$' | grep -v '^/tmp' | grep -v '^/var' | head -60 | while read -r dir; do
+                dir_tilde=$(echo "$dir" | sed "s|$HOME|~|g")
+                dir_name=$(basename "$dir_tilde")
+                echo "$ $dir_name"$'\033[90m'" · Create session in $dir_tilde"$'\033[0m'$'\t'"$ $dir_name $dir_tilde new session"$'\t'"tmux_new:$dir"
+            done
+        fi
+    )
 }
 
 if [[ "$3" == :* ]]; then
     load_system_actions
 elif [[ "$3" == "//"* ]]; then
     load_workspaces
-elif [[ "$3" == "%"* ]]; then
+elif [[ "$3" == "$"* ]]; then
     load_tmux_sessions
 elif [[ "$3" == /* ]]; then
     load_windows
@@ -338,7 +368,7 @@ if [[ -f "$CACHE_FILE" || -n "$START_MODE" ]]; then
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == %* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
         | cut -d$'\t' -f3)
 else
@@ -356,7 +386,7 @@ else
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == %* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_CONFIG {q})+transform-prompt(if [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
         | cut -d$'\t' -f3)
 fi
