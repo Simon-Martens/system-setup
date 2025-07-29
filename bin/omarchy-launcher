@@ -577,9 +577,9 @@ if [[ -f "$CACHE_FILE" || -n "$START_MODE" ]]; then
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == ':' ]]; then echo -n ': '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
-        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == ':' || {q} == '//' || {q} == '/' || {q} == '$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         | cut -d$'\t' -f3)
 else
     # Fallback if no cache (should rarely happen)
@@ -596,9 +596,9 @@ else
         --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi)" \
+        --bind="change:reload($reload_script $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt(if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi)+transform-query(if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == ':' ]]; then echo -n ': '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '$' ]]; then echo -n '$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi)" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
-        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
+        --bind="bspace:backward-delete-char+transform-query(if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == ':' || {q} == '//' || {q} == '/' || {q} == '$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi)+transform-prompt(if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == \$* ]]; then echo -n '📟 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; else echo -n '🚀 '; fi)" \
         | cut -d$'\t' -f3)
 fi
 
@@ -674,6 +674,14 @@ if [ -n "$selected" ]; then
         source "$HOME/.local/share/omarchy/bin/actions.sh"
         if declare -f "$selected" >/dev/null 2>&1; then
             "$selected"
+        else
+            # Launch desktop application
+            if command -v hyprctl >/dev/null 2>&1; then
+                hyprctl dispatch -- exec "gtk-launch $selected"
+            else
+                # Fallback for non-Hyprland environments
+                setsid gtk-launch "$selected" >/dev/null 2>&1 &
+            fi
         fi
     else
         # Launch desktop application
