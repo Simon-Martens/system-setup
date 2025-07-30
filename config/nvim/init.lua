@@ -595,13 +595,8 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        'stylua', -- Used to format lua code
         'bash-language-server',
         'css-lsp',
-        'go-debug-adapter',
-        'goimports',
-        'goimports-reviser',
-        'gopls',
         'html-lsp',
         'svelte-language-server',
         'htmx-lsp',
@@ -660,7 +655,7 @@ require('lazy').setup({
         else
           return {
             timeout_ms = 500,
-            lsp_format = 'fallback',
+            lsp_fallback = true, -- Use LSP formatting if available
           }
         end
       end,
