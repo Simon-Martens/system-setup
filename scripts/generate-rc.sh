@@ -17,11 +17,17 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="${SCRIPT_DIR}/rc" # Your script directory
 TARGET_SHELL_TYPE="$1"
+NON_INTERACTIVE=false
+
+# Check for non-interactive flag
+if [[ "$2" == "--non-interactive" ]]; then
+    NON_INTERACTIVE=true
+fi
 
 # --- Validate Input ---
 if [[ "$TARGET_SHELL_TYPE" != "bash" && "$TARGET_SHELL_TYPE" != "zsh" ]]; then
   echo "Error: Invalid shell type specified."
-  echo "Usage: $0 [bash|zsh]"
+  echo "Usage: $0 [bash|zsh] [--non-interactive]"
   exit 1
 fi
 
@@ -98,16 +104,24 @@ fi
 echo "Generating new ${TARGET_FILE} from scripts in ${SOURCE_DIR} for ${TARGET_SHELL_TYPE}..."
 
 # Backup existing target file
+BACKUP_CREATED=false
 if [ -f "$TARGET_FILE" ]; then
   echo "Existing ${TARGET_FILE} found."
-  read -p "Do you want to create a backup? (y/N): " -n 1 -r
-  echo
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Backing up existing ${TARGET_FILE} to ${BACKUP_FILE}..."
-    cp "$TARGET_FILE" "$BACKUP_FILE"
-    if [ $? -ne 0 ]; then
-      echo "Error: Failed to create backup. Aborting."
-      exit 1
+  
+  if [[ "$NON_INTERACTIVE" == true ]]; then
+    # In non-interactive mode, skip backup and proceed
+    echo "Non-interactive mode: Skipping backup and proceeding..."
+  else
+    read -p "Do you want to create a backup? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      echo "Backing up existing ${TARGET_FILE} to ${BACKUP_FILE}..."
+      cp "$TARGET_FILE" "$BACKUP_FILE"
+      if [ $? -ne 0 ]; then
+        echo "Error: Failed to create backup. Aborting."
+        exit 1
+      fi
+      BACKUP_CREATED=true
     fi
   fi
 fi
@@ -162,7 +176,7 @@ done
 
 echo ""
 echo "Successfully generated ${TARGET_FILE}!"
-if [ -f "$TARGET_FILE" ] && [[ $REPLY =~ ^[Yy]$ ]]; then
+if [[ "$BACKUP_CREATED" == true ]]; then
   echo "A backup of the previous version was saved to ${BACKUP_FILE}"
 fi
 echo "Please review the new ${TARGET_FILE} and source it or open a new terminal."

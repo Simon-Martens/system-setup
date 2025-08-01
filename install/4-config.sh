@@ -1,3 +1,11 @@
+#!/bin/bash
+
+# Check for non-interactive mode
+NON_INTERACTIVE=false
+if [[ "$1" == "--non-interactive" ]]; then
+    NON_INTERACTIVE=true
+fi
+
 # Copy over Omarchy configs
 cp -R ~/.local/share/omarchy/config/* ~/.config/
 
@@ -5,15 +13,22 @@ cp -R ~/.local/share/omarchy/config/* ~/.config/
 mkdir -p ~/.local/share/applications
 
 # Use default bashrc from Omarchy
-~/.local/share/omarchy/scripts/generate-rc.sh bash
+if [[ "$NON_INTERACTIVE" == true ]]; then
+    ~/.local/share/omarchy/scripts/generate-rc.sh bash --non-interactive
+else
+    ~/.local/share/omarchy/scripts/generate-rc.sh bash
+fi
 
 # Login directly as user, rely on disk encryption + hyprlock for security
-sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
-sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null <<EOF
+# Skip sudo commands in non-interactive mode
+if [[ "$NON_INTERACTIVE" == false ]]; then
+    sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+    sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null <<EOF
 [Service]
 ExecStart=
 ExecStart=-/usr/bin/agetty --autologin $USER --noclear %I \$TERM
 EOF
+fi
 
 # Set common git aliases
 git config --global alias.co checkout

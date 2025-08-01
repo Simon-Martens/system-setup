@@ -576,3 +576,8 @@ if [ -n "$selected" ]; then
         fi
     fi
 fi
+
+# Cleanup temp file if it exists
+if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" && -f "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+    rm -f "$OMARCHY_PREVIOUS_WINDOW_FILE"
+fi

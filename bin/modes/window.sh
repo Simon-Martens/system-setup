@@ -8,10 +8,24 @@ get_mode_info() {
 
 # Get the previously active window (before the launcher)
 get_previous_window() {
+    # First try to use the captured window from the temp file
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" && -f "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        local captured_window
+        captured_window=$(cat "$OMARCHY_PREVIOUS_WINDOW_FILE" 2>/dev/null)
+        if [[ -n "$captured_window" ]]; then
+            # Verify the window still exists
+            if hyprctl -j clients 2>/dev/null | jq -e ".[] | select(.address == \"$captured_window\")" >/dev/null 2>&1; then
+                echo "$captured_window"
+                return 0
+            fi
+        fi
+    fi
+    
+    # Fallback to the original method if no captured window or window no longer exists
     # Get all windows sorted by focus history, excluding launcher-related windows
     local windows=$(hyprctl -j clients | jq -r '
         .[] | 
-        select(.focusHistoryID >= 0 and .class != "omarchy-launcher" and .class != "fzf" and .title != "omarchy-launcher") | 
+        select(.focusHistoryID >= 0 and .class != "launcher" and .class != "fzf" and .title != "Application Launcher") | 
         "\(.focusHistoryID) \(.address)"
     ' | sort -nr)
     
@@ -28,8 +42,14 @@ minimize_window() {
 }
 
 close_window() {
-    # Use the existing close window script which already handles window detection
-		# ?
+    local prev_window=$(get_previous_window)
+    if [[ -n "$prev_window" ]]; then
+        hyprctl dispatch closewindow "address:$prev_window"
+    else
+        # Fallback: use killactive approach - close launcher and apply to previous
+        sleep 0.1 && hyprctl dispatch killactive &
+        exit 0
+    fi
 }
 
 toggle_float() {

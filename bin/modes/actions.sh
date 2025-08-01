@@ -41,15 +41,20 @@ relaunch_hyprland() {
 }
 register_action "relaunch_hyprland" "Relaunch" "Restart Hyprland window manager"
 
-relaunch_waybar() {
-    pkill waybar && hyprctl dispatch exec waybar &
+restart_waybar() {
+    pkill waybar && hyprctl dispatch exec waybar
 }
-register_action "relaunch_waybar" "Relaunch Waybar" "Restart Waybar"
+register_action "restart_waybar" "Restart Waybar" "Kill and restart waybar"
 
 reload_waybar() {
     pkill -SIGUSR2 waybar
 }
-register_action "reload_waybar" "Reload Waybar" "Reload waybar"
+register_action "reload_waybar" "Reload Waybar" "Reload waybar config"
+
+toggle_waybar() {
+    pkill -SIGUSR1 waybar
+}
+register_action "toggle_waybar" "Toggle Waybar" "Toggle waybar visibility"
 
 
 restart_system() {
@@ -183,7 +188,7 @@ system_monitor() {
 register_action "system_monitor" "System Monitor" "Open system monitor"
 
 notes() {
-    hyprctl dispatch exec "alacritty -e nvim ~/.local/share/omarchy/scratchpad.md"
+    hyprctl dispatch exec "alacritty -e ~/.local/share/omarchy/bin/notes"
 }
 register_action "notes" "Notes" "Open notes in terminal"
 
@@ -214,21 +219,23 @@ screenshot_output() {
 }
 register_action "screenshot_output" "Screenshot Output" "Take output screenshot"
 
-# Brightness Actions
-brightness_up() {
-    brightnessctl set +5%
-}
-register_action "brightness_up" "Brightness Up" "Increase display brightness"
+# Brightness Actions (only register if brightnessctl is available)
+if command -v brightnessctl >/dev/null 2>&1; then
+    brightness_up() {
+        brightnessctl set +15%
+    }
+    register_action "brightness_up" "Brightness Up" "Increase display brightness"
 
-brightness_down() {
-    brightnessctl set 5%-
-}
-register_action "brightness_down" "Brightness Down" "Decrease display brightness"
+    brightness_down() {
+        brightnessctl set 15%-
+    }
+    register_action "brightness_down" "Brightness Down" "Decrease display brightness"
 
-brightness_max() {
-    brightnessctl set 100%
-}
-register_action "brightness_max" "Brightness Max" "Set maximum brightness"
+    brightness_max() {
+        brightnessctl set 100%
+    }
+    register_action "brightness_max" "Brightness Max" "Set maximum brightness"
+fi
 
 # Notification Actions
 dismiss_notification() {
@@ -253,12 +260,17 @@ sync_apps() {
 register_action "sync_apps" "Sync Apps" "Sync application entries and icons"
 
 update_omarchy() {
-    hyprctl dispatch exec "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && exec bash'"
+    hyprctl dispatch exec "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo \"Update complete. Press any key to continue...\" && read'"
 }
-register_action "update_omarchy" "Update Omarchy" "Update omarchy system and packages"
+register_action "update_omarchy" "Update System" "Update omarchy, refresh config, and system packages"
+
+reload_config() {
+    ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive
+}
+register_action "reload_config" "Reload Config" "Refresh omarchy configuration"
 
 show_keybindings() {
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-show-keybindings
+    hyprctl dispatch exec "alacritty --class=launcher -e ~/.local/share/omarchy/bin/omarchy-show-keybindings"
 }
 register_action "show_keybindings" "Keybindings" "Show keybindings"
 

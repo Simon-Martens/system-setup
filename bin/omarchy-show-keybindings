@@ -56,4 +56,4 @@ grep -h '^[[:space:]]*bind' $USER_HYPRLAND_CONF $OMARCHY_BINDINGS_CONF |
         printf "%-35s → %s\n", key_combo, action;
     }
 }' |
-  flock --nonblock /tmp/.wofi.lock -c "wofi -dmenu -i --width 60% --height 70% -p 'Hyprland Keybindings' -O alphabetical  --style=\"$HOME/.local/share/omarchy/default/wofi/search.css\""
+  fzf --prompt="Keybindings: " --height=100% --layout=reverse --margin=1,2 --color="prompt:#7aa2f7,pointer:#bb9af7,marker:#7dcfff" --info=hidden --ansi

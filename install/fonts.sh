@@ -1,4 +1,4 @@
-yay -Sy --noconfirm --needed ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra nerd-fonts ttf-google-fonts-git ttf-linux-libertine otf-baskervillef ttf-croscore gnu-free-fonts ttf-ms-win10-auto ttf-liberation ttf-heuristica otf-crimson ttf-bitstream-vera otf-bitstream-charter ttf-gentium-plus otf-jost ttf-dmcasansserif gnome-font-viewer
+yay -Sy --noconfirm --needed ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra nerd-fonts ttf-google-fonts-git ttf-linux-libertine ttf-croscore gnu-free-fonts ttf-ms-win10-auto ttf-liberation ttf-heuristica otf-crimson ttf-bitstream-vera otf-bitstream-charter ttf-gentium-plus otf-jost ttf-dmcasansserif gnome-font-viewer
 
 mkdir -p ~/.local/share/fonts
 
