@@ -7,8 +7,186 @@ CACHE_DIR="$HOME/.cache/fzf-launcher"
 CACHE_FILE="$CACHE_DIR/apps.cache"
 LOCK_FILE="$CACHE_DIR/rebuild.lock"
 ACTIONS_SCRIPT="$HOME/.local/share/omarchy/bin/actions.sh"
+MODES_DIR="$HOME/.local/share/omarchy/bin/modes"
 
 mkdir -p "$CACHE_DIR"
+
+# Global arrays to store mode information and hierarchy
+declare -A MODES_INFO
+declare -a MODES_ORDER
+declare -A MODE_CHILDREN  # Maps parent mode to array of child modes
+declare -A MODE_PARENT    # Maps child mode to parent mode
+
+# Load mode information from mode scripts
+load_modes() {
+    MODES_INFO=()
+    MODES_ORDER=()
+    MODE_CHILDREN=()
+    MODE_PARENT=()
+    
+    [[ ! -d "$MODES_DIR" ]] && return
+    
+    for mode_script in "$MODES_DIR"/*.sh; do
+        [[ ! -f "$mode_script" ]] && continue
+        
+        # Source the mode script and get its info
+        if source "$mode_script" 2>/dev/null && declare -f get_mode_info >/dev/null 2>&1; then
+            local mode_info
+            mode_info=$(get_mode_info)
+            [[ -z "$mode_info" ]] && continue
+            
+            local prefix icon name cmdline_switch
+            read -r prefix icon name cmdline_switch <<< "$mode_info"
+            
+            MODES_INFO["$prefix"]="$icon $name $cmdline_switch $(basename "$mode_script")"
+            MODES_ORDER+=("$prefix")
+        fi
+    done
+    
+    # Sort modes by prefix length (longest first) for proper matching
+    readarray -t MODES_ORDER < <(printf '%s\n' "${MODES_ORDER[@]}" | sort -r)
+    
+    # Build mode hierarchy based on common prefixes
+    build_mode_hierarchy
+}
+
+# Build hierarchical relationships between modes based on prefixes
+build_mode_hierarchy() {
+    for child_prefix in "${MODES_ORDER[@]}"; do
+        for parent_prefix in "${MODES_ORDER[@]}"; do
+            # Skip self comparison
+            [[ "$child_prefix" == "$parent_prefix" ]] && continue
+            
+            # Check if child_prefix starts with parent_prefix and is longer
+            if [[ "$child_prefix" == "$parent_prefix"* ]] && [[ ${#child_prefix} -gt ${#parent_prefix} ]]; then
+                # Make sure this is the most immediate parent (not a grandparent)
+                local is_immediate_parent=true
+                for other_prefix in "${MODES_ORDER[@]}"; do
+                    if [[ "$other_prefix" != "$parent_prefix" ]] && [[ "$other_prefix" != "$child_prefix" ]] && \
+                       [[ "$child_prefix" == "$other_prefix"* ]] && [[ "$other_prefix" == "$parent_prefix"* ]] && \
+                       [[ ${#other_prefix} -gt ${#parent_prefix} ]] && [[ ${#other_prefix} -lt ${#child_prefix} ]]; then
+                        is_immediate_parent=false
+                        break
+                    fi
+                done
+                
+                if [[ "$is_immediate_parent" == true ]]; then
+                    # Record parent-child relationship
+                    MODE_PARENT["$child_prefix"]="$parent_prefix"
+                    
+                    # Add to parent's children list
+                    if [[ -n "${MODE_CHILDREN[$parent_prefix]}" ]]; then
+                        MODE_CHILDREN["$parent_prefix"]="${MODE_CHILDREN[$parent_prefix]} $child_prefix"
+                    else
+                        MODE_CHILDREN["$parent_prefix"]="$child_prefix"
+                    fi
+                fi
+            fi
+        done
+    done
+}
+
+# Get parent mode of a given mode
+get_parent_mode() {
+    local mode="$1"
+    echo "${MODE_PARENT[$mode]}"
+}
+
+# Get children modes of a given mode
+get_child_modes() {
+    local mode="$1"
+    echo "${MODE_CHILDREN[$mode]}"
+}
+
+# Check if a mode is a parent mode (has children)
+is_parent_mode() {
+    local mode="$1"
+    [[ -n "${MODE_CHILDREN[$mode]}" ]]
+}
+
+# Check if a mode is a child mode (has a parent)
+is_child_mode() {
+    local mode="$1"
+    [[ -n "${MODE_PARENT[$mode]}" ]]
+}
+
+# Find matching mode for a query
+find_mode_for_query() {
+    local query="$1"
+    
+    # Special case: "/ /" should match "//" (workspace mode)
+    if [[ "$query" == "/ /"* ]]; then
+        echo "//"
+        return 0
+    fi
+    
+    # Try spaced pattern matching (e.g., ": power" should match ":power")
+    # This needs to come before direct matching to handle spaced variants correctly
+    for prefix in "${MODES_ORDER[@]}"; do
+        # Check if this prefix can have spaced variants
+        if [[ "$prefix" =~ ^: ]] && [[ "$prefix" != ":" ]]; then
+            if [[ "$query" == ": ${prefix#:}"* ]]; then
+                echo "$prefix"
+                return 0
+            fi
+        fi
+    done
+    
+    # Then try direct prefix matching
+    for prefix in "${MODES_ORDER[@]}"; do
+        if [[ "$query" == "$prefix"* ]]; then
+            echo "$prefix"
+            return 0
+        fi
+    done
+    
+    return 1
+}
+
+# Get mode script path from prefix
+get_mode_script() {
+    local prefix="$1"
+    local mode_info="${MODES_INFO[$prefix]}"
+    [[ -z "$mode_info" ]] && return 1
+    
+    local script_name
+    script_name=$(echo "$mode_info" | awk '{print $NF}')
+    echo "$MODES_DIR/$script_name"
+}
+
+# Load data for a specific mode
+load_mode_data() {
+    local prefix="$1"
+    local query="$2"
+    local mode_script
+    
+    mode_script=$(get_mode_script "$prefix")
+    [[ ! -f "$mode_script" ]] && return 1
+    
+    if source "$mode_script" 2>/dev/null && declare -f load_data >/dev/null 2>&1; then
+        load_data "$query"
+    fi
+}
+
+# Handle selection for a specific mode
+handle_mode_selection() {
+    local prefix="$1"
+    local selected="$2"
+    local mode_script
+    
+    mode_script=$(get_mode_script "$prefix")
+    [[ ! -f "$mode_script" ]] && return 1
+    
+    if source "$mode_script" 2>/dev/null && declare -f handle_selection >/dev/null 2>&1; then
+        handle_selection "$selected"
+        return $?
+    fi
+    
+    return 1
+}
+
+# Initialize modes
+load_modes
 
 process_desktop_file() {
     local desktop_file="$1"
@@ -77,43 +255,6 @@ rebuild_cache() {
     done | sort > "$CACHE_FILE.tmp" && mv "$CACHE_FILE.tmp" "$CACHE_FILE"
 }
 
-load_power_actions() {
-    [[ ! -f "$ACTIONS_SCRIPT" ]] && return
-    
-    # Get only power-related actions and add :power prefix
-    "$ACTIONS_SCRIPT" | grep -E "(Lock|Suspend|Relaunch|Restart|Shutdown)" | while IFS=$'\t' read -r display_name search_text command; do
-        echo ":power $display_name"$'\t'":power $search_text"$'\t'"$command"
-    done
-}
-
-load_governor_actions() {
-    # Get available CPU governors and create actions dynamically
-    if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" ]]; then
-        local current_governor=""
-        if [[ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" ]]; then
-            current_governor=$(cat "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" 2>/dev/null)
-        fi
-        
-        while read -r gov; do
-            [[ -z "$gov" ]] && continue
-            
-            local display_name="$gov"
-            local command_string=""
-            
-            if [[ "$gov" == "$current_governor" ]]; then
-                display_name="$display_name"$'\033[90m'" · current"$'\033[0m'
-                # No-op command for current governor
-                command_string="echo 'Governor $gov is already active'"
-            else  
-                display_name="$display_name"$'\033[90m'" · set CPU governor"$'\033[0m'
-                # Use the dedicated governor script
-                command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-set-governor $gov\""
-            fi
-            
-            echo ":governor $display_name"$'\t'":governor $gov set CPU governor"$'\t'"$command_string"
-        done < <(cat "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors" | tr ' ' '\n' | sort)
-    fi
-}
 
 cache_is_stale() {
     [[ ! -f "$CACHE_FILE" ]] && return 0
@@ -139,14 +280,6 @@ cache_is_stale() {
     return 1
 }
 
-load_system_actions() {
-    [[ ! -f "$ACTIONS_SCRIPT" ]] && return
-    
-    # Use the actions.sh script to get formatted actions
-    "$ACTIONS_SCRIPT" | while IFS=$'\t' read -r display_name search_text command; do
-        echo ":$display_name"$'\t'":$search_text"$'\t'"$command"
-    done
-}
 
 # Helper functions to check if commands are available
 has_hyprctl() {
@@ -157,121 +290,6 @@ has_tmux() {
     command -v tmux >/dev/null 2>&1
 }
 
-load_workspaces() {
-    has_hyprctl || return
-    
-    # Get active workspaces with their last window titles
-    hyprctl -j workspaces 2>/dev/null | jq -r '
-        .[] | 
-        select(.windows > 0) |
-        "// " + (.id | tostring) + ": " + .lastwindowtitle +
-        "\u001b[90m · " + (.windows | tostring) + " windows\u001b[0m" +
-        "\t// " + (.id | tostring) + " " + .lastwindowtitle +
-        "\tworkspace:" + (.id | tostring)
-    ' 2>/dev/null
-}
-
-load_windows() {
-    has_hyprctl || return
-    
-    # Get all windows with their details
-    hyprctl -j clients 2>/dev/null | jq -r '
-        .[] | 
-        select(.mapped == true) |
-        select(.class != "launcher") |
-        {
-            title: (if .title == "" then .initialTitle else .title end),
-            class: .class,
-            address: .address,
-            workspace: .workspace.name,
-            minimized: (.workspace.name == "special:minimized")
-        } |
-        "/ " + .title + 
-        (if .minimized then " (minimized)" else "" end) +
-        "\u001b[90m · " + .class + "\u001b[0m" +
-        "\t/ " + .title + " " + .class + 
-        (if .minimized then " minimized" else "" end) +
-        "\tfocus_window:" + .address
-    ' 2>/dev/null
-}
-
-load_tmux_sessions() {
-    has_tmux || return
-    
-    # Use the same approach as tmux-session-wizard-rewired
-    (
-        # First: Get existing tmux sessions sorted by recency
-        if tmux list-sessions >/dev/null 2>&1; then
-            tmux list-sessions -F "#{session_last_attached} #{session_name}: #{session_windows} window(s)#{?session_attached, (attached),}" 2>/dev/null | \
-            sort -rn | cut -d' ' -f2- | while read -r session_info; do
-                session_name=$(echo "$session_info" | cut -d':' -f1)
-                session_desc=$(echo "$session_info" | cut -d':' -f2-)
-                echo "$ $session_name"$'\033[90m'" ·$session_desc"$'\033[0m'$'\t'"$ $session_name $session_desc"$'\t'"tmux_session:$session_name"
-            done
-        fi
-        
-        # Second: Add zoxide directories for new session creation
-        if command -v zoxide >/dev/null 2>&1; then
-            zoxide query -l | grep -v '^/$' | grep -v '^/tmp' | grep -v '^/var' | head -60 | while read -r dir; do
-                dir_tilde=$(echo "$dir" | sed "s|$HOME|~|g")
-                dir_name=$(basename "$dir_tilde")
-                echo "$ $dir_name"$'\033[90m'" · Create session in $dir_tilde"$'\033[0m'$'\t'"$ $dir_name $dir_tilde new session"$'\t'"tmux_new:$dir"
-            done
-        fi
-    )
-}
-
-load_theme_actions() {
-    local themes_dir="$HOME/.config/omarchy/themes/"
-    local current_theme_dir="$HOME/.config/omarchy/current/theme"
-    
-    # Check if themes directory exists
-    [[ -d "$themes_dir" ]] || return
-    
-    # Get current theme name
-    local current_theme_name=""
-    if [[ -e "$current_theme_dir" ]]; then
-        current_theme_name=$(basename "$(realpath "$current_theme_dir" 2>/dev/null)" 2>/dev/null)
-    fi
-    
-    # List available themes (both directories and symlinks)
-    find "$themes_dir" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) -printf "%f\n" 2>/dev/null | sort | while read -r theme; do
-        [[ -z "$theme" ]] && continue
-        
-        local display_name="🎨 $theme"
-        local command_string=""
-        
-        if [[ "$theme" == "$current_theme_name" ]]; then
-            display_name="$display_name"$'\x1b[90m'" · current"$'\x1b[0m'
-            # No-op command for current theme
-            command_string="echo 'Theme $theme is already active'"
-        else
-            display_name="$display_name"$'\x1b[90m'" · switch theme"$'\x1b[0m'
-            # Use the theme set script
-            command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-theme-set '$theme'\""
-        fi
-        
-        echo ":theme $display_name"$'\t'":theme $theme switch theme"$'\t'"$command_string"
-    done
-}
-
-load_bash_commands() {
-    local query="$1"
-    # Extract command after "!" prefix
-    local cmd="${query#!}"
-    
-    # Skip if no command or just "!"
-    [[ -z "$cmd" || "$cmd" == " " ]] && return
-    
-    # Remove leading space if present  
-    cmd="${cmd# }"
-    
-    # Skip if still empty
-    [[ -z "$cmd" ]] && return
-    
-    # Just show option to run the command in terminal
-    echo "💻 Run '$cmd'"$'\t'"💻 Run '$cmd'"$'\t'"run_cmd_in_terminal:$cmd"
-}
 
 # Check if we're being called as a reload script
 if [[ "$1" == "--reload" ]]; then
@@ -279,23 +297,17 @@ if [[ "$1" == "--reload" ]]; then
     ACTIONS_SCRIPT="$3"
     QUERY="$4"
     
-    if [[ "$QUERY" == !* ]]; then
-        load_bash_commands "$QUERY"
-    elif [[ "$QUERY" == :governor* ]]; then
-        load_governor_actions
-    elif [[ "$QUERY" == :theme* ]]; then
-        load_theme_actions
-    elif [[ "$QUERY" == :power* ]]; then
-        load_power_actions
-    elif [[ "$QUERY" == :* ]]; then
-        load_system_actions
-    elif [[ "$QUERY" == "//"* ]]; then
-        load_workspaces
-    elif [[ "$QUERY" == "$"* ]]; then
-        load_tmux_sessions
-    elif [[ "$QUERY" == /* ]]; then
-        load_windows
+    # Initialize modes for reload context
+    load_modes
+    
+    # Try to find a matching mode for the query
+    matching_prefix=$(find_mode_for_query "$QUERY")
+    
+    if [[ -n "$matching_prefix" ]]; then
+        # Load data for the matching mode
+        load_mode_data "$matching_prefix" "$QUERY"
     else
+        # Default to application cache
         cat "$CACHE_FILE"
     fi
     exit 0
@@ -305,6 +317,20 @@ fi
 START_MODE=""
 INITIAL_QUERY=""
 
+# Generate usage message from available modes
+generate_usage() {
+    echo "Usage: $0 [--update] $(printf '[%s] ' $(for prefix in "${MODES_ORDER[@]}"; do echo "${MODES_INFO[$prefix]}" | awk '{print $3}'; done))"
+    echo "  --update     Update application cache"
+    
+    for prefix in "${MODES_ORDER[@]}"; do
+        mode_info="${MODES_INFO[$prefix]}"
+        icon=$(echo "$mode_info" | awk '{print $1}')
+        name=$(echo "$mode_info" | awk '{print $2}')
+        cmdline_switch=$(echo "$mode_info" | awk '{print $3}')
+        printf "  %-12s Start in %s mode\n" "$cmdline_switch" "$name"
+    done
+}
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --update)
@@ -313,52 +339,27 @@ while [[ $# -gt 0 ]]; do
             echo "Cache updated successfully"
             exit 0
             ;;
-        --windows)
-            START_MODE="windows"
-            INITIAL_QUERY="/ "
-            shift
-            ;;
-        --workspaces)
-            START_MODE="workspaces"
-            INITIAL_QUERY="// "
-            shift
-            ;;
-        --actions)
-            START_MODE="actions"
-            INITIAL_QUERY=":"
-            shift
-            ;;
-        --tmux)
-            START_MODE="tmux"
-            INITIAL_QUERY="$ "
-            shift
-            ;;
-        --power)
-            START_MODE="power"
-            INITIAL_QUERY=":power "
-            shift
-            ;;
-        --governor)
-            START_MODE="governor"
-            INITIAL_QUERY=":governor "
-            shift
-            ;;
-        --themes)
-            START_MODE="themes"
-            INITIAL_QUERY=":theme "
-            shift
-            ;;
         *)
-            echo "Usage: $0 [--update] [--windows] [--workspaces] [--actions] [--tmux] [--power] [--governor] [--themes]"
-            echo "  --update     Update application cache"
-            echo "  --windows    Start in window switching mode"
-            echo "  --workspaces Start in workspace switching mode"
-            echo "  --actions    Start in system actions mode"
-            echo "  --tmux       Start in tmux session mode"
-            echo "  --power      Start in power menu mode"
-            echo "  --governor   Start in CPU governor menu mode"
-            echo "  --themes     Start in theme selection mode"
-            exit 1
+            # Check if argument matches any mode's command line switch
+            mode_found=false
+            for prefix in "${MODES_ORDER[@]}"; do
+                mode_info="${MODES_INFO[$prefix]}"
+                cmdline_switch=$(echo "$mode_info" | awk '{print $3}')
+                
+                if [[ "$1" == "$cmdline_switch" ]]; then
+                    START_MODE="$prefix"
+                    INITIAL_QUERY="$prefix "
+                    mode_found=true
+                    break
+                fi
+            done
+            
+            if [[ "$mode_found" == false ]]; then
+                generate_usage
+                exit 1
+            fi
+            
+            shift
             ;;
     esac
 done
@@ -389,44 +390,127 @@ FZF_WITH_NTH="1"
 FZF_NTH="1,2"
 
 # FZF transform logic helpers
+# Dynamic query transform functions that work with any mode
 get_prompt_for_query() {
-    echo "if [[ -z {q} ]]; then echo -n '🚀 '; elif [[ {q} == !* ]]; then echo -n '💻 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == '\$'* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi"
+    local conditions="if [[ -z {q} ]]; then echo -n '🚀 ';"
+    
+    for prefix in "${MODES_ORDER[@]}"; do
+        local mode_info="${MODES_INFO[$prefix]}"
+        local icon=$(echo "$mode_info" | awk '{print $1}')
+        local escaped_prefix=$(printf '%q' "$prefix")
+        conditions="$conditions elif [[ {q} == $escaped_prefix* ]]; then echo -n '$icon ';"
+    done
+    
+    conditions="$conditions else echo -n '🚀 '; fi"
+    echo "$conditions"
 }
 
 get_query_transform() {
-    echo "if [[ {q} == ':power' ]]; then echo -n ':power '; elif [[ {q} == ':theme' ]]; then echo -n ':theme '; elif [[ {q} == ':governor' ]]; then echo -n ':governor '; elif [[ {q} == '//' ]]; then echo -n '// '; elif [[ {q} == '/' ]]; then echo -n '/ '; elif [[ {q} == '\$' ]]; then echo -n '\$ '; elif [[ {q} == '!' ]]; then echo -n '! '; else echo -n '{q}'; fi"
+    local conditions=""
+    
+    # Build transform conditions for hierarchical mode switching
+    for prefix in "${MODES_ORDER[@]}"; do
+        local escaped_prefix=$(printf '%q' "$prefix")
+        
+        # Handle spaced variants for child modes (e.g., ": power" -> ":power ")
+        if [[ "$prefix" =~ ^: ]] && [[ "$prefix" != ":" ]]; then
+            local spaced_variant=": ${prefix#:}"
+            if [[ -n "$conditions" ]]; then
+                conditions="$conditions elif [[ {q} == '$spaced_variant' ]]; then echo -n '$prefix ';"
+            else
+                conditions="if [[ {q} == '$spaced_variant' ]]; then echo -n '$prefix ';"
+            fi
+        fi
+        
+        # Handle exact matches - ALL modes get a space when activated
+        local output_value="$prefix "
+        # All navigable modes get a space for consistent UX
+        
+        if [[ -n "$conditions" ]]; then
+            conditions="$conditions elif [[ {q} == '$prefix' ]]; then echo -n '$output_value';"
+        else
+            conditions="if [[ {q} == '$prefix' ]]; then echo -n '$output_value';"
+        fi
+    done
+    
+    # Special handling for the / / -> // transformation
+    if [[ -n "$conditions" ]]; then
+        conditions="$conditions elif [[ {q} == '/ /' ]]; then echo -n '// ';"
+    else
+        conditions="if [[ {q} == '/ /' ]]; then echo -n '// ';"
+    fi
+    
+    # Add fallback
+    if [[ -n "$conditions" ]]; then
+        conditions="$conditions else echo -n '{q}'; fi"
+    else
+        conditions="echo -n '{q}'"
+    fi
+    
+    echo "$conditions"
 }
 
 get_backspace_query_transform() {
-    echo "if [[ {q} == ':power' || {q} == ':theme' || {q} == ':governor' || {q} == '//' || {q} == '/' || {q} == '\$' || {q} == '!' ]]; then echo -n ''; else echo -n '{q}'; fi"
+    local conditions=""
+    
+    # Handle hierarchical backspace navigation - process in order of specificity
+    for prefix in "${MODES_ORDER[@]}"; do
+        if is_child_mode "$prefix"; then
+            # Child mode with space: backspace should go to parent mode with space
+            local parent_mode=$(get_parent_mode "$prefix")
+            
+            if [[ -n "$conditions" ]]; then
+                conditions="$conditions elif [[ {q} == '$prefix ' ]]; then echo -n '$parent_mode ';"
+            else
+                conditions="if [[ {q} == '$prefix ' ]]; then echo -n '$parent_mode ';"
+            fi
+        else
+            # Parent mode or leaf mode: backspace from spaced version should clear
+            if [[ -n "$conditions" ]]; then
+                conditions="$conditions elif [[ {q} == '$prefix ' ]]; then echo -n '';"
+            else
+                conditions="if [[ {q} == '$prefix ' ]]; then echo -n '';"
+            fi
+        fi
+        
+        # Handle non-spaced versions (fallback) - always clear
+        if [[ -n "$conditions" ]]; then
+            conditions="$conditions elif [[ {q} == '$prefix' ]]; then echo -n '';"
+        else
+            conditions="if [[ {q} == '$prefix' ]]; then echo -n '';"
+        fi
+    done
+    
+    if [[ -n "$conditions" ]]; then
+        conditions="$conditions else echo -n '{q}'; fi"
+    else
+        conditions="echo -n '{q}'"
+    fi
+    
+    echo "$conditions"
 }
 
 get_backspace_prompt_transform() {
-    echo "if [[ {q} == '' ]]; then echo -n '🚀 '; elif [[ {q} == :governor* ]]; then echo -n '⚙️ '; elif [[ {q} == :theme* ]]; then echo -n '🎨 '; elif [[ {q} == :power* ]]; then echo -n '🔌 '; elif [[ {q} == :* ]]; then echo -n '⚡ '; elif [[ {q} == //* ]]; then echo -n '🏢 '; elif [[ {q} == /* ]]; then echo -n '🪟 '; elif [[ {q} == '\$'* ]]; then echo -n '📟 '; else echo -n '🚀 '; fi"
+    local conditions="if [[ {q} == '' ]]; then echo -n '🚀 ';"
+    
+    for prefix in "${MODES_ORDER[@]}"; do
+        local mode_info="${MODES_INFO[$prefix]}"
+        local icon=$(echo "$mode_info" | awk '{print $1}')
+        local escaped_prefix=$(printf '%q' "$prefix")
+        conditions="$conditions elif [[ {q} == $escaped_prefix* ]]; then echo -n '$icon ';"
+    done
+    
+    conditions="$conditions else echo -n '🚀 '; fi"
+    echo "$conditions"
 }
 
 # Set prompt and initial data based on mode
-if [[ "$START_MODE" == "windows" ]]; then
-    PROMPT="🪟 "
-    INITIAL_DATA=$(load_windows)
-elif [[ "$START_MODE" == "workspaces" ]]; then
-    PROMPT="🏢 "
-    INITIAL_DATA=$(load_workspaces)
-elif [[ "$START_MODE" == "actions" ]]; then
-    PROMPT="⚡ "
-    INITIAL_DATA=$(load_system_actions)
-elif [[ "$START_MODE" == "tmux" ]]; then
-    PROMPT="📟 "
-    INITIAL_DATA=$(load_tmux_sessions)
-elif [[ "$START_MODE" == "power" ]]; then
-    PROMPT="🔌 "
-    INITIAL_DATA=$(load_power_actions)
-elif [[ "$START_MODE" == "governor" ]]; then
-    PROMPT="⚙️ "
-    INITIAL_DATA=$(load_governor_actions)
-elif [[ "$START_MODE" == "themes" ]]; then
-    PROMPT="🎨 "
-    INITIAL_DATA=$(load_theme_actions)
+if [[ -n "$START_MODE" ]]; then
+    # Get mode info and set prompt and data dynamically
+    mode_info="${MODES_INFO[$START_MODE]}"
+    icon=$(echo "$mode_info" | awk '{print $1}')
+    PROMPT="$icon "
+    INITIAL_DATA=$(load_mode_data "$START_MODE" "$INITIAL_QUERY")
 else
     PROMPT="🚀 "
     INITIAL_DATA=$(cat "$CACHE_FILE" 2>/dev/null || echo "")
@@ -473,81 +557,18 @@ fi
 
 # Launch the selected application or execute system action
 if [ -n "$selected" ]; then
-    # Check if it's a workspace switch command
-    if [[ "$selected" =~ ^workspace: ]]; then
-        # Extract workspace number and switch to it
-        workspace_id="${selected#workspace:}"
-        has_hyprctl && hyprctl dispatch workspace "$workspace_id"
-    # Check if it's a window focus command
-    elif [[ "$selected" =~ ^focus_window: ]]; then
-        # Extract window address and focus it
-        window_address="${selected#focus_window:}"
-        if has_hyprctl; then
-            # Check if window is minimized (in special:minimized workspace)
-            window_workspace=$(hyprctl -j clients | jq -r ".[] | select(.address == \"$window_address\") | .workspace.name")
-            if [[ "$window_workspace" == "special:minimized" ]]; then
-                # Window is minimized - restore it to current workspace
-                current_workspace=$(hyprctl -j activeworkspace | jq -r '.name')
-                hyprctl dispatch movetoworkspace "$current_workspace,address:$window_address"
-            fi
-            hyprctl dispatch focuswindow "address:$window_address"
+    # Try to handle selection through mode-specific handlers first
+    handled=false
+    
+    for prefix in "${MODES_ORDER[@]}"; do
+        if handle_mode_selection "$prefix" "$selected"; then
+            handled=true
+            break
         fi
-    # Check if it's a tmux session command
-    elif [[ "$selected" =~ ^tmux_session: ]]; then
-        # Extract session name and attach to it
-        session_name="${selected#tmux_session:}"
-        if has_hyprctl; then
-            hyprctl dispatch exec "alacritty -e tmux attach -t '$session_name'"
-        else
-            alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
-        fi
-    # Check if it's a tmux new session command  
-    elif [[ "$selected" =~ ^tmux_new: ]]; then
-        # Extract directory path and create new session
-        dir_path="${selected#tmux_new:}"
-        session_name=$(basename "$dir_path" | tr '.[:upper:]' '_[:lower:]')
-        if has_hyprctl; then
-            if ! tmux has-session -t="$session_name" 2>/dev/null; then
-                hyprctl dispatch exec "alacritty -e tmux new-session -s '$session_name' -c '$dir_path'"
-            else
-                hyprctl dispatch exec "alacritty -e tmux attach -t '$session_name'"
-            fi
-        else
-            if ! tmux has-session -t="$session_name" 2>/dev/null; then
-                alacritty -e tmux new-session -s "$session_name" -c "$dir_path" >/dev/null 2>&1 &
-            else
-                alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
-            fi
-        fi
-    # Check if it's a bash command run request
-    elif [[ "$selected" =~ ^run_cmd_in_terminal: ]]; then
-        # Extract command and run in interactive terminal
-        cmd="${selected#run_cmd_in_terminal:}"
-        if has_hyprctl; then
-            hyprctl dispatch exec "alacritty -e bash -c '$cmd; exec bash'"
-        else
-            alacritty -e bash -c "$cmd; exec bash" >/dev/null 2>&1 &
-        fi
-    # Check if it's a direct command (hyprctl, systemctl, etc.)
-    elif [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|omarchy-|/home/[^/]+/.local/share/omarchy/bin/) ]]; then
-        # Execute system action directly
-        eval "$selected"
-    # Check if it's a system action (function name from actions.sh)
-    elif [[ -f "$HOME/.local/share/omarchy/bin/actions.sh" ]]; then
-        # Source actions.sh first, then check if function exists
-        source "$HOME/.local/share/omarchy/bin/actions.sh"
-        if declare -f "$selected" >/dev/null 2>&1; then
-            "$selected"
-        else
-            # Launch desktop application
-            if has_hyprctl; then
-                hyprctl dispatch -- exec "gtk-launch $selected"
-            else
-                # Fallback for non-Hyprland environments
-                setsid gtk-launch "$selected" >/dev/null 2>&1 &
-            fi
-        fi
-    else
+    done
+    
+    # If no mode handled it, fall back to desktop application launch
+    if [[ "$handled" == false ]]; then
         # Launch desktop application
         if has_hyprctl; then
             hyprctl dispatch -- exec "gtk-launch $selected"
