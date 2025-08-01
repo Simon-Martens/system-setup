@@ -253,12 +253,6 @@ toggle_dnd() {
 }
 register_action "toggle_dnd" "Toggle DND" "Toggle do not disturb"
 
-# System Management Actions
-sync_apps() {
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-sync-apps
-}
-register_action "sync_apps" "Sync Apps" "Sync application entries and icons"
-
 update_omarchy() {
     hyprctl dispatch exec "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo \"Update complete. Press any key to continue...\" && read'"
 }

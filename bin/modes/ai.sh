@@ -43,9 +43,9 @@ handle_selection() {
         fi
         
         if $has_hyprctl; then
-            hyprctl dispatch exec "alacritty -e bash -c 'source ~/.bashrc; echo \"🤖 Asking Claude: $question\"; echo; claude -p \"$question\"; exec bash'"
+            hyprctl dispatch exec "alacritty -e bash -c 'echo \"🤖 Asking Claude: $question\"; echo; /usr/bin/claude -p \"$question\"; exec bash'"
         else
-            alacritty -e bash -c "source ~/.bashrc; echo '🤖 Asking Claude: $question'; echo; claude -p '$question'; exec bash" >/dev/null 2>&1 &
+            alacritty -e bash -c "echo '🤖 Asking Claude: $question'; echo; claude -p '$question'; exec bash" >/dev/null 2>&1 &
         fi
         return 0
     fi
