@@ -453,31 +453,31 @@ get_query_transform() {
 get_backspace_query_transform() {
     local conditions=""
     
-    # Handle hierarchical backspace navigation - process in order of specificity
+    # Handle hierarchical backspace navigation
     for prefix in "${MODES_ORDER[@]}"; do
         if is_child_mode "$prefix"; then
-            # Child mode with space: backspace should go to parent mode with space
+            # Child modes (both spaced and non-spaced): go to parent with space
             local parent_mode=$(get_parent_mode "$prefix")
             
+            # Handle spaced version
             if [[ -n "$conditions" ]]; then
                 conditions="$conditions elif [[ {q} == '$prefix ' ]]; then echo -n '$parent_mode ';"
             else
                 conditions="if [[ {q} == '$prefix ' ]]; then echo -n '$parent_mode ';"
             fi
+            
+            # Handle non-spaced version (this was the bug!)
+            conditions="$conditions elif [[ {q} == '$prefix' ]]; then echo -n '$parent_mode ';"
+            
         else
-            # Parent mode or leaf mode: backspace from spaced version should clear
+            # Parent/leaf modes: backspace clears completely
             if [[ -n "$conditions" ]]; then
                 conditions="$conditions elif [[ {q} == '$prefix ' ]]; then echo -n '';"
+                conditions="$conditions elif [[ {q} == '$prefix' ]]; then echo -n '';"
             else
                 conditions="if [[ {q} == '$prefix ' ]]; then echo -n '';"
+                conditions="$conditions elif [[ {q} == '$prefix' ]]; then echo -n '';"
             fi
-        fi
-        
-        # Handle non-spaced versions (fallback) - always clear
-        if [[ -n "$conditions" ]]; then
-            conditions="$conditions elif [[ {q} == '$prefix' ]]; then echo -n '';"
-        else
-            conditions="if [[ {q} == '$prefix' ]]; then echo -n '';"
         fi
     done
     
