@@ -6,7 +6,6 @@
 CACHE_DIR="$HOME/.cache/fzf-launcher"
 CACHE_FILE="$CACHE_DIR/apps.cache"
 LOCK_FILE="$CACHE_DIR/rebuild.lock"
-ACTIONS_SCRIPT="$HOME/.local/share/omarchy/bin/actions.sh"
 MODES_DIR="$HOME/.local/share/omarchy/bin/modes"
 
 mkdir -p "$CACHE_DIR"
@@ -294,8 +293,7 @@ has_tmux() {
 # Check if we're being called as a reload script
 if [[ "$1" == "--reload" ]]; then
     CACHE_FILE="$2"
-    ACTIONS_SCRIPT="$3"
-    QUERY="$4"
+    QUERY="$3"
     
     # Initialize modes for reload context
     load_modes
@@ -529,7 +527,7 @@ if [[ -f "$CACHE_FILE" || -n "$START_MODE" ]]; then
         --color="$FZF_COLORS" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
+        --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
         --bind="bspace:backward-delete-char+transform-query($(get_backspace_query_transform))+transform-prompt($(get_backspace_prompt_transform))" \
         | cut -d"$FZF_DELIMITER" -f3)
@@ -548,7 +546,7 @@ else
         --color="$FZF_COLORS" \
         --info=hidden \
         --ansi \
-        --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE $ACTIONS_SCRIPT {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
+        --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
         --bind="bspace:backward-delete-char+transform-query($(get_backspace_query_transform))+transform-prompt($(get_backspace_prompt_transform))" \
         | cut -d"$FZF_DELIMITER" -f3)
