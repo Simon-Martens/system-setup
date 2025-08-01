@@ -51,10 +51,6 @@ reload_waybar() {
 }
 register_action "reload_waybar" "Reload Waybar" "Reload waybar"
 
-refresh_waybar() {
-    cp ~/.local/share/omarchy/config/waybar/omarchy_config ~/.config/waybar/config && cp ~/.local/share/omarchy/config/waybar/omarchy_style.css ~/.config/waybar/style.css && pkill -SIGUSR2 waybar
-}
-register_action "refresh_waybar" "Refresh Waybar" "Reset Waybar to omarchy defaults"
 
 restart_system() {
     systemctl reboot
@@ -260,11 +256,6 @@ update_omarchy() {
     hyprctl dispatch exec "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && exec bash'"
 }
 register_action "update_omarchy" "Update Omarchy" "Update omarchy system and packages"
-
-config_link() {
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-config-link
-}
-register_action "config_link" "Config Link" "Link omarchy configs for testing"
 
 show_keybindings() {
     hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-show-keybindings

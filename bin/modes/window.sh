@@ -29,7 +29,7 @@ minimize_window() {
 
 close_window() {
     # Use the existing close window script which already handles window detection
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-close-window
+		# ?
 }
 
 toggle_float() {
