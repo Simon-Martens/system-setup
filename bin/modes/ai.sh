@@ -1,27 +1,28 @@
 #!/bin/bash
 
-# AI assistant mode - # prefix
+# Bash command execution mode - ! prefix
 
 get_mode_info() {
-    echo "# 🤖 AI --ai"
+    echo "? 🤖AI --ai"
 }
 
 load_data() {
     local query="$1"
-    # Extract question after "#" prefix
-    local question="${query##\#}"
+    # Extract command after "@" prefix
+    #local cmd="${query#\@}"
+		local cmd="${query}"
     
-    # Skip if no question or just "#"
-    [[ -z "$question" || "$question" == " " ]] && return
+    # Skip if no command or just "@"
+    [[ -z "$cmd" || "$cmd" == " " ]] && return
     
     # Remove leading space if present  
-    question="${question# }"
+    cmd="${cmd# }"
     
     # Skip if still empty
-    [[ -z "$question" ]] && return
+    [[ -z "$cmd" ]] && return
     
-    # Show option to ask Claude the question
-    echo "🤖 Ask Claude: '$question'"$'\t'"🤖 Ask Claude: '$question'"$'\t'"ask_claude:$question"
+    # Just show option to run the command in terminal
+    echo "󰋖 Query '$cmd'"$'\t'"󰋖 Query Claude"$'\t'"ask_ai:$cmd"
 }
 
 handle_selection() {
@@ -29,23 +30,14 @@ handle_selection() {
     local has_hyprctl=false
     command -v hyprctl >/dev/null 2>&1 && has_hyprctl=true
     
-    # Check if it's an AI question request
-    if [[ "$selected" =~ ^ask_claude: ]]; then
-        # Extract question and ask Claude
-        local question="${selected#ask_claude:}"
-        
-        # Check if Claude CLI is available
-        if ! command -v claude >/dev/null 2>&1; then
-            if command -v notify-send >/dev/null 2>&1; then
-                notify-send "AI Assistant" "Claude CLI not found. Please install claude-cli."
-            fi
-            return 1
-        fi
-        
+    # Check if it's a bash command run request
+    if [[ "$selected" =~ ^ask_ai: ]]; then
+        # Extract command and run in interactive terminal
+        local cmd="${selected#ask_ai:}"
         if $has_hyprctl; then
-            hyprctl dispatch exec "alacritty -e bash -c 'echo \"🤖 Asking Claude: $question\"; echo; /usr/bin/claude -p \"$question\"; exec bash'"
+            hyprctl dispatch exec "alacritty --title 'Claude AI' -e bash -c 'echo \"🤖 Question: $cmd\"; echo; /usr/bin/claude -p \"$cmd\"; echo; echo \"Press any key to exit...\"; read -n1'"
         else
-            alacritty -e bash -c "echo '🤖 Asking Claude: $question'; echo; claude -p '$question'; exec bash" >/dev/null 2>&1 &
+            alacritty --title 'Claude AI' -e bash -c "echo '🤖 Question: $cmd'; echo; /usr/bin/claude -p '$cmd'; echo; echo 'Press any key to exit...'; read -n1" >/dev/null 2>&1 &
         fi
         return 0
     fi

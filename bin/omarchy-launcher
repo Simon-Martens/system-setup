@@ -314,11 +314,13 @@ fi
 # Parse command line arguments
 START_MODE=""
 INITIAL_QUERY=""
+TERMINAL_MODE=false
 
 # Generate usage message from available modes
 generate_usage() {
-    echo "Usage: $0 [--update] $(printf '[%s] ' $(for prefix in "${MODES_ORDER[@]}"; do echo "${MODES_INFO[$prefix]}" | awk '{print $3}'; done))"
+    echo "Usage: $0 [--update] [-t|--terminal] $(printf '[%s] ' $(for prefix in "${MODES_ORDER[@]}"; do echo "${MODES_INFO[$prefix]}" | awk '{print $3}'; done))"
     echo "  --update     Update application cache"
+    echo "  -t, --terminal    Open launcher in external terminal window"
     
     for prefix in "${MODES_ORDER[@]}"; do
         mode_info="${MODES_INFO[$prefix]}"
@@ -336,6 +338,10 @@ while [[ $# -gt 0 ]]; do
             rebuild_cache
             echo "Cache updated successfully"
             exit 0
+            ;;
+        -t|--terminal)
+            TERMINAL_MODE=true
+            shift
             ;;
         *)
             # Check if argument matches any mode's command line switch
@@ -361,6 +367,42 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Handle terminal mode by launching in external terminal
+if [[ "$TERMINAL_MODE" == true ]]; then
+    # Capture the currently active window in background while launching terminal
+    if command -v hyprctl >/dev/null 2>&1; then
+        # Start window capture in background and launch terminal immediately
+        {
+            OMARCHY_PREVIOUS_WINDOW=$(hyprctl -j activewindow 2>/dev/null | jq -r '.address // empty')
+            # Write to a temp file that the launcher can read
+            echo "$OMARCHY_PREVIOUS_WINDOW" > "/tmp/omarchy-previous-window-$$"
+        } &
+        
+        # Export the temp file path so launcher knows where to look
+        export OMARCHY_PREVIOUS_WINDOW_FILE="/tmp/omarchy-previous-window-$$"
+    fi
+    
+    # Build arguments for recursive call (without -t flag)
+    args=()
+    for prefix in "${MODES_ORDER[@]}"; do
+        mode_info="${MODES_INFO[$prefix]}"
+        cmdline_switch=$(echo "$mode_info" | awk '{print $3}')
+        if [[ "$START_MODE" == "$prefix" ]]; then
+            args+=("$cmdline_switch")
+            break
+        fi
+    done
+    
+    # Launch alacritty with the launcher
+    alacritty \
+        --class=launcher \
+        --title="Application Launcher" \
+        --option 'window.decorations="none"' \
+        -e "$0" "${args[@]}"
+    
+    exit 0
+fi
 
 # Main execution
 if [[ ! -f "$CACHE_FILE" ]]; then

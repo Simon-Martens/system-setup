@@ -43,7 +43,7 @@
 		},
     "tooltip": false,
 		"separate-outputs": true,
-		"on-click": "~/.local/share/omarchy/bin/omarchy-launcher-terminal --windows",
+		"on-click": "~/.local/share/omarchy/bin/omarchy-launcher -t --windows",
 		"on-scroll-up": "hyprctl dispatch workspace r-1",
 		"on-scroll-down": "hyprctl dispatch workspace r+1"
 	},
@@ -131,7 +131,7 @@
       "warning": 20,
       "critical": 10
     },
-		"on-click": "~/.local/share/omarchy/bin/omarchy-launcher-terminal --governor"
+		"on-click": "~/.local/share/omarchy/bin/omarchy-launcher -t --governor"
   },
   "network": {
     "format-wifi": "󰤢  {essid}",
@@ -179,7 +179,7 @@
 		"interval": 20,
 		"tooltip": true,
 		"format": "  {text}",
-		"on-click": "~/.local/share/omarchy/bin/omarchy-launcher-terminal --tmux"
+		"on-click": "~/.local/share/omarchy/bin/omarchy-launcher -t --tmux"
 	},
   "custom/lock": {
     "tooltip": false,
