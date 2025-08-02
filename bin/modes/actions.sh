@@ -90,38 +90,73 @@ register_action "tmux_sessions" "Tmux" "Control tmux sessions"
 
 # Audio Actions
 audio_mixer() {
-    launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix'"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "wiremix"
+    else
+        launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix'"
+    fi
 }
 register_action "audio_mixer" "Audio Mixer" "Open audio mixer"
 
 audio_output() {
-    launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix -v output'"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "wiremix -v output"
+    else
+        launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix -v output'"
+    fi
 }
 register_action "audio_output" "Audio Output" "Open audio output panel"
 
 audio_input() {
-    launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix -v input'"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "wiremix -v input"
+    else
+        launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix -v input'"
+    fi
 }
 register_action "audio_input" "Audio Input" "Open audio input panel"
 
 # Network Actions
 network_manager() {
-    launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "nmtui"
+    else
+        launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    fi
 }
 register_action "network_manager" "Network" "Control network connections"
 
 wifi_manager() {
-    launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "nmtui"
+    else
+        launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    fi
 }
 register_action "wifi_manager" "WiFi" "Control WiFi connections"
 
 ethernet_manager() {
-    launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "nmtui"
+    else
+        launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    fi
 }
 register_action "ethernet_manager" "Ethernet" "Control ethernet connections"
 
 bluetooth_manager() {
-    launch_app "alacritty --class bluetui -e bash -c 'sleep 0.5; bluetui'"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "bluetui"
+    else
+        launch_app "alacritty --class bluetui -e bash -c 'sleep 0.5; bluetui'"
+    fi
 }
 register_action "bluetooth_manager" "Bluetooth" "Control bluetooth devices"
 
@@ -183,12 +218,22 @@ browser() {
 register_action "browser" "Browser" "Open Firefox browser"
 
 system_monitor() {
-    launch_app "alacritty --class btop -e btop"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "btop"
+    else
+        launch_app "alacritty --class btop -e btop"
+    fi
 }
 register_action "system_monitor" "System Monitor" "Open system monitor"
 
 notes() {
-    launch_app "alacritty -e ~/.local/share/omarchy/bin/notes"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "~/.local/share/omarchy/bin/notes"
+    else
+        launch_app "alacritty -e ~/.local/share/omarchy/bin/notes"
+    fi
 }
 register_action "notes" "Notes" "Open notes in terminal"
 
@@ -254,7 +299,12 @@ toggle_dnd() {
 register_action "toggle_dnd" "Toggle DND" "Toggle do not disturb"
 
 update_omarchy() {
-    launch_app "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo \"Update complete. Press any key to continue...\" && read'"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo 'Update complete.'"
+    else
+        launch_app "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo \"Update complete. Press any key to continue...\" && read'"
+    fi
 }
 register_action "update_omarchy" "Update System" "Update omarchy, refresh config, and system packages"
 
@@ -264,7 +314,12 @@ reload_config() {
 register_action "reload_config" "Reload Config" "Refresh omarchy configuration"
 
 show_keybindings() {
-    launch_app "alacritty --class=launcher -e ~/.local/share/omarchy/bin/omarchy-show-keybindings"
+    # Check if we're in terminal mode (launched with -t)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        run_in_current_terminal "~/.local/share/omarchy/bin/omarchy-show-keybindings"
+    else
+        launch_app "alacritty --class=launcher -e ~/.local/share/omarchy/bin/omarchy-show-keybindings"
+    fi
 }
 register_action "show_keybindings" "Keybindings" "Show keybindings"
 

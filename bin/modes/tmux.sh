@@ -41,10 +41,18 @@ handle_selection() {
     if [[ "$selected" =~ ^tmux_session: ]]; then
         # Extract session name and attach to it
         local session_name="${selected#tmux_session:}"
-        if $has_hyprctl; then
-            hyprctl dispatch exec "alacritty -e tmux attach -t '$session_name'"
+        
+        # Check if we're in terminal mode (launched with -t)
+        if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+            # We're in terminal mode - use current terminal and attach to session
+            launch_in_current_terminal "tmux attach -t '$session_name'"
         else
-            alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
+            # Not in terminal mode - launch new alacritty window
+            if $has_hyprctl; then
+                hyprctl dispatch exec "alacritty -e tmux attach -t '$session_name'"
+            else
+                alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
+            fi
         fi
         return 0
     # Check if it's a tmux new session command  
@@ -52,17 +60,29 @@ handle_selection() {
         # Extract directory path and create new session
         local dir_path="${selected#tmux_new:}"
         local session_name=$(basename "$dir_path" | tr '.[:upper:]' '_[:lower:]')
-        if $has_hyprctl; then
+        
+        # Check if we're in terminal mode (launched with -t)
+        if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+            # We're in terminal mode - use current terminal
             if ! tmux has-session -t="$session_name" 2>/dev/null; then
-                hyprctl dispatch exec "alacritty -e tmux new-session -s '$session_name' -c '$dir_path'"
+                launch_in_current_terminal "tmux new-session -s '$session_name' -c '$dir_path'"
             else
-                hyprctl dispatch exec "alacritty -e tmux attach -t '$session_name'"
+                launch_in_current_terminal "tmux attach -t '$session_name'"
             fi
         else
-            if ! tmux has-session -t="$session_name" 2>/dev/null; then
-                alacritty -e tmux new-session -s "$session_name" -c "$dir_path" >/dev/null 2>&1 &
+            # Not in terminal mode - launch new alacritty window
+            if $has_hyprctl; then
+                if ! tmux has-session -t="$session_name" 2>/dev/null; then
+                    hyprctl dispatch exec "alacritty -e tmux new-session -s '$session_name' -c '$dir_path'"
+                else
+                    hyprctl dispatch exec "alacritty -e tmux attach -t '$session_name'"
+                fi
             else
-                alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
+                if ! tmux has-session -t="$session_name" 2>/dev/null; then
+                    alacritty -e tmux new-session -s "$session_name" -c "$dir_path" >/dev/null 2>&1 &
+                else
+                    alacritty -e tmux attach -t "$session_name" >/dev/null 2>&1 &
+                fi
             fi
         fi
         return 0
