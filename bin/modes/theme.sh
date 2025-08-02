@@ -33,7 +33,7 @@ load_data() {
         else
             display_name="$display_name"$'\x1b[90m'" · switch theme"$'\x1b[0m'
             # Use the theme set script
-            command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-theme-set '$theme'\""
+            command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-theme-set $theme\""
         fi
         
         echo ":theme $display_name"$'\t'":theme $theme switch theme"$'\t'"$command_string"

@@ -289,6 +289,63 @@ has_tmux() {
     command -v tmux >/dev/null 2>&1
 }
 
+# Utility function to launch applications - uses setsid for detached launching
+launch_app() {
+    local command="$1"
+    setsid bash -c "$command" >/dev/null 2>&1 &
+}
+
+# Utility function for Hyprland-specific launching - handles arbitrary command strings
+launch_app_hyprland() {
+    local command="$*"  # Use $* to get all arguments as a single string
+    if has_hyprctl; then
+        eval "hyprctl dispatch exec $command"
+    else
+        # Fallback to regular launch for non-Hyprland environments
+        eval "$command" >/dev/null 2>&1 &
+    fi
+}
+
+# Utility function to run command in current terminal and start shell
+launch_in_current_terminal() {
+    local command="$1"
+    
+    if has_hyprctl; then
+        # Get current window info to check what needs to be reverted
+        local window_info=$(hyprctl activewindow -j)
+        local is_floating=$(echo "$window_info" | jq -r '.floating')
+        local is_pinned=$(echo "$window_info" | jq -r '.pinned') 
+        local window_addr=$(echo "$window_info" | jq -r '.address')
+        
+        # Revert launcher window rules to normal window behavior using dispatchers
+        # Make it tiled if currently floating
+        if [[ "$is_floating" == "true" ]]; then
+            hyprctl dispatch togglefloating
+        fi
+        
+        # Unpin if currently pinned
+        if [[ "$is_pinned" == "true" ]]; then
+            hyprctl dispatch pin
+        fi
+        
+        # Use setprop for properties that support it
+        hyprctl dispatch setprop address:$window_addr dimaround 0     # Remove background dimming
+        hyprctl dispatch setprop address:$window_addr bordersize 2    # Normal border size
+        
+        # Note: stayfocused cannot be easily reverted as it's not a toggleable property
+    fi
+    
+    # Clear the terminal and run the command
+    clear
+    echo "════════════════════════════════════════"
+    echo "🚀 Launching: $command"
+    echo "════════════════════════════════════════"
+    echo
+    
+    # Execute the command
+    eval "$command"
+}
+
 
 # Check if we're being called as a reload script
 if [[ "$1" == "--reload" ]]; then
@@ -572,6 +629,7 @@ if [[ -f "$CACHE_FILE" || -n "$START_MODE" ]]; then
         --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
         --bind="bspace:backward-delete-char+transform-query($(get_backspace_query_transform))+transform-prompt($(get_backspace_prompt_transform))" \
+        --bind="esc:abort" \
         | cut -d"$FZF_DELIMITER" -f3)
 else
     # Fallback if no cache (should rarely happen)
@@ -591,33 +649,71 @@ else
         --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
         --bind="start:transform-prompt(echo -n '$PROMPT')" \
         --bind="bspace:backward-delete-char+transform-query($(get_backspace_query_transform))+transform-prompt($(get_backspace_prompt_transform))" \
+        --bind="esc:abort" \
         | cut -d"$FZF_DELIMITER" -f3)
 fi
 
 
-# Launch the selected application or execute system action
-if [ -n "$selected" ]; then
-    # Try to handle selection through mode-specific handlers first
-    handled=false
-    
-    for prefix in "${MODES_ORDER[@]}"; do
-        if handle_mode_selection "$prefix" "$selected"; then
-            handled=true
+# Handle the initial selection and enter loop only if needed
+while true; do
+    # Launch the selected application or execute system action
+    if [ -n "$selected" ]; then
+        # Try to handle selection through mode-specific handlers first
+        handled=false
+        should_continue=false
+        
+        for prefix in "${MODES_ORDER[@]}"; do
+            if handle_mode_selection "$prefix" "$selected"; then
+                handled=true
+                # Check if this was an interactive mode that should continue the loop
+                # Only run_cmd_in_terminal and ask_ai should continue, run_cmd_with_shell should not
+                if [[ "$selected" =~ ^(run_cmd_in_terminal:|ask_ai:) ]] && [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+                    should_continue=true
+                fi
+                break
+            fi
+        done
+        
+        # If no mode handled it, fall back to desktop application launch
+        if [[ "$handled" == false ]]; then
+            # Launch desktop application
+            launch_app "gtk-launch $selected"
+            # Desktop apps should not continue the loop
+            should_continue=false
+        fi
+        
+        # Exit if not in terminal mode, or if this wasn't an interactive command
+        if [[ -z "$OMARCHY_PREVIOUS_WINDOW_FILE" ]] || [[ "$should_continue" == false ]]; then
             break
         fi
-    done
-    
-    # If no mode handled it, fall back to desktop application launch
-    if [[ "$handled" == false ]]; then
-        # Launch desktop application
-        if has_hyprctl; then
-            hyprctl dispatch -- exec "gtk-launch $selected"
-        else
-            # Fallback for non-Hyprland environments
-            setsid gtk-launch "$selected" >/dev/null 2>&1 &
+        
+        # In terminal mode, restart FZF for continuous use (only if we should continue)
+        selected=$(echo "$INITIAL_DATA" | fzf \
+            --delimiter="$FZF_DELIMITER" \
+            --with-nth="$FZF_WITH_NTH" \
+            --nth="$FZF_NTH" \
+            --query="" \
+            --height="$FZF_HEIGHT" \
+            --layout="$FZF_LAYOUT" \
+            --margin="$FZF_MARGIN" \
+            --color="$FZF_COLORS" \
+            --info=hidden \
+            --ansi \
+            --bind="change:reload($SCRIPT_PATH --reload $CACHE_FILE {q})+transform-prompt($(get_prompt_for_query))+transform-query($(get_query_transform))" \
+            --bind="start:transform-prompt(echo -n '$PROMPT')" \
+            --bind="bspace:backward-delete-char+transform-query($(get_backspace_query_transform))+transform-prompt($(get_backspace_prompt_transform))" \
+            --bind="esc:abort" \
+            | cut -d"$FZF_DELIMITER" -f3)
+        
+        # If user cancelled (ESC or Ctrl+C), exit
+        if [[ -z "$selected" ]]; then
+            break
         fi
+    else
+        # No selection, exit
+        break
     fi
-fi
+done
 
 # Cleanup temp file if it exists
 if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" && -f "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then

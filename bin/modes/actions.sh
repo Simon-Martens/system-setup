@@ -27,7 +27,7 @@ power_menu() {
 register_action "power_menu" "Power" "Show power menu"
 
 lock_session() {
-    hyprctl dispatch exec hyprlock
+    launch_app hyprlock
 }
 register_action "lock_session" "Lock" "Lock the current session"
 
@@ -84,44 +84,44 @@ location_menu() {
 register_action "location_menu" "Location" "Switch location settings"
 
 tmux_sessions() {
-    hyprctl dispatch exec "~/.local/share/omarchy/bin/omarchy-launcher-terminal --tmux"
+    launch_app "~/.local/share/omarchy/bin/omarchy-launcher-terminal --tmux"
 }
 register_action "tmux_sessions" "Tmux" "Control tmux sessions"
 
 # Audio Actions
 audio_mixer() {
-    hyprctl dispatch exec "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix'"
+    launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix'"
 }
 register_action "audio_mixer" "Audio Mixer" "Open audio mixer"
 
 audio_output() {
-    hyprctl dispatch exec "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix -v output'"
+    launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix -v output'"
 }
 register_action "audio_output" "Audio Output" "Open audio output panel"
 
 audio_input() {
-    hyprctl dispatch exec "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix -v input'"
+    launch_app "alacritty --class wiremix -e bash -c 'sleep 0.2; wiremix -v input'"
 }
 register_action "audio_input" "Audio Input" "Open audio input panel"
 
 # Network Actions
 network_manager() {
-    hyprctl dispatch exec "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
 }
 register_action "network_manager" "Network" "Control network connections"
 
 wifi_manager() {
-    hyprctl dispatch exec "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
 }
 register_action "wifi_manager" "WiFi" "Control WiFi connections"
 
 ethernet_manager() {
-    hyprctl dispatch exec "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
+    launch_app "alacritty --class nmtui -e bash -c 'sleep 0.5; nmtui'"
 }
 register_action "ethernet_manager" "Ethernet" "Control ethernet connections"
 
 bluetooth_manager() {
-    hyprctl dispatch exec "alacritty --class bluetui -e bash -c 'sleep 0.5; bluetui'"
+    launch_app "alacritty --class bluetui -e bash -c 'sleep 0.5; bluetui'"
 }
 register_action "bluetooth_manager" "Bluetooth" "Control bluetooth devices"
 
@@ -168,27 +168,27 @@ register_action "workspaces_menu" "Workspaces" "Workspace management options"
 
 # Application Actions
 terminal() {
-    hyprctl dispatch exec alacritty
+    launch_app alacritty
 }
 register_action "terminal" "Terminal" "Open terminal"
 
 file_manager() {
-    hyprctl dispatch exec thunar
+    launch_app thunar
 }
 register_action "file_manager" "File Manager" "Open file manager"
 
 browser() {
-    hyprctl dispatch exec firefox
+    launch_app firefox
 }
 register_action "browser" "Browser" "Open Firefox browser"
 
 system_monitor() {
-    hyprctl dispatch exec "alacritty --class btop -e btop"
+    launch_app "alacritty --class btop -e btop"
 }
 register_action "system_monitor" "System Monitor" "Open system monitor"
 
 notes() {
-    hyprctl dispatch exec "alacritty -e ~/.local/share/omarchy/bin/notes"
+    launch_app "alacritty -e ~/.local/share/omarchy/bin/notes"
 }
 register_action "notes" "Notes" "Open notes in terminal"
 
@@ -205,17 +205,17 @@ register_action "claude_folder" "Claude Folder" "Choose folder for Claude"
 
 # Screenshot Actions
 screenshot_region() {
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-screenshot-region
+    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-screenshot-region
 }
 register_action "screenshot_region" "Screenshot Region" "Take region screenshot"
 
 screenshot_window() {
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-screenshot-window
+    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-screenshot-window
 }
 register_action "screenshot_window" "Screenshot Window" "Take window screenshot"
 
 screenshot_output() {
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-screenshot-output
+    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-screenshot-output
 }
 register_action "screenshot_output" "Screenshot Output" "Take output screenshot"
 
@@ -254,7 +254,7 @@ toggle_dnd() {
 register_action "toggle_dnd" "Toggle DND" "Toggle do not disturb"
 
 update_omarchy() {
-    hyprctl dispatch exec "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo \"Update complete. Press any key to continue...\" && read'"
+    launch_app "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo \"Update complete. Press any key to continue...\" && read'"
 }
 register_action "update_omarchy" "Update System" "Update omarchy, refresh config, and system packages"
 
@@ -264,12 +264,12 @@ reload_config() {
 register_action "reload_config" "Reload Config" "Refresh omarchy configuration"
 
 show_keybindings() {
-    hyprctl dispatch exec "alacritty --class=launcher -e ~/.local/share/omarchy/bin/omarchy-show-keybindings"
+    launch_app "alacritty --class=launcher -e ~/.local/share/omarchy/bin/omarchy-show-keybindings"
 }
 register_action "show_keybindings" "Keybindings" "Show keybindings"
 
 next_wallpaper() {
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-next-wallpaper
+    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-next-wallpaper
 }
 register_action "next_wallpaper" "Next Wallpaper" "Change wallpaper"
 

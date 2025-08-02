@@ -8,7 +8,7 @@ get_mode_info() {
 
 # Power management functions
 lock_session() {
-    hyprctl dispatch exec hyprlock
+    launch_app hyprlock
 }
 
 suspend_system() {
@@ -20,7 +20,7 @@ relaunch_hyprland() {
 }
 
 relaunch_waybar() {
-    pkill waybar && hyprctl dispatch exec waybar &
+    pkill waybar && launch_app waybar &
 }
 
 restart_system() {

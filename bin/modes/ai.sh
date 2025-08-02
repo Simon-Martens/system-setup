@@ -30,14 +30,37 @@ handle_selection() {
     local has_hyprctl=false
     command -v hyprctl >/dev/null 2>&1 && has_hyprctl=true
     
-    # Check if it's a bash command run request
+    # Check if it's an AI question request
     if [[ "$selected" =~ ^ask_ai: ]]; then
-        # Extract command and run in interactive terminal
-        local cmd="${selected#ask_ai:}"
-        if $has_hyprctl; then
-            hyprctl dispatch exec "alacritty --title 'Claude AI' -e bash -c 'echo \"🤖 Question: $cmd\"; echo; /usr/bin/claude -p \"$cmd\"; echo; echo \"Press any key to exit...\"; read -n1'"
+        # Extract question
+        local question="${selected#ask_ai:}"
+        
+        # Check if we're in terminal mode (launched with -t)
+        if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+            # We're in terminal mode - run Claude directly in current terminal
+            clear
+            echo "════════════════════════════════════════"
+            echo "🤖 Claude AI Assistant"
+            echo "════════════════════════════════════════"
+            echo
+            echo "🤖 Question: $question"
+            echo
+            echo "Response:"
+            echo "----------------------------------------"
+            
+            # Execute Claude
+            /usr/bin/claude -p "$question"
+            
+            echo
+            echo "----------------------------------------"
+            echo "Press Enter to return to launcher..."
+            read -r
+            
+            # Return successfully so the main launcher loop continues
+            return 0
         else
-            alacritty --title 'Claude AI' -e bash -c "echo '🤖 Question: $cmd'; echo; /usr/bin/claude -p '$cmd'; echo; echo 'Press any key to exit...'; read -n1" >/dev/null 2>&1 &
+            # Not in terminal mode - launch new alacritty window
+            launch_app "alacritty --title 'Claude AI' -e bash -c 'echo \"🤖 Question: $question\"; echo; /usr/bin/claude -p \"$question\"; echo; echo \"Press any key to exit...\"; read -n1'"
         fi
         return 0
     fi

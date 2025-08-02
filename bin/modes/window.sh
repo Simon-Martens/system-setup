@@ -38,7 +38,7 @@ get_previous_window() {
 # Window management functions that work on the previous window
 minimize_window() {
     # Use the existing minimizer script which already handles window detection
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/hyprland-minimizer
+    launch_app_hyprland ~/.local/share/omarchy/bin/hyprland-minimizer
 }
 
 close_window() {
@@ -106,7 +106,7 @@ center_window() {
 
 # Window restoration function
 restore_windows() {
-    hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-show-minimized-fzf-terminal
+    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-show-minimized-fzf-terminal
 }
 
 load_data() {
