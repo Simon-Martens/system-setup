@@ -9,9 +9,9 @@ get_mode_info() {
 # Get the previously active window (before the launcher)
 get_previous_window() {
     # First try to use the captured window from the temp file
-    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" && -f "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+    if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" && -f "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
         local captured_window
-        captured_window=$(cat "$OMARCHY_PREVIOUS_WINDOW_FILE" 2>/dev/null)
+        captured_window=$(cat "$TLAUNCHER_PREVIOUS_WINDOW_FILE" 2>/dev/null)
         if [[ -n "$captured_window" ]]; then
             # Verify the window still exists
             if hyprctl -j clients 2>/dev/null | jq -e ".[] | select(.address == \"$captured_window\")" >/dev/null 2>&1; then

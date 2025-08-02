@@ -36,7 +36,7 @@ handle_selection() {
         local question="${selected#ask_ai:}"
         
         # Check if we're in terminal mode (launched with -t)
-        if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
             # We're in terminal mode - run Claude directly in current terminal
             clear
             echo "════════════════════════════════════════"

@@ -34,7 +34,7 @@ handle_selection() {
         local cmd="${selected#run_cmd_in_terminal:}"
         
         # Check if we're in terminal mode (launched with -t)
-        if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
             # We're in terminal mode - run command directly in current terminal
             clear
             echo "════════════════════════════════════════"
@@ -65,7 +65,7 @@ handle_selection() {
         local cmd="${selected#run_cmd_with_shell:}"
         
         # Check if we're in terminal mode (launched with -t)
-        if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
             # We're in terminal mode - convert current window and run command + shell
             launch_in_current_terminal "$cmd; exec bash"
         else

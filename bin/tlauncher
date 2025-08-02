@@ -3,7 +3,7 @@
 # Fast FZF-based application launcher with caching
 # Builds cache in background, uses existing cache for immediate startup
 
-CACHE_DIR="$HOME/.cache/fzf-launcher"
+CACHE_DIR="$HOME/.cache/tlauncher"
 CACHE_FILE="$CACHE_DIR/apps.cache"
 LOCK_FILE="$CACHE_DIR/rebuild.lock"
 MODES_DIR="$HOME/.local/share/omarchy/bin/modes"
@@ -395,7 +395,7 @@ fi
 # Check for existing launcher instance and handle accordingly
 check_existing_launcher() {
     # Skip check if we're inside a terminal launcher (recursive call)
-    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+    if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
         return 1
     fi
     
@@ -487,13 +487,13 @@ if [[ "$TERMINAL_MODE" == true ]]; then
     if command -v hyprctl >/dev/null 2>&1; then
         # Start window capture in background and launch terminal immediately
         {
-            OMARCHY_PREVIOUS_WINDOW=$(hyprctl -j activewindow 2>/dev/null | jq -r '.address // empty')
+            TLAUNCHER_PREVIOUS_WINDOW=$(hyprctl -j activewindow 2>/dev/null | jq -r '.address // empty')
             # Write to a temp file that the launcher can read
-            echo "$OMARCHY_PREVIOUS_WINDOW" > "/tmp/omarchy-previous-window-$$"
+            echo "$TLAUNCHER_PREVIOUS_WINDOW" > "/tmp/tlauncher-previous-window-$$"
         } &
         
         # Export the temp file path so launcher knows where to look
-        export OMARCHY_PREVIOUS_WINDOW_FILE="/tmp/omarchy-previous-window-$$"
+        export TLAUNCHER_PREVIOUS_WINDOW_FILE="/tmp/tlauncher-previous-window-$$"
     fi
     
     # Build arguments for recursive call (without -t flag)
@@ -739,7 +739,7 @@ while true; do
                 handled=true
                 # Check if this was an interactive mode that should continue the loop
                 # Only run_cmd_in_terminal and ask_ai should continue, run_cmd_with_shell should not
-                if [[ "$selected" =~ ^(run_cmd_in_terminal:|ask_ai:) ]] && [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+                if [[ "$selected" =~ ^(run_cmd_in_terminal:|ask_ai:) ]] && [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
                     should_continue=true
                 fi
                 break
@@ -755,7 +755,7 @@ while true; do
         fi
         
         # Exit if not in terminal mode, or if this wasn't an interactive command
-        if [[ -z "$OMARCHY_PREVIOUS_WINDOW_FILE" ]] || [[ "$should_continue" == false ]]; then
+        if [[ -z "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]] || [[ "$should_continue" == false ]]; then
             break
         fi
         
@@ -788,6 +788,6 @@ while true; do
 done
 
 # Cleanup temp file if it exists
-if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" && -f "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
-    rm -f "$OMARCHY_PREVIOUS_WINDOW_FILE"
+if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" && -f "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
+    rm -f "$TLAUNCHER_PREVIOUS_WINDOW_FILE"
 fi
