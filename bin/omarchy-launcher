@@ -392,6 +392,34 @@ if [[ "$1" == "--reload" ]]; then
     exit 0
 fi
 
+# Check for existing launcher instance and handle accordingly
+check_existing_launcher() {
+    # Skip check if we're inside a terminal launcher (recursive call)
+    if [[ -n "$OMARCHY_PREVIOUS_WINDOW_FILE" ]]; then
+        return 1
+    fi
+    
+    # Check if there's already a launcher window active (more reliable than process check)
+    if has_hyprctl; then
+        local launcher_window=$(hyprctl clients -j | jq -r '.[] | select(.class == "launcher") | .address' | head -1)
+        
+        if [[ -n "$launcher_window" ]]; then
+            # Move to current workspace and focus
+            hyprctl dispatch movetoworkspacesilent "$(hyprctl activeworkspace -j | jq -r '.id'),address:$launcher_window"
+            hyprctl dispatch focuswindow "address:$launcher_window"
+            
+            # Show notification
+            if command -v notify-send >/dev/null 2>&1; then
+                notify-send "Launcher" "Launcher is already active" --urgency=low --expire-time=2000
+            fi
+            
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
 # Parse command line arguments
 START_MODE=""
 INITIAL_QUERY=""
@@ -451,6 +479,10 @@ done
 
 # Handle terminal mode by launching in external terminal
 if [[ "$TERMINAL_MODE" == true ]]; then
+    # Check for existing launcher instance BEFORE creating new terminal
+    if check_existing_launcher; then
+        exit 0
+    fi
     # Capture the currently active window in background while launching terminal
     if command -v hyprctl >/dev/null 2>&1; then
         # Start window capture in background and launch terminal immediately
@@ -492,6 +524,13 @@ if [[ "$TERMINAL_MODE" == true ]]; then
     wait
     
     exit 0
+fi
+
+# Check for existing launcher instance for non-terminal mode
+if [[ "$TERMINAL_MODE" != true ]]; then
+    if check_existing_launcher; then
+        exit 0
+    fi
 fi
 
 # Main execution

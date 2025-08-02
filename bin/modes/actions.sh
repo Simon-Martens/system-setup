@@ -84,7 +84,7 @@ location_menu() {
 register_action "location_menu" "Location" "Switch location settings"
 
 tmux_sessions() {
-    launch_app "~/.local/share/omarchy/bin/omarchy-launcher-terminal --tmux"
+    setsid alacritty -e ~/.local/share/omarchy/bin/omarchy-launcher --tmux >/dev/null 2>&1 &
 }
 register_action "tmux_sessions" "Tmux" "Control tmux sessions"
 
