@@ -228,12 +228,8 @@ system_monitor() {
 register_action "system_monitor" "System Monitor" "Open system monitor"
 
 notes() {
-    # Check if we're in terminal mode (launched with -t)
-    if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
-        run_in_current_terminal "~/.local/share/omarchy/bin/notes"
-    else
-        launch_app "alacritty -e ~/.local/share/omarchy/bin/notes"
-    fi
+    # Always launch in a new alacritty window, regardless of terminal mode
+    launch_app "alacritty -e ~/.local/share/omarchy/bin/notes"
 }
 register_action "notes" "Notes" "Open notes in terminal"
 
