@@ -260,9 +260,10 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
 
       -- Files
-      vim.keymap.set('n', '<leader>sf', function()
-        builtin.find_files(themes.get_ivy {})
-      end, { desc = '[S]earch [F]iles' })
+      -- We use fff experimentally
+      -- vim.keymap.set('n', '<leader>sf', function()
+      --   builtin.find_files(themes.get_ivy {})
+      -- end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>s.', function()
         builtin.oldfiles(themes.get_ivy {})
       end, { desc = '[S]earch Recent Files ("." for repeat)' })

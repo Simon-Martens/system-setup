@@ -22,7 +22,7 @@ register_action() {
 
 # Power Management Actions
 power_menu() {
-    ~/.local/share/omarchy/bin/omarchy-launcher --power
+    ~/.local/share/omarchy/bin/tlauncher --power
 }
 register_action "power_menu" "Power" "Show power menu"
 
@@ -69,22 +69,22 @@ register_action "shutdown_system" "Shutdown" "Shut down the system"
 
 # System Configuration Actions
 governor_menu() {
-    ~/.local/share/omarchy/bin/omarchy-launcher --governor
+    ~/.local/share/omarchy/bin/tlauncher --governor
 }
 register_action "governor_menu" "Governor" "Switch CPU governor settings"
 
 theme_menu() {
-    ~/.local/share/omarchy/bin/omarchy-launcher --themes
+    ~/.local/share/omarchy/bin/tlauncher --themes
 }
 register_action "theme_menu" "Theme" "Change system theme"
 
 location_menu() {
-    ~/.local/share/omarchy/bin/omarchy-launcher --location
+    ~/.local/share/omarchy/bin/tlauncher --location
 }
 register_action "location_menu" "Location" "Switch location settings"
 
 tmux_sessions() {
-    setsid alacritty -e ~/.local/share/omarchy/bin/omarchy-launcher --tmux >/dev/null 2>&1 &
+    setsid alacritty -e ~/.local/share/omarchy/bin/tlauncher --tmux >/dev/null 2>&1 &
 }
 register_action "tmux_sessions" "Tmux" "Control tmux sessions"
 
@@ -191,13 +191,13 @@ register_action "toggle_ethernet" "Toggle Ethernet" "Toggle Ethernet connection"
 
 # Window Management Actions
 window_menu() {
-    ~/.local/share/omarchy/bin/omarchy-launcher --win
+    ~/.local/share/omarchy/bin/tlauncher --win
 }
 register_action "window_menu" "Window" "Window management options"
 
 # Workspace Actions
 workspaces_menu() {
-    ~/.local/share/omarchy/bin/omarchy-launcher --ws
+    ~/.local/share/omarchy/bin/tlauncher --ws
 }
 register_action "workspaces_menu" "Workspaces" "Workspace management options"
 
