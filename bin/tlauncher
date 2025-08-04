@@ -5,6 +5,7 @@
 
 CACHE_DIR="$HOME/.cache/tlauncher"
 CACHE_FILE="$CACHE_DIR/apps.cache"
+MODES_CACHE_FILE="$CACHE_DIR/modes.cache"
 LOCK_FILE="$CACHE_DIR/rebuild.lock"
 MODES_DIR="$HOME/.local/share/omarchy/bin/modes"
 
@@ -15,6 +16,62 @@ declare -A MODES_INFO
 declare -a MODES_ORDER
 declare -A MODE_CHILDREN  # Maps parent mode to array of child modes
 declare -A MODE_PARENT    # Maps child mode to parent mode
+
+# Save mode information to cache
+save_modes_cache() {
+    local cache_file="$1"
+    {
+        # Save MODES_INFO array
+        for key in "${!MODES_INFO[@]}"; do
+            printf "MODES_INFO[%q]=%q\n" "$key" "${MODES_INFO[$key]}"
+        done
+        
+        # Save MODES_ORDER array
+        printf "MODES_ORDER=("
+        for item in "${MODES_ORDER[@]}"; do
+            printf "%q " "$item"
+        done
+        printf ")\n"
+        
+        # Save MODE_CHILDREN array
+        for key in "${!MODE_CHILDREN[@]}"; do
+            printf "MODE_CHILDREN[%q]=%q\n" "$key" "${MODE_CHILDREN[$key]}"
+        done
+        
+        # Save MODE_PARENT array
+        for key in "${!MODE_PARENT[@]}"; do
+            printf "MODE_PARENT[%q]=%q\n" "$key" "${MODE_PARENT[$key]}"
+        done
+    } > "$cache_file"
+}
+
+# Load mode information from cache
+load_modes_from_cache() {
+    local cache_file="$1"
+    [[ -f "$cache_file" ]] || return 1
+    
+    # Clear existing arrays
+    MODES_INFO=()
+    MODES_ORDER=()
+    MODE_CHILDREN=()
+    MODE_PARENT=()
+    
+    # Source the cache file to restore arrays
+    source "$cache_file"
+}
+
+# Check if modes cache is stale
+modes_cache_is_stale() {
+    [[ ! -f "$MODES_CACHE_FILE" ]] && return 0
+    [[ ! -d "$MODES_DIR" ]] && return 1
+    
+    # Check if any mode script is newer than cache
+    for mode_script in "$MODES_DIR"/*.sh; do
+        [[ -f "$mode_script" && "$mode_script" -nt "$MODES_CACHE_FILE" ]] && return 0
+    done
+    
+    return 1
+}
 
 # Load mode information from mode scripts
 load_modes() {
@@ -47,41 +104,46 @@ load_modes() {
     
     # Build mode hierarchy based on common prefixes
     build_mode_hierarchy
+    
+    # Save to cache
+    save_modes_cache "$MODES_CACHE_FILE"
 }
 
 # Build hierarchical relationships between modes based on prefixes
 build_mode_hierarchy() {
-    for child_prefix in "${MODES_ORDER[@]}"; do
-        for parent_prefix in "${MODES_ORDER[@]}"; do
-            # Skip self comparison
-            [[ "$child_prefix" == "$parent_prefix" ]] && continue
+    # Pre-sort by length for more efficient processing
+    local -a sorted_prefixes
+    readarray -t sorted_prefixes < <(printf '%s\n' "${MODES_ORDER[@]}" | awk '{print length($0) " " $0}' | sort -n | cut -d' ' -f2-)
+    
+    # Build parent-child relationships efficiently
+    local i j
+    for ((i=0; i<${#sorted_prefixes[@]}; i++)); do
+        local child_prefix="${sorted_prefixes[i]}"
+        local best_parent=""
+        local best_parent_len=0
+        
+        # Find the longest matching parent (most immediate)
+        for ((j=0; j<i; j++)); do
+            local parent_prefix="${sorted_prefixes[j]}"
             
-            # Check if child_prefix starts with parent_prefix and is longer
-            if [[ "$child_prefix" == "$parent_prefix"* ]] && [[ ${#child_prefix} -gt ${#parent_prefix} ]]; then
-                # Make sure this is the most immediate parent (not a grandparent)
-                local is_immediate_parent=true
-                for other_prefix in "${MODES_ORDER[@]}"; do
-                    if [[ "$other_prefix" != "$parent_prefix" ]] && [[ "$other_prefix" != "$child_prefix" ]] && \
-                       [[ "$child_prefix" == "$other_prefix"* ]] && [[ "$other_prefix" == "$parent_prefix"* ]] && \
-                       [[ ${#other_prefix} -gt ${#parent_prefix} ]] && [[ ${#other_prefix} -lt ${#child_prefix} ]]; then
-                        is_immediate_parent=false
-                        break
-                    fi
-                done
-                
-                if [[ "$is_immediate_parent" == true ]]; then
-                    # Record parent-child relationship
-                    MODE_PARENT["$child_prefix"]="$parent_prefix"
-                    
-                    # Add to parent's children list
-                    if [[ -n "${MODE_CHILDREN[$parent_prefix]}" ]]; then
-                        MODE_CHILDREN["$parent_prefix"]="${MODE_CHILDREN[$parent_prefix]} $child_prefix"
-                    else
-                        MODE_CHILDREN["$parent_prefix"]="$child_prefix"
-                    fi
-                fi
+            # Check if child starts with parent and parent is longer than current best
+            if [[ "$child_prefix" == "$parent_prefix"* ]] && [[ ${#parent_prefix} -gt $best_parent_len ]]; then
+                best_parent="$parent_prefix"
+                best_parent_len=${#parent_prefix}
             fi
         done
+        
+        # Record the relationship if we found a parent
+        if [[ -n "$best_parent" ]]; then
+            MODE_PARENT["$child_prefix"]="$best_parent"
+            
+            # Add to parent's children list
+            if [[ -n "${MODE_CHILDREN[$best_parent]}" ]]; then
+                MODE_CHILDREN["$best_parent"]="${MODE_CHILDREN[$best_parent]} $child_prefix"
+            else
+                MODE_CHILDREN["$best_parent"]="$child_prefix"
+            fi
+        fi
     done
 }
 
@@ -184,8 +246,14 @@ handle_mode_selection() {
     return 1
 }
 
-# Initialize modes
-load_modes
+# Initialize modes - use cache if available and fresh
+if load_modes_from_cache "$MODES_CACHE_FILE" && ! modes_cache_is_stale; then
+    # Cache loaded successfully and is fresh
+    :
+else
+    # Cache missing or stale, load from scratch
+    load_modes
+fi
 
 process_desktop_file() {
     local desktop_file="$1"
@@ -280,13 +348,40 @@ cache_is_stale() {
 }
 
 
+# Cached command availability checks
+COMMANDS_CACHE_FILE="$CACHE_DIR/commands.cache"
+
+# Cache command availability
+cache_command_availability() {
+    {
+        echo "HAS_HYPRCTL=$(command -v hyprctl >/dev/null 2>&1 && echo 1 || echo 0)"
+        echo "HAS_TMUX=$(command -v tmux >/dev/null 2>&1 && echo 1 || echo 0)"
+        echo "HAS_JQ=$(command -v jq >/dev/null 2>&1 && echo 1 || echo 0)"
+        echo "HAS_NOTIFY_SEND=$(command -v notify-send >/dev/null 2>&1 && echo 1 || echo 0)"
+    } > "$COMMANDS_CACHE_FILE"
+}
+
+# Load cached command availability or create cache
+if [[ ! -f "$COMMANDS_CACHE_FILE" ]] || [[ "$COMMANDS_CACHE_FILE" -ot "$0" ]]; then
+    cache_command_availability
+fi
+source "$COMMANDS_CACHE_FILE"
+
 # Helper functions to check if commands are available
 has_hyprctl() {
-    command -v hyprctl >/dev/null 2>&1
+    [[ "$HAS_HYPRCTL" == "1" ]]
 }
 
 has_tmux() {
-    command -v tmux >/dev/null 2>&1
+    [[ "$HAS_TMUX" == "1" ]]
+}
+
+has_jq() {
+    [[ "$HAS_JQ" == "1" ]]
+}
+
+has_notify_send() {
+    [[ "$HAS_NOTIFY_SEND" == "1" ]]
 }
 
 # Utility function to launch applications - uses setsid for detached launching
@@ -312,10 +407,16 @@ launch_in_current_terminal() {
     
     if has_hyprctl; then
         # Get current window info to check what needs to be reverted
-        local window_info=$(hyprctl activewindow -j)
-        local is_floating=$(echo "$window_info" | jq -r '.floating')
-        local is_pinned=$(echo "$window_info" | jq -r '.pinned') 
-        local window_addr=$(echo "$window_info" | jq -r '.address')
+        if has_jq; then
+            local window_info=$(hyprctl activewindow -j)
+            local is_floating=$(echo "$window_info" | jq -r '.floating')
+            local is_pinned=$(echo "$window_info" | jq -r '.pinned') 
+            local window_addr=$(echo "$window_info" | jq -r '.address')
+        else
+            local window_addr=$(hyprctl activewindow | grep -oP 'Address: \K.*')
+            local is_floating="false"
+            local is_pinned="false"
+        fi
         
         # Revert launcher window rules to normal window behavior using dispatchers
         # Make it tiled if currently floating
@@ -352,7 +453,11 @@ run_in_current_terminal() {
     
     if has_hyprctl; then
         # Resize window to be larger for terminal applications and center it
-        local window_addr=$(hyprctl activewindow -j | jq -r '.address')
+        if has_jq; then
+            local window_addr=$(hyprctl activewindow -j | jq -r '.address')
+        else
+            local window_addr=$(hyprctl activewindow | grep -oP 'Address: \K.*')
+        fi
         hyprctl dispatch resizewindowpixel exact 1200 800,address:$window_addr
         hyprctl dispatch centerwindow
     fi
@@ -376,8 +481,14 @@ if [[ "$1" == "--reload" ]]; then
     CACHE_FILE="$2"
     QUERY="$3"
     
-    # Initialize modes for reload context
-    load_modes
+    # Initialize modes for reload context (lazy load - only if needed)
+    if [[ -z "${MODES_INFO:-}" ]]; then
+        if load_modes_from_cache "$MODES_CACHE_FILE" && ! modes_cache_is_stale; then
+            :
+        else
+            load_modes
+        fi
+    fi
     
     # Try to find a matching mode for the query
     matching_prefix=$(find_mode_for_query "$QUERY")
@@ -401,15 +512,21 @@ check_existing_launcher() {
     
     # Check if there's already a launcher window active (more reliable than process check)
     if has_hyprctl; then
-        local launcher_window=$(hyprctl clients -j | jq -r '.[] | select(.class == "launcher") | .address' | head -1)
+        if has_jq; then
+            local launcher_window=$(hyprctl clients -j | jq -r '.[] | select(.class == "launcher") | .address' | head -1)
+            local current_workspace=$(hyprctl activeworkspace -j | jq -r '.id')
+        else
+            local launcher_window=$(hyprctl clients | grep -A10 "class: launcher" | grep -oP 'Address: \K.*' | head -1)
+            local current_workspace=$(hyprctl activeworkspace | grep -oP 'workspace ID \K\d+')
+        fi
         
         if [[ -n "$launcher_window" ]]; then
             # Move to current workspace and focus
-            hyprctl dispatch movetoworkspacesilent "$(hyprctl activeworkspace -j | jq -r '.id'),address:$launcher_window"
+            hyprctl dispatch movetoworkspacesilent "${current_workspace},address:$launcher_window"
             hyprctl dispatch focuswindow "address:$launcher_window"
             
             # Show notification
-            if command -v notify-send >/dev/null 2>&1; then
+            if has_notify_send; then
                 notify-send "Launcher" "Launcher is already active" --urgency=low --expire-time=2000
             fi
             
@@ -484,10 +601,14 @@ if [[ "$TERMINAL_MODE" == true ]]; then
         exit 0
     fi
     # Capture the currently active window in background while launching terminal
-    if command -v hyprctl >/dev/null 2>&1; then
+    if has_hyprctl; then
         # Start window capture in background and launch terminal immediately
         {
-            TLAUNCHER_PREVIOUS_WINDOW=$(hyprctl -j activewindow 2>/dev/null | jq -r '.address // empty')
+            if has_jq; then
+                TLAUNCHER_PREVIOUS_WINDOW=$(hyprctl -j activewindow 2>/dev/null | jq -r '.address // empty')
+            else
+                TLAUNCHER_PREVIOUS_WINDOW=$(hyprctl activewindow 2>/dev/null | grep -oP 'Address: \K.*' || echo "")
+            fi
             # Write to a temp file that the launcher can read
             echo "$TLAUNCHER_PREVIOUS_WINDOW" > "/tmp/tlauncher-previous-window-$$"
         } &
@@ -515,7 +636,7 @@ if [[ "$TERMINAL_MODE" == true ]]; then
         -e "$0" "${args[@]}" &
     
     # Focus the launcher window after a brief delay
-    if command -v hyprctl >/dev/null 2>&1; then
+    if has_hyprctl; then
         sleep 0.1
         hyprctl dispatch focuswindow class:launcher
     fi

@@ -1,5 +1,5 @@
 if [ -z "$OMARCHY_BARE" ]; then
-  source ~/.local/share/omarchy/default/bash/functions
+  source ~/.local/share/omarchy/scripts/rc/functions.sh
   web2app "WhatsApp" https://web.whatsapp.com/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/whatsapp.png
   web2app "ChatGPT" https://chatgpt.com/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/chatgpt.png
   web2app "DeepSeek" https://chat.deepseek.com/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/deepseek.png
