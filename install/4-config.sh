@@ -6,18 +6,35 @@ if [[ "$1" == "--non-interactive" ]]; then
     NON_INTERACTIVE=true
 fi
 
-# Copy over Omarchy configs
-cp -R ~/.local/share/omarchy/config/* ~/.config/
+SOURCE_DIR="$HOME/.local/share/omarchy/config"
+DEST_DIR="$HOME/.config"
+echo "--- Starting automatic deployment from '$SOURCE_DIR' to '$DEST_DIR' ---"
 
-# Ensure application directory exists for update-desktop-database
-mkdir -p ~/.local/share/applications
+# Loop through all files and folders in the source directory.
+for source_path in "$SOURCE_DIR"/*; do
+    [ -e "$source_path" ] || continue
+    item_name=$(basename "$source_path")
+    dest_path="$DEST_DIR/$item_name"
 
-# Use default bashrc from Omarchy
+    echo "--- Deploying '$item_name' ---"
+
+    rm -rf "$dest_path"
+    cp -r "$source_path" "$dest_path"
+    
+    echo "✅ Deployed '$item_name'."
+done
+
+echo "🎉 Deployment complete."
+
+# Generate the .bashrc file
 if [[ "$NON_INTERACTIVE" == true ]]; then
     ~/.local/share/omarchy/scripts/generate-rc.sh bash --non-interactive
 else
     ~/.local/share/omarchy/scripts/generate-rc.sh bash
 fi
+
+# Ensure application directory exists for update-desktop-database
+mkdir -p ~/.local/share/applications
 
 # Login directly as user, rely on disk encryption + hyprlock for security
 # Skip sudo commands in non-interactive mode
@@ -29,36 +46,3 @@ ExecStart=
 ExecStart=-/usr/bin/agetty --autologin $USER --noclear %I \$TERM
 EOF
 fi
-
-# Set common git aliases
-git config --global alias.co checkout
-git config --global alias.br branch
-git config --global alias.ci commit
-git config --global alias.st status
-git config --global pull.rebase false
-
-# WARNING 
-# You'll need to import the appropriate signing key
-git config --global user.signingkey 61F5BD22CF3388F9
-
-# Set identification from install inputs
-if [[ -n "${OMARCHY_USER_NAME//[[:space:]]/}" ]]; then
-  git config --global user.name "$OMARCHY_USER_NAME"
-else
-	git config --global user.name "Simon Martens"
-fi
-
-if [[ -n "${OMARCHY_USER_EMAIL//[[:space:]]/}" ]]; then
-  git config --global user.email "$OMARCHY_USER_EMAIL"
-else
-	git config --global user.email simon.martens@mailbox.org
-fi
-
-# Set default XCompose that is triggered with CapsLock
-tee ~/.XCompose >/dev/null <<EOF
-include "%H/.local/share/omarchy/default/xcompose"
-
-# Identification
-<Multi_key> <space> <n> : "$OMARCHY_USER_NAME"
-<Multi_key> <space> <e> : "$OMARCHY_USER_EMAIL"
-EOF

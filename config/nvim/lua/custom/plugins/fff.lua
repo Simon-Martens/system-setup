@@ -6,7 +6,7 @@ return {
   },
   keys = {
     {
-      '<leader>sf', -- try it if you didn't it is a banger keybinding for a picker
+      '<leader>ff', -- try it if you didn't it is a banger keybinding for a picker
       function()
         require('fff').toggle()
       end,

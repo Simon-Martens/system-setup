@@ -10,7 +10,7 @@ set -o pipefail
 SOURCE_DIR="$HOME/.config"
 DEST_DIR_TEMP="/tmp/omarchy_config_tmp"
 DEST_DIR="$HOME/.local/share/omarchy/config"
-FILES_FOLDERS=("alacritty" "btop" "lazygit" "fastfetch" "hypr" "environment.d" "nvim" "ghostty" "systemd" "atuin" "Typora" "waybar" "wofi" "xournalpp" "tmux/tmux.conf" "fontconfig.conf" "polycat-config.json")
+FILES_FOLDERS=("alacritty" "btop" "lazygit" "fastfetch" "hypr" "environment.d" "nvim" "git" "ghostty" "systemd" "atuin" "Typora" "waybar" "wofi" "xournalpp" "tmux/tmux.conf" "fontconfig.conf" "polycat-config.json")
 
 rm -rf "$DEST_DIR_TEMP"
 
