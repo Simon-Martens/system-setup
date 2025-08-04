@@ -64,6 +64,7 @@ local plugins = {
   require 'custom.plugins.todo-comments', -- Highlight TODO comments
   require 'custom.plugins.treesitter', -- Syntax highlighting & more
   require 'custom.plugins.whichkey', -- Keybindings helper
+  require 'custom.plugins.typst', -- Typst document preview
 
   -- LSP plugins & dependent features
   require 'custom.lsp.lazydev', -- Lazy LSP-Plugin (??)
