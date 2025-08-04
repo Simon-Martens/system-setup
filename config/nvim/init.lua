@@ -65,9 +65,9 @@ local plugins = {
   require 'custom.plugins.treesitter', -- Syntax highlighting & more
   require 'custom.plugins.whichkey', -- Keybindings helper
   require 'custom.plugins.typst', -- Typst document preview
+  require 'custom.plugins.lazydev', -- Better LSP experience with lua configs
 
   -- LSP plugins & dependent features
-  require 'custom.lsp.lazydev', -- Lazy LSP-Plugin (??)
   require 'custom.lsp.lspconfig', -- LSP configuration
   require 'custom.lsp.conform', -- Autoformat (on Close)
   require 'custom.lsp.blink', -- Autocompletion
