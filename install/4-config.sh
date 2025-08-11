@@ -25,12 +25,26 @@ for source_path in "$SOURCE_DIR"/*; do
 done
 
 echo "🎉 Deployment complete."
-
 # Generate the .bashrc file
 if [[ "$NON_INTERACTIVE" == true ]]; then
     ~/.local/share/omarchy/scripts/generate-rc.sh bash --non-interactive
 else
     ~/.local/share/omarchy/scripts/generate-rc.sh bash
+fi
+
+# Ensure the new hyprland config is loaded
+# hyprland does not like deleting the .cofig/hypr folder
+# which we do, above
+if pgrep -x Hyprland > /dev/null; then
+  echo "Hyprland is running. Reloading config..."
+  hyprctl reload
+	if pgrep -x waybar > /dev/null; then
+		echo "Waybar is running. Killing..."
+		pkill -9 waybar
+	fi
+	hyprctl dispatch exec waybar
+else
+  echo "Hyprland is not running. Skipping reload."
 fi
 
 # Ensure application directory exists for update-desktop-database

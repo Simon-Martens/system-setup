@@ -7,7 +7,6 @@
   "modules-left": [ "hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock#day", "custom/polycat", "clock#time"],
   "modules-right": [
-		"custom/weather",
     "group/tray-expander",
 		"battery",
 		"backlight",

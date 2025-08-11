@@ -34,4 +34,5 @@ if [ -f "$HOME/.cargo/env" ]; then
 fi
 
 # Additional and custom executable paths
-PATH=$HOME/.local/bin:$HOME/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
+export PATH=$HOME/bin:$PATH
