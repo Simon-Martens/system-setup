@@ -77,3 +77,6 @@ env = __GLX_VENDOR_LIBRARY_NAME,nvidia
 env = NVD_BACKEND,direct
 env = LIBVA_DRIVER_NAME,nvidia
 env = __GLX_VENDOR_LIBRARY_NAME,nvidia
+
+
+monitor=eDP-1,1920x1080@60.02,160x192,0.90
