@@ -26,4 +26,4 @@ keybind = ctrl+t=text:t\n
 
 # Startup command
 # command = bash -c "~/scripts/tmux-startup.sh"
-command = bash -c "tmux new-session -A -s main"
+# command = bash -c "tmux new-session -A -s main"

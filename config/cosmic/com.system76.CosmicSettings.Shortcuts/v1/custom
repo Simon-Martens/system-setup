@@ -2,9 +2,23 @@
     (
         modifiers: [
             Super,
+            Alt,
         ],
-        key: "m",
-    ): Minimize,
+        key: "x",
+    ): SwitchOutput(Right),
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "space",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Shift,
+        ],
+        key: "x",
+    ): MoveToNextWorkspace,
     (
         modifiers: [
             Super,
@@ -16,15 +30,31 @@
         modifiers: [
             Super,
         ],
-        key: "x",
-    ): NextWorkspace,
+        key: "m",
+    ): Minimize,
     (
         modifiers: [
             Super,
-            Shift,
         ],
-        key: "z",
-    ): MoveToOutput(Left),
+    ): System(Launcher),
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "q",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "f",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "x",
+    ): NextWorkspace,
     (
         modifiers: [
             Super,
@@ -40,44 +70,14 @@
     (
         modifiers: [
             Super,
+            Shift,
         ],
-    ): System(Launcher),
-    (
-        modifiers: [
-            Super,
-            Alt,
-        ],
-        key: "x",
-    ): SwitchOutput(Right),
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "q",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "space",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "f",
-    ): Disable,
+        key: "z",
+    ): MoveToPreviousWorkspace,
     (
         modifiers: [
             Super,
         ],
         key: "c",
     ): Close,
-    (
-        modifiers: [
-            Super,
-            Shift,
-        ],
-        key: "x",
-    ): MoveToOutput(Right),
 }
