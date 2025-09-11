@@ -7,7 +7,11 @@ download_background_image() {
   gum spin --title "Downloading $url as $path..." -- curl -sL -o "$BACKGROUNDS_DIR/$path" "$url"
 }
 
-for t in ~/.local/share/omarchy/themes/*; do source "$t/backgrounds.sh"; done
+for t in ~/.local/share/omarchy/themes/*; do
+	if [[ -f "$t/backgrounds.sh" ]]; then	
+	source "$t/backgrounds.sh"
+	fi
+done
 # Use dark mode for QT apps too (like kdenlive)
 sudo pacman -S --noconfirm kvantum-qt5
 
