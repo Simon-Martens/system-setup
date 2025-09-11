@@ -2,7 +2,7 @@
 @define-color bg whitesmoke;
 
 @define-color fg-window #0a0a0a;
-@define-color fg-window-active whitesmoke;
+@define-color fg-window-active black;
 @define-color fg-window-hover #0a0a0a;
 
 @define-color clock #0a0a0a;

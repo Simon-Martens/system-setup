@@ -76,7 +76,7 @@ tooltip * {
 
 #workspaces button {
   border: none;
-  background: @bg-window;
+  /* background: @bg-window; */
   margin-top: 0px;
   margin-right: 0px;
   padding: 0px 0px;
@@ -94,7 +94,7 @@ tooltip * {
 
 #workspaces button.active {
   border: none;
-  background: @bg-window-active;
+  /* background: @bg-window-active; */
   font-weight: bold;
 }
 
@@ -110,7 +110,7 @@ tooltip * {
   box-shadow:
     rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-  background-color: @bg-window-active;
+  /* background-color: @bg-window-active; */
 }
 
 #window * {
@@ -119,7 +119,7 @@ tooltip * {
 
 .modules-center {
   border-radius: 4px;
-  background-color: @bg-center;
+  /* background-color: @bg-center; */
 }
 
 #backlight,
@@ -135,10 +135,10 @@ tooltip * {
 }
 
 #workspaces button:not(.active):hover {
-  background-color: @bg-window-hover;
-  box-shadow:
-    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  /* background-color: @bg-window-hover; */
+  /* box-shadow: */
+  /*   rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, */
+  /*   rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; */
 }
 
 #workspaces button:not(.active):hover * {
