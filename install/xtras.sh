@@ -1,7 +1,7 @@
 if [ -z "$OMARCHY_BARE" ]; then
   yay -S --noconfirm --needed \
     gnome-calculator \
-    signal-desktop spotify zoom \
+    signal-desktop zoom \
     libreoffice \
 		telegram-desktop \
     gnome-keyring \

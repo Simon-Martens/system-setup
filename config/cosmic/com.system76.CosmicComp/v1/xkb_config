@@ -1,0 +1,9 @@
+(
+    rules: "",
+    model: "pc105+inet",
+    layout: "us,us",
+    variant: "alt-intl,dvorak-intl",
+    options: Some("terminate:ctrl_alt_bksp,compose:ralt,lv3:lalt_switch"),
+    repeat_delay: 400,
+    repeat_rate: 30,
+)
