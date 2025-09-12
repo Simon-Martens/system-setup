@@ -10,10 +10,19 @@ italic = { family = "MonaspiceRn Nerd Font", style = "Medium" }
 size = 14
 
 [window]
-padding.x = 6
-padding.y = 6
+padding.x = 3
+padding.y = 4
 decorations = "None"
 opacity = 1.0
+title = "Terminal"
+
+[scrolling]
+history = 100000
+
+[cursor]
+style = "Beam"
+blink_interval = 501
+unfocused_hollow = true
 
 [keyboard]
 bindings = [{ key = "F11", action = "ToggleFullscreen" }]
