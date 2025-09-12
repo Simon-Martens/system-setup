@@ -12,4 +12,7 @@ if [ -z "$OMARCHY_BARE" ]; then
 	web2app "Claude" https://claude.ai https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/claude-ai.png
 	web2app "TouTube Music" https://music.youtube.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/youtube-music.png
 	web2app "Telegram" https://web.telegram.org https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/telegram.png
+  web2app "Microsft Admin Center" https://admin.microsoft.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/microsoft-365-admin-center.png
 	fi
+
+
