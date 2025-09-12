@@ -5,22 +5,22 @@ $browser = firefox
 $webapp = chromium --new-window --ozone-platform=wayland --app
 $mainMod = SUPER
 
-# Use defaults Omarchy defaults
-source = ~/.local/share/omarchy/default/hypr/autostart.conf
-source = ~/.local/share/omarchy/default/hypr/bindings.conf
-source = ~/.local/share/omarchy/default/hypr/envs.conf
-source = ~/.local/share/omarchy/default/hypr/windows.conf
-source = ~/.local/share/omarchy/default/hypr/looknfeel.conf
-source = ~/.config/omarchy/current/theme/hyprland.conf
+# Use defaults system-setup defaults
+source = ~/.local/share/system-setup/default/hypr/autostart.conf
+source = ~/.local/share/system-setup/default/hypr/bindings.conf
+source = ~/.local/share/system-setup/default/hypr/envs.conf
+source = ~/.local/share/system-setup/default/hypr/windows.conf
+source = ~/.local/share/system-setup/default/hypr/looknfeel.conf
+source = ~/.config/system-setup/current/theme/hyprland.conf
 
 bind = SUPER, return, exec, $terminal
 bind = SUPER, E, exec, nautilus --new-window
 bind = SUPER, B, exec, $browser
 bind = SUPER, S, exec, spotify
-bind = SUPER, N, exec, $terminal --class notes -e ~/.local/share/omarchy/bin/notes
+bind = SUPER, N, exec, $terminal --class notes -e ~/.local/share/system-setup/bin/notes
 bind = SUPER SHIFT, T, exec, $terminal -e btop
 bind = SUPER, D, exec, $terminal -e lazydocker
-bind = SUPER, A, exec, ~/.local/share/omarchy/bin/claude-folder-chooser
+bind = SUPER, A, exec, ~/.local/share/system-setup/bin/claude-folder-chooser
 
 # Extra autostart processes
 # exec-once = dropbox-cli start

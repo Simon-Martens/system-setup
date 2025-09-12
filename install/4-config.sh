@@ -6,7 +6,7 @@ if [[ "$1" == "--non-interactive" ]]; then
     NON_INTERACTIVE=true
 fi
 
-SOURCE_DIR="$HOME/.local/share/omarchy/config"
+SOURCE_DIR="$HOME/.local/share/system-setup/config"
 DEST_DIR="$HOME/.config"
 echo "--- Starting automatic deployment from '$SOURCE_DIR' to '$DEST_DIR' ---"
 
@@ -27,9 +27,9 @@ done
 echo "🎉 Deployment complete."
 # Generate the .bashrc file
 if [[ "$NON_INTERACTIVE" == true ]]; then
-    ~/.local/share/omarchy/scripts/generate-rc.sh bash --non-interactive
+    ~/.local/share/system-setup/scripts/generate-rc.sh bash --non-interactive
 else
-    ~/.local/share/omarchy/scripts/generate-rc.sh bash
+    ~/.local/share/system-setup/scripts/generate-rc.sh bash
 fi
 
 # Ensure the new hyprland config is loaded

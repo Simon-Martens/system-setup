@@ -8,8 +8,8 @@ set -o pipefail
 # -----------------
 # Set the source and destination directories.
 SOURCE_DIR="$HOME/.config"
-DEST_DIR_TEMP="/tmp/omarchy_config_tmp"
-DEST_DIR="$HOME/.local/share/omarchy/config"
+DEST_DIR_TEMP="/tmp/system-setup_config_tmp"
+DEST_DIR="$HOME/.local/share/system-setup/config"
 FILES_FOLDERS=("alacritty" "btop" "lazygit" "fastfetch" "hypr" "environment.d" "nvim" "git" "ghostty" "systemd" "atuin" "Typora" "waybar" "wofi" "xournalpp" "tmux/tmux.conf" "swaync" "walker" "gBar" "fontconfig.conf" "polycat-config.json" "cosmic")
 
 rm -rf "$DEST_DIR_TEMP"

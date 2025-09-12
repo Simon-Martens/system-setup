@@ -6,4 +6,4 @@ alacritty \
   --title="Restore Minimized Window" \
   --option 'window.decorations="none"' \
   --option window.opacity=0.95 \
-  -e "$HOME/.local/share/omarchy/bin/omarchy-show-minimized-fzf"
+  -e "$HOME/.local/share/system-setup/bin/system-setup-show-minimized-fzf"

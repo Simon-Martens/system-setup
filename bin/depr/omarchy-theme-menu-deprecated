@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Theme menu for Omarchy
+# Theme menu for system-setup
 # Provides an interactive dmenu to switch between available themes
 
-THEMES_DIR="$HOME/.config/omarchy/themes/"
-CURRENT_THEME_DIR="$HOME/.config/omarchy/current/theme"
+THEMES_DIR="$HOME/.config/system-setup/themes/"
+CURRENT_THEME_DIR="$HOME/.config/system-setup/current/theme"
 
 # Show theme selection menu and apply changes
 show_theme_menu() {
@@ -37,7 +37,7 @@ show_theme_menu() {
     --show dmenu \
     --width 300 \
     --height 225 \
-    --style ~/.local/share/omarchy/default/wofi/select.css)
+    --style ~/.local/share/system-setup/default/wofi/select.css)
   
   # Extract theme name from selection (remove glyph and leading spaces)
   local selected_theme=$(echo "$selection" | sed 's/^\s*\uf0a9 \?//')
@@ -47,8 +47,8 @@ show_theme_menu() {
     exit 0
   fi
 
-  # Apply the new theme with omarchy-theme-set
-  "$HOME/.local/share/omarchy/bin/omarchy-theme-set" "$selected_theme"
+  # Apply the new theme with system-setup-theme-set
+  "$HOME/.local/share/system-setup/bin/system-setup-theme-set" "$selected_theme"
 }
 
 # Main execution

@@ -55,7 +55,7 @@ load_data() {
         else
             display_name="$display_name"$'\x1b[90m'" · switch location"$'\x1b[0m'
             # Use the set-location script
-            command_string="$HOME/.local/share/omarchy/bin/set-location $location"
+            command_string="$HOME/.local/share/system-setup/bin/set-location $location"
         fi
         
         echo ":location $display_name"$'\t'":location $location switch location"$'\t'"$command_string"
@@ -84,7 +84,7 @@ handle_selection() {
     fi
     
     # Check if it's a direct command (our set-location script or echo)
-    if [[ "$selected" =~ ^(echo|/home/[^/]+/.local/share/omarchy/bin/set-location) ]]; then
+    if [[ "$selected" =~ ^(echo|/home/[^/]+/.local/share/system-setup/bin/set-location) ]]; then
         # Execute the command
         eval "$selected"
         return 0

@@ -2,10 +2,10 @@
 set -e
 
 # Give people a chance to retry running the installation
-trap 'echo "Omarchy installation failed! You can retry by running: source ~/.local/share/omarchy/install.sh"' ERR
+trap 'echo "system-setup installation failed! You can retry by running: source ~/.local/share/system-setup/install.sh"' ERR
 
 # Install everything
-for f in ~/.local/share/omarchy/install/*.sh; do
+for f in ~/.local/share/system-setup/install/*.sh; do
   echo -e "\nRunning installer: $f"
   source "$f"
 done

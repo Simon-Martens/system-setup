@@ -22,7 +22,7 @@ register_action() {
 
 # Power Management Actions
 power_menu() {
-    ~/.local/share/omarchy/bin/tlauncher --power
+    ~/.local/share/system-setup/bin/tlauncher --power
 }
 register_action "power_menu" "Power" "Show power menu"
 
@@ -69,22 +69,22 @@ register_action "shutdown_system" "Shutdown" "Shut down the system"
 
 # System Configuration Actions
 governor_menu() {
-    ~/.local/share/omarchy/bin/tlauncher --governor
+    ~/.local/share/system-setup/bin/tlauncher --governor
 }
 register_action "governor_menu" "Governor" "Switch CPU governor settings"
 
 theme_menu() {
-    ~/.local/share/omarchy/bin/tlauncher --themes
+    ~/.local/share/system-setup/bin/tlauncher --themes
 }
 register_action "theme_menu" "Theme" "Change system theme"
 
 location_menu() {
-    ~/.local/share/omarchy/bin/tlauncher --location
+    ~/.local/share/system-setup/bin/tlauncher --location
 }
 register_action "location_menu" "Location" "Switch location settings"
 
 tmux_sessions() {
-    setsid alacritty -e ~/.local/share/omarchy/bin/tlauncher --tmux >/dev/null 2>&1 &
+    setsid alacritty -e ~/.local/share/system-setup/bin/tlauncher --tmux >/dev/null 2>&1 &
 }
 register_action "tmux_sessions" "Tmux" "Control tmux sessions"
 
@@ -191,13 +191,13 @@ register_action "toggle_ethernet" "Toggle Ethernet" "Toggle Ethernet connection"
 
 # Window Management Actions
 window_menu() {
-    ~/.local/share/omarchy/bin/tlauncher --win
+    ~/.local/share/system-setup/bin/tlauncher --win
 }
 register_action "window_menu" "Window" "Window management options"
 
 # Workspace Actions
 workspaces_menu() {
-    ~/.local/share/omarchy/bin/tlauncher --ws
+    ~/.local/share/system-setup/bin/tlauncher --ws
 }
 register_action "workspaces_menu" "Workspaces" "Workspace management options"
 
@@ -229,7 +229,7 @@ register_action "system_monitor" "System Monitor" "Open system monitor"
 
 notes() {
     # Always launch in a new alacritty window, regardless of terminal mode
-    launch_app "alacritty -e ~/.local/share/omarchy/bin/notes"
+    launch_app "alacritty -e ~/.local/share/system-setup/bin/notes"
 }
 register_action "notes" "Notes" "Open notes in terminal"
 
@@ -246,17 +246,17 @@ register_action "claude_folder" "Claude Folder" "Choose folder for Claude"
 
 # Screenshot Actions
 screenshot_region() {
-    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-screenshot-region
+    launch_app_hyprland ~/.local/share/system-setup/bin/system-setup-screenshot-region
 }
 register_action "screenshot_region" "Screenshot Region" "Take region screenshot"
 
 screenshot_window() {
-    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-screenshot-window
+    launch_app_hyprland ~/.local/share/system-setup/bin/system-setup-screenshot-window
 }
 register_action "screenshot_window" "Screenshot Window" "Take window screenshot"
 
 screenshot_output() {
-    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-screenshot-output
+    launch_app_hyprland ~/.local/share/system-setup/bin/system-setup-screenshot-output
 }
 register_action "screenshot_output" "Screenshot Output" "Take output screenshot"
 
@@ -297,30 +297,30 @@ register_action "toggle_dnd" "Toggle DND" "Toggle do not disturb"
 update_system() {
     # Check if we're in terminal mode (launched with -t)
     if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
-        run_in_current_terminal "cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo 'Update complete.'"
+        run_in_current_terminal "cd ~/.local/share/system-setup && git pull && ~/.local/share/system-setup/bin/system-setup-refresh-config --non-interactive && yay -Syu --noconfirm && echo 'Update complete.'"
     else
-        launch_app "alacritty -e bash -c 'cd ~/.local/share/omarchy && git pull && ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive && yay -Syu --noconfirm && echo \"Update complete. Press any key to continue...\" && read'"
+        launch_app "alacritty -e bash -c 'cd ~/.local/share/system-setup && git pull && ~/.local/share/system-setup/bin/system-setup-refresh-config --non-interactive && yay -Syu --noconfirm && echo \"Update complete. Press any key to continue...\" && read'"
     fi
 }
 register_action "update_system" "Update System" "Update system, refresh config, and system packages"
 
 reload_config() {
-    ~/.local/share/omarchy/bin/omarchy-refresh-config --non-interactive
+    ~/.local/share/system-setup/bin/system-setup-refresh-config --non-interactive
 }
 register_action "reload_config" "Reload Config" "Refresh system configuration"
 
 show_keybindings() {
     # Check if we're in terminal mode (launched with -t)
     if [[ -n "$TLAUNCHER_PREVIOUS_WINDOW_FILE" ]]; then
-        run_in_current_terminal "~/.local/share/omarchy/bin/omarchy-show-keybindings"
+        run_in_current_terminal "~/.local/share/system-setup/bin/system-setup-show-keybindings"
     else
-        launch_app "alacritty --class=launcher -e ~/.local/share/omarchy/bin/omarchy-show-keybindings"
+        launch_app "alacritty --class=launcher -e ~/.local/share/system-setup/bin/system-setup-show-keybindings"
     fi
 }
 register_action "show_keybindings" "Keybindings" "Show keybindings"
 
 next_wallpaper() {
-    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-next-wallpaper
+    launch_app_hyprland ~/.local/share/system-setup/bin/system-setup-next-wallpaper
 }
 register_action "next_wallpaper" "Next Wallpaper" "Change wallpaper"
 
@@ -380,7 +380,7 @@ handle_selection() {
     local selected="$1"
     
     # Check if it's a direct command (hyprctl, systemctl, etc.)
-    if [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|omarchy-|/home/[^/]+/.local/share/omarchy/bin/) ]]; then
+    if [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|system-setup-|/home/[^/]+/.local/share/system-setup/bin/) ]]; then
         # Execute system action directly
         eval "$selected"
         return 0

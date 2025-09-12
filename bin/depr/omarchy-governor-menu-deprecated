@@ -113,7 +113,7 @@ show_governor_menu() {
     --show dmenu \
     --width 300 \
     --height 225 \
-    --style ~/.local/share/omarchy/default/wofi/select.css) # Re-using your provided style file
+    --style ~/.local/share/system-setup/default/wofi/select.css) # Re-using your provided style file
 
   # Extract the selected governor name from wofi's output.
   # It removes the leading glyph and any surrounding whitespace.

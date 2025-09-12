@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Power menu for Omarchy using gum filter
+# Power menu for system-setup using gum filter
 # Provides power off, restart, and sleep options
 
 # Function to show power menu using gum filter

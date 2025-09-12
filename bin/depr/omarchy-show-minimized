@@ -80,7 +80,7 @@ show_restore_menu() {
         --prompt "Restore Window" \
         --width 450 \
         --height 300 \
-        --style ~/.local/share/omarchy/default/wofi/select.css \
+        --style ~/.local/share/system-setup/default/wofi/select.css \
         -i) # -i for case-insensitive
 
     # If the user pressed ESC or didn't make a selection, exit gracefully.

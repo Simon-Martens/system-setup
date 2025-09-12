@@ -1,6 +1,6 @@
 ## Install 
-To install clone this into ~/.local/share/omarchy/
-All the paths are currently still under the name omarchy & it is important to keep it this way for now.
+To install clone this into ~/.local/share/system-setup/
+All the paths are currently still under the name system-setup & it is important to keep it this way for now.
 
 ## Changelog
 
@@ -9,7 +9,7 @@ All the paths are currently still under the name omarchy & it is important to ke
 - Added packages: tmux, go, zig, node, some disk utilities
 - Added webapps: teams, outlook (sigh)
 - Removed all 37signals apps
-- Added bins: omarchy-refresh-config, omarchy-governor-menu
+- Added bins: system-setup-refresh-config, system-setup-governor-menu
 - Changed lock screen on all themes
 - Lots of tmux scripts (+ own tmux session manager)
 
@@ -43,6 +43,6 @@ All the paths are currently still under the name omarchy & it is important to ke
 
 ## License
 
-System-Setup was originally Omarchy, released under the [MIT License](https://opensource.org/licenses/MIT).
+System-Setup was originally system-setup, released under the [MIT License](https://opensource.org/licenses/MIT).
 System-Setup is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

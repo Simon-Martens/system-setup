@@ -7,7 +7,7 @@ CACHE_DIR="$HOME/.cache/tlauncher"
 CACHE_FILE="$CACHE_DIR/apps.cache"
 MODES_CACHE_FILE="$CACHE_DIR/modes.cache"
 LOCK_FILE="$CACHE_DIR/rebuild.lock"
-MODES_DIR="$HOME/.local/share/omarchy/bin/modes"
+MODES_DIR="$HOME/.local/share/system-setup/bin/modes"
 
 mkdir -p "$CACHE_DIR"
 

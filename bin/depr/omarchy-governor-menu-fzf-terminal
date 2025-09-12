@@ -6,4 +6,4 @@ alacritty \
   --title="CPU Governor" \
   --option 'window.decorations="none"' \
   --option window.opacity=0.95 \
-  -e "$HOME/.local/share/omarchy/bin/omarchy-governor-menu-fzf"
+  -e "$HOME/.local/share/system-setup/bin/system-setup-governor-menu-fzf"

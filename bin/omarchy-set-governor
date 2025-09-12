@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Simple script to set CPU governor
-# Usage: omarchy-set-governor <governor_name>
+# Usage: system-setup-set-governor <governor_name>
 
 governor="$1"
 

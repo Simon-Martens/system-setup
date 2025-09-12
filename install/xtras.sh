@@ -1,4 +1,4 @@
-if [ -z "$OMARCHY_BARE" ]; then
+if [ -z "$system-setup_BARE" ]; then
   yay -S --noconfirm --needed \
     gnome-calculator \
     signal-desktop zoom \
@@ -8,5 +8,5 @@ if [ -z "$OMARCHY_BARE" ]; then
     xournalpp localsend-bin
 fi
 
-# Copy over Omarchy applications
-source ~/.local/share/omarchy/bin/omarchy-sync-applications || true
+# Copy over system-setup applications
+source ~/.local/share/system-setup/bin/system-setup-sync-applications || true

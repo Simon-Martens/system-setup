@@ -1,9 +1,9 @@
 [Plymouth Theme]
-Name=Omarchy
-Description=Omarchy splash screen.
+Name=system-setup
+Description=system-setup splash screen.
 ModuleName=script
 
 [script]
-ImageDir=/usr/share/plymouth/themes/omarchy
-ScriptFile=/usr/share/plymouth/themes/omarchy/omarchy.script
+ImageDir=/usr/share/plymouth/themes/system-setup
+ScriptFile=/usr/share/plymouth/themes/system-setup/system-setup.script
 ConsoleLogBackgroundColor=0x1a1b26

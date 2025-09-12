@@ -38,7 +38,7 @@ get_previous_window() {
 # Window management functions that work on the previous window
 minimize_window() {
     # Use the existing minimizer script which already handles window detection
-    launch_app_hyprland ~/.local/share/omarchy/bin/hyprland-minimizer
+    launch_app_hyprland ~/.local/share/system-setup/bin/hyprland-minimizer
 }
 
 close_window() {
@@ -106,7 +106,7 @@ center_window() {
 
 # Window restoration function
 restore_windows() {
-    launch_app_hyprland ~/.local/share/omarchy/bin/omarchy-show-minimized-fzf-terminal
+    launch_app_hyprland ~/.local/share/system-setup/bin/system-setup-show-minimized-fzf-terminal
 }
 
 load_data() {
@@ -125,7 +125,7 @@ handle_selection() {
     local selected="$1"
     
     # Check if it's a direct command (hyprctl, systemctl, etc.)
-    if [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|omarchy-|/home/[^/]+/.local/share/omarchy/bin/) ]]; then
+    if [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|system-setup-|/home/[^/]+/.local/share/system-setup/bin/) ]]; then
         # Execute system action directly
         eval "$selected"
         return 0

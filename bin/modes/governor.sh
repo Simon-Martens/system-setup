@@ -27,7 +27,7 @@ load_data() {
             else  
                 display_name="$display_name"$'\033[90m'" · set CPU governor"$'\033[0m'
                 # Use the dedicated governor script
-                command_string="hyprctl dispatch exec \"$HOME/.local/share/omarchy/bin/omarchy-set-governor $gov\""
+                command_string="hyprctl dispatch exec \"$HOME/.local/share/system-setup/bin/system-setup-set-governor $gov\""
             fi
             
             echo ":governor $display_name"$'\t'":governor $gov set CPU governor"$'\t'"$command_string"
@@ -39,7 +39,7 @@ handle_selection() {
     local selected="$1"
     
     # Check if it's a direct command (hyprctl, systemctl, etc.)
-    if [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|omarchy-|/home/[^/]+/.local/share/omarchy/bin/|echo) ]]; then
+    if [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|system-setup-|/home/[^/]+/.local/share/system-setup/bin/|echo) ]]; then
         # Execute system action directly
         eval "$selected"
         return 0

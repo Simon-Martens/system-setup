@@ -6,7 +6,7 @@ const actions = {
   power_menu: {
     title: "Power",
     description: "Show power menu",
-    action: () => "~/.local/share/omarchy/bin/omarchy-launcher --power"
+    action: () => "~/.local/share/system-setup/bin/system-setup-launcher --power"
   },
   
   lock_session: {
@@ -43,19 +43,19 @@ const actions = {
   governor_menu: {
     title: "Governor",
     description: "Switch CPU governor settings",
-    action: () => "~/.local/share/omarchy/bin/omarchy-launcher --governor"
+    action: () => "~/.local/share/system-setup/bin/system-setup-launcher --governor"
   },
   
   theme_menu: {
     title: "Theme",
     description: "Change system theme",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-theme-menu"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-theme-menu"
   },
   
   tmux_sessions: {
     title: "Tmux",
     description: "Control tmux sessions",
-    action: () => "hyprctl dispatch exec \"~/.local/share/omarchy/bin/omarchy-launcher-terminal --tmux\""
+    action: () => "hyprctl dispatch exec \"~/.local/share/system-setup/bin/system-setup-launcher-terminal --tmux\""
   },
 
   // Audio
@@ -125,19 +125,19 @@ const actions = {
   minimize_window: {
     title: "Minimize",
     description: "Minimize current window",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/hyprland-minimizer"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/hyprland-minimizer"
   },
   
   restore_windows: {
     title: "Restore",
     description: "Show minimized windows",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-show-minimized-fzf-terminal"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-show-minimized-fzf-terminal"
   },
   
   close_window: {
     title: "Close",
     description: "Close current window",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-close-window"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-close-window"
   },
   
   toggle_float: {
@@ -155,19 +155,19 @@ const actions = {
   center_window: {
     title: "Center Window",
     description: "Center floating window", 
-    action: () => "~/.local/share/omarchy/bin/omarchy-window-action centerwindow"
+    action: () => "~/.local/share/system-setup/bin/system-setup-window-action centerwindow"
   },
   
   pin_window: {
     title: "Pin Window",
     description: "Pin window to all workspaces",
-    action: () => "~/.local/share/omarchy/bin/omarchy-window-action pin"
+    action: () => "~/.local/share/system-setup/bin/system-setup-window-action pin"
   },
   
   pseudo_tile: {
     title: "Pseudo Tile",
     description: "Toggle pseudo tiling",
-    action: () => "~/.local/share/omarchy/bin/omarchy-window-action pseudo"
+    action: () => "~/.local/share/system-setup/bin/system-setup-window-action pseudo"
   },
 
   // Workspace Navigation
@@ -199,7 +199,7 @@ const actions = {
     value: {
       title: `Move to WS ${i + 1}`,
       description: `Move window to workspace ${i + 1}`,
-      action: () => `~/.local/share/omarchy/bin/omarchy-window-action movetoworkspace ${i + 1}`
+      action: () => `~/.local/share/system-setup/bin/system-setup-window-action movetoworkspace ${i + 1}`
     }
   })).reduce((acc, {key, value}) => ({...acc, [key]: value}), {}),
 
@@ -245,19 +245,19 @@ const actions = {
   toggle_idle: {
     title: "Toggle Idle",
     description: "Toggle idle timeout",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-toggle-idle"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-toggle-idle"
   },
   
   show_keybindings: {
     title: "Keybindings",
     description: "Show keybindings",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-show-keybindings"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-show-keybindings"
   },
   
   next_wallpaper: {
     title: "Next Wallpaper",
     description: "Change wallpaper",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/swaybg-next"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/swaybg-next"
   },
   
   reload_waybar: {
@@ -266,35 +266,35 @@ const actions = {
     action: () => "hyprctl dispatch exec \"pkill -SIGUSR1 waybar\""
   },
 
-  // Omarchy System Management
-  update_omarchy: {
-    title: "Update Omarchy",
-    description: "Update omarchy system and packages", 
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-update"
+  // system-setup System Management
+  update_system-setup: {
+    title: "Update system-setup",
+    description: "Update system-setup system and packages", 
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-update"
   },
   
   refresh_waybar: {
     title: "Refresh Waybar",
-    description: "Reset Waybar to omarchy defaults",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-refresh-waybar"
+    description: "Reset Waybar to system-setup defaults",
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-refresh-waybar"
   },
   
   sync_apps: {
     title: "Sync Apps",
     description: "Sync application entries and icons",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-sync-applications"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-sync-applications"
   },
   
   config_link: {
     title: "Config Link",
-    description: "Link omarchy configs for testing",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/omarchy-config-link"
+    description: "Link system-setup configs for testing",
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/system-setup-config-link"
   },
   
   relaunch_waybar: {
     title: "Relaunch Waybar",
     description: "Restart Waybar",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/waybar-relaunch"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/waybar-relaunch"
   },
 
   // Applications
@@ -319,7 +319,7 @@ const actions = {
   notes: {
     title: "Notes",
     description: "Open notes in terminal",
-    action: () => "hyprctl dispatch exec \"alacritty --class notes -e ~/.local/share/omarchy/bin/notes\""
+    action: () => "hyprctl dispatch exec \"alacritty --class notes -e ~/.local/share/system-setup/bin/notes\""
   },
   
   system_monitor: {
@@ -331,26 +331,26 @@ const actions = {
   claude_folder: {
     title: "Claude Folder",
     description: "Choose folder for Claude",
-    action: () => "hyprctl dispatch exec ~/.local/share/omarchy/bin/claude-folder-chooser"
+    action: () => "hyprctl dispatch exec ~/.local/share/system-setup/bin/claude-folder-chooser"
   },
 
   // Display Brightness
   brightness_down: {
     title: "Brightness Down",
     description: "Decrease display brightness",
-    action: () => "hyprctl dispatch exec \"~/.local/share/omarchy/bin/apple-display-brightness -5000\""
+    action: () => "hyprctl dispatch exec \"~/.local/share/system-setup/bin/apple-display-brightness -5000\""
   },
   
   brightness_up: {
     title: "Brightness Up", 
     description: "Increase display brightness",
-    action: () => "hyprctl dispatch exec \"~/.local/share/omarchy/bin/apple-display-brightness +5000\""
+    action: () => "hyprctl dispatch exec \"~/.local/share/system-setup/bin/apple-display-brightness +5000\""
   },
   
   brightness_max: {
     title: "Brightness Max",
     description: "Set maximum brightness",
-    action: () => "hyprctl dispatch exec \"~/.local/share/omarchy/bin/apple-display-brightness +60000\""
+    action: () => "hyprctl dispatch exec \"~/.local/share/system-setup/bin/apple-display-brightness +60000\""
   }
 };
 

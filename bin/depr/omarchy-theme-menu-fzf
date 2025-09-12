@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Theme menu for Omarchy using fzf
+# Theme menu for system-setup using fzf
 # Provides an interactive menu to switch between available themes
 
-THEMES_DIR="$HOME/.config/omarchy/themes/"
-CURRENT_THEME_DIR="$HOME/.config/omarchy/current/theme"
+THEMES_DIR="$HOME/.config/system-setup/themes/"
+CURRENT_THEME_DIR="$HOME/.config/system-setup/current/theme"
 
 # Show theme selection menu using fzf
 show_theme_menu() {
@@ -46,7 +46,7 @@ show_theme_menu() {
   fi
 
   # Apply the new theme via hyprctl dispatch
-  hyprctl dispatch -- exec "$HOME/.local/share/omarchy/bin/omarchy-theme-set '$selected_theme'"
+  hyprctl dispatch -- exec "$HOME/.local/share/system-setup/bin/system-setup-theme-set '$selected_theme'"
 }
 
 # Main execution

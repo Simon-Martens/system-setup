@@ -88,7 +88,7 @@ handle_selection() {
     local selected="$1"
     
     # Check if it's a direct command (hyprctl, systemctl, etc.)
-    if [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|omarchy-|/home/[^/]+/.local/share/omarchy/bin/) ]]; then
+    if [[ "$selected" =~ ^(loginctl|systemctl|hyprctl|system-setup-|/home/[^/]+/.local/share/system-setup/bin/) ]]; then
         # Execute system action directly
         eval "$selected"
         return 0

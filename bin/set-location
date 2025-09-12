@@ -76,7 +76,7 @@ if [[ -n "$CURRENT_LOCATION" ]]; then
     echo "Switched from $CURRENT_LOCATION to $LOCATION"
 else
     # Add new location line after the theme line
-    sed -i '/source = ~/.config\/omarchy\/current\/theme\/hyprland.conf/a source = ~/.config/hypr/'"$LOCATION"'.conf' "$HYPR_CONFIG"
+    sed -i '/source = ~/.config\/system-setup\/current\/theme\/hyprland.conf/a source = ~/.config/hypr/'"$LOCATION"'.conf' "$HYPR_CONFIG"
     echo "Set location to $LOCATION"
 fi
 

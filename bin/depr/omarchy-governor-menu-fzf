@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CPU Governor menu for Omarchy using fzf
+# CPU Governor menu for system-setup using fzf
 # Allows selecting an available CPU scaling governor and applying it
 
 # Constants for power governor paths in the sysfs
