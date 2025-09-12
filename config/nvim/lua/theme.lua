@@ -1,1 +1,1 @@
-/home/simon/.config/omarchy/current/theme/neovim.lua
+/home/simon/.config/system-setup/current/theme/neovim.lua
