@@ -19,8 +19,15 @@ title = "Terminal"
 [scrolling]
 history = 100000
 
+[cursor.style]
+shape = "Beam"
+blinking = "On"
+
+[cursor.vi_mode_style]
+shape = "Block"
+blinking = "Off"
+
 [cursor]
-style = "Beam"
 blink_interval = 501
 unfocused_hollow = true
 
