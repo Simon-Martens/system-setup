@@ -1,2 +1,1 @@
 config-file = common
-keybind = shift+enter=text:\x1b\r
