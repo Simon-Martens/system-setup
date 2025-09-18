@@ -1,6 +1,6 @@
 # Learn how to configure Hyprland: https://wiki.hyprland.org/Configuring/
 # Application bindings
-$terminal = ghostty
+$terminal = alacritty
 $browser = firefox
 $webapp = chromium --new-window --ozone-platform=wayland --app
 $mainMod = SUPER
@@ -61,7 +61,7 @@ input {
 windowrule = scrolltouchpad 1.5, class:Alacritty
 
 # Change your personal monitor setup in here to keep the main config portable
-source = ~/.config/hypr/home.conf
+source = ~/.config/hypr/laptop.conf
 
 # NVIDIA environment variables
 env = NVD_BACKEND,direct

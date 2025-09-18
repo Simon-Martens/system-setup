@@ -20,8 +20,7 @@
 		"backlight",
     "pulseaudio",
     "network",
-		"bluetooth",
-		"custom/tmux"
+		"bluetooth"
   ],
 	"backlight": {
     "tooltip": false,
@@ -74,6 +73,8 @@
     "icon-size": 12,
     "spacing": 12,
 		"icons": {
+			"Ghostty": "utilities-terminal-symbolic",
+			"ghostty": "utilities-terminal-symbolic",
 			"Alacritty": "utilities-terminal-symbolic",
 			"chrome-outlook.office.com__mail_-Default": "microsoft-outlook",
 			"chrome-teams.microsoft.com__-Default": "microsoft-teams",
@@ -148,18 +149,18 @@
 		"tooltip-format-ethernet": "{ifname}\n{bandwidthDownBits}\n{bandwidthUpBits}\n{gwaddr}",
     "format-disconnected": "󰤠  No Network",
     "interval": 10,
-		"on-click": "alacritty --class nmtui -e bash -c \"sleep 0.5; nmtui\""
+		"on-click": "ghostty --class nmtui -e bash -c \"sleep 0.5; nmtui\""
   },
   "cpu": {
     "interval": 5,
     "format": "{usage:>2}",
     "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
-		"on-click": "alacritty --class btop -e btop"
+		"on-click": "ghostty --class btop -e btop"
   },
   "memory": {
     "interval": 30,
     "format": "{used:0.1f}",
-		"on-click": "alacritty --class btop -e btop"
+		"on-click": "ghostty --class btop -e btop"
   },
   "pulseaudio": {
     "format": "{icon}  {volume}",
@@ -167,7 +168,7 @@
     "format-icons": {
       "default": ["", "", " "]
     },
-    "on-click": "alacritty --class wiremix -e bash -c \"sleep 0.2; wiremix -v output\"",
+    "on-click": "ghostty --class wiremix -e bash -c \"sleep 0.2; wiremix -v output\"",
 		"on-scroll-up": "wpctl set-volume -l 2.0 @DEFAULT_AUDIO_SINK@ 2%+",
 		"on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
   },
@@ -176,7 +177,7 @@
 		"format-disabled": "󰂲",
 		"format-connected": " {device_alias}",
 		"tooltip-format": "Devices connected:\n {device_enumerate}",
-		"on-click": "alacritty --class bluetui -e bash -c \"sleep 0.5; bluetui\""
+		"on-click": "ghostty --class bluetui -e bash -c \"sleep 0.5; bluetui\""
 	},
 	"custom/tmux": {
 		"exec": "bash -c 'list=$(tmux ls 2>/dev/null | tr \"\\n\" \"\\r\"); lo=$(tmux ls 2>/dev/null); [ -n \"$lo\" ] && count=$(echo \"$lo\" | wc -l | grep -x \"[1-9][0-9]*\") && echo \"$count\" && echo \"$list\"'",
@@ -197,7 +198,7 @@
 		"exec": "bash -c ~/.local/share/system-setup/bin/polycat || echo ''",
 		"return-type": "text",
 		"tooltip": false,
-		"on-click": "alacritty --class btop -e btop"
+		"on-click": "ghostty --class btop -e btop"
 	},
 	"keyboard-state": {
 			"numlock": true,
