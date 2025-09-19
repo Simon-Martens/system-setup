@@ -8,6 +8,7 @@ return {
     ensure_installed = {
       'bash',
       'c',
+      'gotmpl',
       'diff',
       'html',
       'lua',

@@ -58,5 +58,7 @@ tabbox tab:active {
   background-color: transparent;
 }
 tabbox tab:selected {
+  color: #00ff00;
+  font-weight: bold;
   background-color: transparent;
 }
