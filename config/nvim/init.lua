@@ -75,7 +75,7 @@ local plugins = {
 
   { import = 'custom.lsp' },
 
-  require 'custom.plugins.go', -- Go configuration, may conflict with lspconfig
+  -- require 'custom.plugins.go', -- Go configuration, may conflict with lspconfig
 
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
@@ -121,6 +121,18 @@ require('lazy').setup(plugins, {
     },
   },
 })
+
+vim.filetype.add {
+  extension = {
+    gotmpl = 'gotmpl',
+  },
+  pattern = {
+    ['.*%.gohtml'] = 'gotmpl',
+    ['.*/templates/.*%.tpl'] = 'helm',
+    ['.*/templates/.*%.ya?ml'] = 'helm',
+    ['helmfile.*%.ya?ml'] = 'helm',
+  },
+}
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
