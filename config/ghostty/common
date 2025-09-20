@@ -1,4 +1,5 @@
 # General
+custom-shader = "./cursor_smear.glsl"
 mouse-hide-while-typing = true
 cursor-style-blink = true
 cursor-style = "bar"
@@ -53,8 +54,8 @@ keybind = "ctrl+a>8=goto_tab:8"
 keybind = "ctrl+shift+9=goto_tab:9"
 keybind = "ctrl+a>9=goto_tab:9"
 
-keybind = ctrl+shift+v=new_split:right
-keybind = ctrl+a>v=new_split:right
+keybind = ctrl+shift+n=new_split:right
+keybind = ctrl+a>n=new_split:right
 keybind = ctrl+shift+b=new_split:down
 keybind = ctrl+a>b=new_split:down
 
