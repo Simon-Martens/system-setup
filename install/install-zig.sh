@@ -10,22 +10,24 @@
 ## https://github.com/zigzap/zap
 ## https://github.com/karlseguin/http.zig
 
-cd /tmp
-V=0.14.0
-VERSION=zig-linux-x86_64
-wget https://ziglang.org/download/${V}/${VERSION}-${V}.tar.xz
-tar xvf ${VERSION}-${V}.tar.xz
-rm -f ${VERSION}-${V}.tar.xz
+yay -S zig-dev-bin --noconfirm --needed
 
-if [ -d /usr/local/zig ]; then
-		sudo rm -rf /usr/local/zig
-fi
-
-sudo mv ${VERSION}-${V} /usr/local/zig
-
-export PATH=$PATH:/usr/local/zig
-
-zig help
-zig version
-
-cd -
+# cd /tmp
+# V=0.14.0
+# VERSION=zig-linux-x86_64
+# wget https://ziglang.org/download/${V}/${VERSION}-${V}.tar.xz
+# tar xvf ${VERSION}-${V}.tar.xz
+# rm -f ${VERSION}-${V}.tar.xz
+#
+# if [ -d /usr/local/zig ]; then
+# 		sudo rm -rf /usr/local/zig
+# fi
+#
+# sudo mv ${VERSION}-${V} /usr/local/zig
+#
+# export PATH=$PATH:/usr/local/zig
+#
+# zig help
+# zig version
+#
+# cd -
