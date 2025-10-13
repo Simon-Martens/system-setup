@@ -5,6 +5,7 @@ if [ -z "$system-setup_BARE" ]; then
     libreoffice \
 		telegram-desktop \
     gnome-keyring \
+		grc \
     xournalpp localsend-bin
 fi
 

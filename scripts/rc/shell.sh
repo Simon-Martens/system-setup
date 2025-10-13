@@ -11,3 +11,7 @@ fi
 
 # Set complete path
 export PATH="./bin:$HOME/.local/bin:$HOME/.local/share/system-setup/bin:$PATH"
+
+# GRC to get colors
+GRC_ALIASES=true
+[[ -s "/etc/profile.d/grc.sh" ]] && source /etc/grc.sh
