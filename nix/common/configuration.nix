@@ -82,71 +82,66 @@
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
   environment.systemPackages = with pkgs; [
-      vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+      vim 
       wget
-		  hyprcursor
-		  bluetui
-		  wiremix
-		  fzf
-		  gtk4
+		  bluetui # Bluetooth TUI
+		  wiremix # Audio mixer
+		  fzf # Fuzzy finder
+		  gtk4 # GTK4 is required for some programs
+			bat # Better cat
+			wl-clip-persist # Keep clipboard contents across closing programs
 		  adwaita-fonts
       adwaita-icon-theme
       adwaita-qt
       neovim 
       git
       hypridle
-      hyprpolkitagent
-      uwsm
-      hyprshot
-      gum
-      mesa
+      hyprpolkitagent # PolicyKit agent for Hyprland
+      uwsm # Wayland session manager
+      hyprshot # Screenshot tool for Hyprland
+      gum # Terminal tool for interactive experiences
+      mesa # OpenGL library
       nwg-displays
       nwg-look
-      waypaper
-      hyprland-qt-support
-      brightnessctl
-      cargo
+      hyprland-qt-support # Qt support for Hyprland
+      brightnessctl # Control brightness
+      cargo # Rust
       cmake
-      eza
-      zoxide
+      eza # ls replacement
+      zoxide # cd replacement
       clang
       cava
       curl
       ffmpeg
       fd
-      nautilus
-      jq
+      nautilus # File manager
+      jq # JSON processor
       gcc
       glib
-      imagemagick
+      imagemagick # Image processing
       openssl
       libnotify
       libappindicator
       killall
-      swaynotificationcenter
+      swaynotificationcenter # Notification daemon
       unzip
       wdisplays
-      wl-clipboard
+      wl-clipboard # Clipboard manager, wayland nvim integration
       wlr-randr
-      yad
-      yazi
       wget
-      caligula
-      atop
-      btop
+      caligula # USB image burner
+      btop # Process manager
       gdu
-      glances
-      gping
-      lsd
-      ipfetch
-      htop 
-      ripgrep
-      socat
+      glances # System monitoring
+      gping # Ping replacement
+      ipfetch # Network info, public IP
+      ripgrep # Search tool
+      socat # Network tunnel
       unrar
-      lm_sensors
-      smartmontools
-      mission-center
-      light
+      lm_sensors # Sensors
+		  smartmontools # Disk monitoring
+      mission-center # graphical system monitor
+      light # Screen brightness
       vlc
       ghostty
       alacritty
@@ -155,8 +150,8 @@
 		  nodejs
 		  go
 		  python3
-		  swaybg
-		  air
+		  swaybg # Background manager
+		  air # Go live reloading
       gnome-themes-extra
   ];
   

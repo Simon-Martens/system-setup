@@ -2,15 +2,35 @@
   description = "My NixOS Config";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = inputs@{ self, nixpkgs, ...}: {
+  outputs = inputs@{ self, nixpkgs, home-manager, ...}: {
     nixosConfigurations.home = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      modules = [ ./nix/home.nix ];
+      modules = [ 
+				./nix/home.nix 
+				home-manager.nixosModules.home-manager 
+				{
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+						home-manager.users.backupFileExtension = "backup";
+            home-manager.users.simon = import ./nix/home/home.nix;
+        }
+			];
     };
     nixosConfigurations.mobile = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      modules = [ ./nix/mobile.nix ];
+      modules = [ 
+				./nix/mobile.nix
+				home-manager.nixosModules.home-manager 
+				{
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+						home-manager.users.backupFileExtension = "backup";
+            home-manager.users.simon = import ./nix/home/home.nix;
+        }
+			];
     };
   };
 }
