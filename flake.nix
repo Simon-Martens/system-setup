@@ -14,8 +14,8 @@
 				{
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-						home-manager.users.backupFileExtension = "backup";
-            home-manager.users.simon = import ./nix/home/home.nix;
+						home-manager.backupFileExtension = "backup";
+            home-manager.users.simon = import ./nix/user/user.nix;
         }
 			];
     };
@@ -27,8 +27,8 @@
 				{
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-						home-manager.users.backupFileExtension = "backup";
-            home-manager.users.simon = import ./nix/home/home.nix;
+						home-manager.backupFileExtension = "backup";
+            home-manager.users.simon = import ./nix/user/user.nix;
         }
 			];
     };

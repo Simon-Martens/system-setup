@@ -45,7 +45,8 @@
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
 
   # Enable CUPS to print documents.
-  # services.printing.enable = true;
+  services.printing.enable = true;
+	services.printing.cups-pdf.enable = true;
 
   # Enable sound.
   # services.pulseaudio.enable = true;
@@ -69,6 +70,7 @@
       ];
   };
 
+	virtualisation.docker.enable = true;
   programs.firefox.enable = true;
 
   security.polkit.enable = true;
@@ -147,16 +149,37 @@
       alacritty
 			waybar
       kitty
-		  nodejs
 		  go
 		  python3
 		  swaybg # Background manager
 		  air # Go live reloading
       gnome-themes-extra
+			google-fonts
+			chromium
+		  sushi # sushi, evince, loupe: previews for pdfs and images
+			evince
+			loupe
+			libreoffice
+			hunspell
+			hunspellDicts.en_US
+			hunspellDicts.de_DE
+			gnome-disk-utility
+			dosfstools
+			keepassxc
+			docker-compose
+			cups
+			cups-filters
+			atuin
+			telegram-desktop
+			gnome-keyring
+			signal-desktop
+			xournalpp
+			localsend
   ];
   
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
+	services.power-profiles-daemon.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
