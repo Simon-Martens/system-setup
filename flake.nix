@@ -4,9 +4,13 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
   outputs = inputs@{ self, nixpkgs, ...}: {
-    nixosConfigurations.holodeck = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.home = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      modules = [ ./nix/configuration.nix ];
+      modules = [ ./nix/home.nix ];
+    };
+    nixosConfigurations.mobile = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [ ./nix/mobile.nix ];
     };
   };
 }
