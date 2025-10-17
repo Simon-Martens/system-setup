@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Fast FZF-based application launcher with caching
 # Builds cache in background, uses existing cache for immediate startup

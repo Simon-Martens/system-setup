@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Check for non-interactive mode
 NON_INTERACTIVE=false

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Abort the script if any command fails (-e) or if any command in a pipeline fails (-o pipefail).
 set -e

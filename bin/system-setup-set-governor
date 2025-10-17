@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Simple script to set CPU governor
 # Usage: system-setup-set-governor <governor_name>
