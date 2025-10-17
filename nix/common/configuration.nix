@@ -5,10 +5,6 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports =
-    [ ./hardware-configuration.nix
-    ];
-
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -35,7 +31,12 @@
 
 
   # Enable the GNOME Desktop Environment.
-  services.xserver.displayManager.gdm.enable = true;
+  services.displayManager.gdm.enable = true;
+	services.displayManager.autoLogin = {
+		enable = true;
+		user = "simon";
+	};
+
   # services.xserver.desktopManager.gnome.enable = true;
   
 
