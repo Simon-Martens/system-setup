@@ -11,11 +11,9 @@
 	],
 	"modules-center": [
 		"clock#day", 
-		"custom/polycat", 
 		"clock#time"
 	],
   "modules-right": [
-    "group/tray-expander",
 		"battery",
 		"backlight",
     "pulseaudio",
