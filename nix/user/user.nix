@@ -35,4 +35,60 @@ home.file.".icons/default/cursors" = let
     source = "${extracted}/adwaita-cursors/Adwaita/cursors";
     recursive = true;
   };
+
+	# DARK THEME EVERYWHERE
+  gtk = {
+    enable = true;
+    theme = {
+      name = "Adwaita-dark";
+      package = pkgs.gnome-themes-extra;
+    };
+    iconTheme = {
+      name = "Adwaita";
+      package = pkgs.gnome-themes-extra;
+    };
+    cursorTheme = {
+      name = "Adwaita";
+      package = pkgs.gnome-themes-extra;
+    };
+    font = {
+      name = "Sans Serif";
+      size = 11;
+    };
+    
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = 1;
+    };
+    
+    gtk4.extraConfig = {
+      gtk-application-prefer-dark-theme = 1;
+    };
+  };
+
+  # Qt configuration
+  qt = {
+    enable = true;
+    platformTheme = "gnome";
+    style = {
+      name = "adwaita-dark";
+      package = pkgs.adwaita-qt;
+    };
+  };
+
+  # dconf settings for GNOME/GTK applications
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+      gtk-theme = "Adwaita-dark";
+      icon-theme = "Adwaita";
+      cursor-theme = "Adwaita";
+      enable-animations = true;
+    };
+  };
+
+  # Set environment variables
+  home.sessionVariables = {
+    GTK_THEME = "Adwaita-dark";
+    QT_STYLE_OVERRIDE = "adwaita-dark";
+  };
 }
