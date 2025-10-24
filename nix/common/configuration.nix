@@ -86,7 +86,13 @@
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
   environment.systemPackages = with pkgs; [
+			inkscape
+			typst
+			typstyle
+			typstfmt
+		  typst-live
       vim 
+			gimp
       wget
 		  bluetui # Bluetooth TUI
 		  wiremix # Audio mixer
