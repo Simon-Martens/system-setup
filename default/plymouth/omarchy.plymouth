@@ -1,9 +1,0 @@
-[Plymouth Theme]
-Name=system-setup
-Description=system-setup splash screen.
-ModuleName=script
-
-[script]
-ImageDir=/usr/share/plymouth/themes/system-setup
-ScriptFile=/usr/share/plymouth/themes/system-setup/system-setup.script
-ConsoleLogBackgroundColor=0x1a1b26

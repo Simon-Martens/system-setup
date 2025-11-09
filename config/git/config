@@ -1,11 +1,1 @@
-[alias]
-	co = checkout
-	br = branch
-	ci = commit
-	st = status
-[user]
-	signingkey = 61F5BD22CF3388F9
-	name = Simon Martens
-	email = simon.martens@mailbox.org
-[pull]
-	rebase = false
+/nix/store/pdhf6b9jxjna7jqf33magm1vf0d9grw4-home-manager-files/.config/git/config

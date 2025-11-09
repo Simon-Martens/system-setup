@@ -54,7 +54,6 @@ local plugins = {
   require 'custom.plugins.biscuits', -- Show opening and closing lines on brackets
   -- require 'custom.plugins.copilot', -- GitHub Copilot
   require 'custom.plugins.supermaven',
-  require 'custom.plugins.fff', -- Fuzzy Finder for files, buffers, etc.
   require 'custom.plugins.gitsigns', -- Git signs in the gutter
   require 'custom.plugins.grug-far', -- Search and replace tool
   require 'custom.plugins.mini', -- Mini plugins for various enhancements
