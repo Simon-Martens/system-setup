@@ -1,1 +1,6 @@
-/nix/store/pdhf6b9jxjna7jqf33magm1vf0d9grw4-home-manager-files/.config/git/config
+[user]
+	name = Simon Martens
+	email = simon.martens@mailbox.org
+
+[pull]
+	rebase = true
