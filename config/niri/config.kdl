@@ -105,12 +105,13 @@ layout {
     // - "on-overflow", focusing a column will center it if it doesn't fit
     //   together with the previously focused column.
     center-focused-column "never"
+    // Always center a single column (for fullscreen-like behavior with one window)
+    always-center-single-column
     // You can customize the widths that "switch-preset-column-width" (Mod+R) toggles between.
     preset-column-widths {
         // Proportion sets the width as a fraction of the output width, taking gaps into account.
         // For example, you can perfectly fit four windows sized "proportion 0.25" on an output.
         // The default preset widths are 1/3, 1/2 and 2/3 of the output.
-        proportion 0.33333
         proportion 0.5
         proportion 0.66667
         // Fixed sets the width in logical pixels exactly.
@@ -119,6 +120,7 @@ layout {
     // You can also customize the heights that "switch-preset-window-height" (Mod+Shift+R) toggles between.
     // preset-window-heights { }
     // You can change the default width of the new windows.
+    // Set to 50% for two-window tiling behavior
     default-column-width { proportion 0.5; }
     // If you leave the brackets empty, the windows themselves will decide their initial width.
     // default-column-width {}
@@ -255,6 +257,12 @@ window-rule {
 }
 debug {
     honor-xdg-activation-with-invalid-serial
+}
+
+// Make all windows open maximized by default (fullscreen-like behavior)
+// When a second window opens, they will tile 50-50 due to default-column-width
+window-rule {
+    open-maximized true
 }
 
 // Override to disable super+tab
