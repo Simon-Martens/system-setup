@@ -51,7 +51,7 @@ local plugins = {
   require 'custom.plugins.autotag', -- Close Tags automatically
   require 'custom.plugins.bbye', -- Shortcuts for deleting buffers
   require 'custom.plugins.bigfile', -- Handle large files
-  require 'custom.plugins.biscuits', -- Show opening and closing lines on brackets
+  -- require 'custom.plugins.biscuits', -- Show opening and closing lines on brackets
   -- require 'custom.plugins.copilot', -- GitHub Copilot
   require 'custom.plugins.supermaven',
   require 'custom.plugins.gitsigns', -- Git signs in the gutter

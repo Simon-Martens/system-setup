@@ -9,5 +9,3 @@ if [ -z "$system-setup_BARE" ]; then
     xournalpp localsend-bin
 fi
 
-# Copy over system-setup applications
-source ~/.local/share/system-setup/bin/system-setup-sync-applications || true
