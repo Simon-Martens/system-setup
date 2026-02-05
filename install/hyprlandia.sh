@@ -1,6 +1,6 @@
 yay -S --noconfirm --needed \
-  hyprland hyprshot hyprpicker hyprlock hypridle polkit-gnome \
-  wofi waybar swaync swaybg uwsm libnewt \
+  hyprland polkit-gnome \
+  uwsm libnewt \
   xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
 
 # hyprpm update
