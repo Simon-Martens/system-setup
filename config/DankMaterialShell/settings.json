@@ -118,7 +118,7 @@
       "width": 25
     }
   ],
-  "showWorkspaceIndex": true,
+  "showWorkspaceIndex": false,
   "showWorkspaceName": false,
   "showWorkspacePadding": false,
   "workspaceScrolling": false,
@@ -354,10 +354,6 @@
       ],
       "centerWidgets": [
         {
-          "id": "music",
-          "enabled": true
-        },
-        {
           "id": "clock",
           "enabled": true
         },
@@ -371,6 +367,10 @@
         }
       ],
       "rightWidgets": [
+        {
+          "id": "music",
+          "enabled": true
+        },
         {
           "id": "systemTray",
           "enabled": true
