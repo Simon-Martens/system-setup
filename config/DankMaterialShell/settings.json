@@ -2,7 +2,10 @@
   "currentThemeName": "custom",
   "currentThemeCategory": "registry",
   "customThemeFile": "/home/simon/.config/DankMaterialShell/themes/synthwaveElectric/theme.json",
-  "registryThemeVariants": {},
+  "registryThemeVariants": {
+    "flexoki": "cyan",
+    "petrichor": "blue"
+  },
   "matugenScheme": "scheme-tonal-spot",
   "runUserMatugenTemplates": true,
   "matugenTargetMonitor": "",
@@ -123,7 +126,7 @@
   "maxWorkspaceIcons": 3,
   "groupWorkspaceApps": true,
   "workspaceFollowFocus": false,
-  "showOccupiedWorkspacesOnly": false,
+  "showOccupiedWorkspacesOnly": true,
   "reverseScrolling": false,
   "dwlShowAllTags": false,
   "workspaceColorMode": "default",
@@ -145,7 +148,7 @@
   "runningAppsGroupByApp": false,
   "appIdSubstitutions": [],
   "centeringMode": "index",
-  "clockDateFormat": "MMM d",
+  "clockDateFormat": "",
   "lockDateFormat": "",
   "mediaSize": 1,
   "appLauncherViewMode": "list",
@@ -156,14 +159,14 @@
   "niriOverviewOverlayEnabled": true,
   "useAutoLocation": false,
   "weatherEnabled": true,
-  "networkPreference": "auto",
+  "networkPreference": "wifi",
   "vpnLastConnected": "",
   "iconTheme": "System Default",
   "cursorSettings": {
     "theme": "System Default",
-    "size": 24,
+    "size": 38,
     "niri": {
-      "hideWhenTyping": false,
+      "hideWhenTyping": true,
       "hideAfterInactiveMs": 0
     },
     "hyprland": {
@@ -182,10 +185,10 @@
   "launcherLogoBrightness": 0.5,
   "launcherLogoContrast": 1,
   "launcherLogoSizeOffset": 0,
-  "fontFamily": "Inter Variable",
+  "fontFamily": "Adwaita Sans",
   "monoFontFamily": "Fira Code",
   "fontWeight": 400,
-  "fontScale": 1,
+  "fontScale": 0.96,
   "notepadUseMonospace": true,
   "notepadFontFamily": "",
   "notepadFontSize": 14,
@@ -208,7 +211,7 @@
   "batterySuspendBehavior": 0,
   "batteryProfileName": "",
   "batteryChargeLimit": 100,
-  "lockBeforeSuspend": false,
+  "lockBeforeSuspend": true,
   "loginctlLockIntegration": true,
   "fadeToLockEnabled": true,
   "fadeToLockGracePeriod": 5,
@@ -216,10 +219,22 @@
   "fadeToDpmsGracePeriod": 5,
   "launchPrefix": "",
   "brightnessDevicePins": {},
-  "wifiNetworkPins": {},
+  "wifiNetworkPins": {
+    "preferredWifi": [
+      "Boulevard"
+    ]
+  },
   "bluetoothDevicePins": {},
-  "audioInputDevicePins": {},
-  "audioOutputDevicePins": {},
+  "audioInputDevicePins": {
+    "preferredInput": [
+      "alsa_input.pci-0000_00_1f.3.analog-stereo"
+    ]
+  },
+  "audioOutputDevicePins": {
+    "preferredOutput": [
+      "alsa_output.pci-0000_00_1f.3.analog-stereo"
+    ]
+  },
   "gtkThemingEnabled": false,
   "qtThemingEnabled": false,
   "syncModeWithPortal": true,
@@ -266,26 +281,26 @@
   "lockScreenShowSystemIcons": true,
   "lockScreenShowTime": true,
   "lockScreenShowDate": true,
-  "lockScreenShowProfileImage": false,
+  "lockScreenShowProfileImage": true,
   "lockScreenShowPasswordField": true,
   "enableFprint": false,
   "maxFprintTries": 15,
-  "lockScreenActiveMonitor": "HDMI-A-2",
+  "lockScreenActiveMonitor": "all",
   "lockScreenInactiveColor": "#000000",
   "lockScreenNotificationMode": 0,
   "hideBrightnessSlider": false,
-  "notificationTimeoutLow": 3000,
+  "notificationTimeoutLow": 5000,
   "notificationTimeoutNormal": 5000,
   "notificationTimeoutCritical": 0,
   "notificationCompactMode": true,
   "notificationPopupPosition": -1,
   "notificationHistoryEnabled": true,
   "notificationHistoryMaxCount": 50,
-  "notificationHistoryMaxAgeDays": 7,
+  "notificationHistoryMaxAgeDays": 3,
   "notificationHistorySaveLow": false,
   "notificationHistorySaveNormal": true,
   "notificationHistorySaveCritical": true,
-  "osdAlwaysShowValue": false,
+  "osdAlwaysShowValue": true,
   "osdPosition": 4,
   "osdVolumeEnabled": true,
   "osdMediaVolumeEnabled": true,
@@ -357,10 +372,6 @@
       ],
       "rightWidgets": [
         {
-          "id": "capsLockIndicator",
-          "enabled": true
-        },
-        {
           "id": "systemTray",
           "enabled": true
         },
@@ -373,10 +384,6 @@
           "enabled": true
         },
         {
-          "id": "separator",
-          "enabled": true
-        },
-        {
           "id": "cpuUsage",
           "enabled": true
         },
@@ -385,26 +392,22 @@
           "enabled": true
         },
         {
-          "id": "separator",
-          "enabled": true
-        },
-        {
-          "id": "vpn",
+          "id": "battery",
           "enabled": true
         },
         {
           "id": "controlCenterButton",
-          "enabled": true
-        },
-        {
-          "id": "privacyIndicator",
-          "enabled": true
+          "enabled": true,
+          "showBrightnessIcon": false,
+          "showMicIcon": false,
+          "showBatteryIcon": false,
+          "showPrinterIcon": true
         }
       ],
       "spacing": 4,
       "innerPadding": 4,
       "bottomGap": 0,
-      "transparency": 0.62,
+      "transparency": 0.61,
       "widgetTransparency": 1,
       "squareCorners": false,
       "noBackground": false,
@@ -423,7 +426,7 @@
       "autoHide": false,
       "autoHideDelay": 250,
       "showOnWindowsOpen": false,
-      "openOnOverview": false,
+      "openOnOverview": true,
       "visible": true,
       "popupGapsAuto": true,
       "popupGapsManual": 4,
@@ -508,10 +511,6 @@
   "desktopWidgetGridSettings": {},
   "desktopWidgetInstances": [],
   "desktopWidgetGroups": [],
-  "builtInPluginSettings": {
-    "dms_settings_search": {
-      "trigger": "?"
-    }
-  },
+  "builtInPluginSettings": {},
   "configVersion": 5
 }
