@@ -247,7 +247,7 @@ window-rule {
 }
 window-rule {
     match app-id=r#"firefox$"#
-    open-fullscreen true
+    open-maximized true
 }
 
 window-rule {
