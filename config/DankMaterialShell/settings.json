@@ -281,7 +281,7 @@
   "lockScreenShowSystemIcons": true,
   "lockScreenShowTime": true,
   "lockScreenShowDate": true,
-  "lockScreenShowProfileImage": true,
+  "lockScreenShowProfileImage": false,
   "lockScreenShowPasswordField": true,
   "enableFprint": false,
   "maxFprintTries": 15,

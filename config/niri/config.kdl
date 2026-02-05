@@ -246,6 +246,11 @@ window-rule {
     draw-border-with-background false
 }
 window-rule {
+    match app-id=r#"firefox$"#
+    open-fullscreen true
+}
+
+window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     match app-id="zoom"
     open-floating true
