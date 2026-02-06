@@ -1,5 +1,5 @@
 yay -S --noconfirm --needed \
-  nautilus sushi ffmpegthumbnailer \
+  nautilus sushi ffmpegthumbnailer gvfs-smb \
   vlc evince gnome-disk-utility dosfstools \
   chromium gnome-calculator signal-desktop \
 	telegram-desktop gnome-keyring \
