@@ -1,7 +1,6 @@
 yay -S --noconfirm --needed \
-  hyprland polkit-gnome \
-  uwsm libnewt \
-  xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
+  hyprland \
+  xdg-desktop-portal-hyprland 
 
 # hyprpm update
 # hyprpm add https://github.com/hyprwm/hyprland-plugins

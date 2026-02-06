@@ -1,4 +1,3 @@
-if [ -z "$system-setup_BARE" ]; then
   source ~/.local/share/system-setup/scripts/rc/functions.sh
   web2app "WhatsApp" https://web.whatsapp.com/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/whatsapp.png
   web2app "ChatGPT" https://chatgpt.com/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/chatgpt.png
@@ -13,6 +12,5 @@ if [ -z "$system-setup_BARE" ]; then
 	web2app "TouTube Music" https://music.youtube.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/youtube-music.png
 	web2app "Telegram" https://web.telegram.org https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/telegram.png
   web2app "Microsft Admin Center" https://admin.microsoft.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/microsoft-365-admin-center.png
-	fi
 
 
