@@ -5,7 +5,7 @@ set -e
 trap 'echo "system-setup installation failed! You can retry by running: source ~/.local/share/system-setup/install.sh"' ERR
 
 # Install everything
-for f in ~/.local/share/system-setup/install/*.sh; do
+for f in ~/.local/share/system-setup/install/base/*.sh; do
   echo -e "\nRunning installer: $f"
   source "$f"
 done
@@ -13,4 +13,4 @@ done
 # Ensure locate is up to date now that everything has been installed
 sudo updatedb
 
-gum confirm "Reboot to apply all settings?" && reboot
+./bin/config-install
