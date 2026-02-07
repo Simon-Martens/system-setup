@@ -51,7 +51,7 @@
         "monitors": [
         ],
         "outerCorners": true,
-        "position": "left",
+        "position": "top",
         "screenOverrides": [
         ],
         "showCapsule": true,
@@ -59,6 +59,9 @@
         "useSeparateOpacity": false,
         "widgets": {
             "center": [
+                {
+                    "id": "plugin:weather-indicator"
+                },
                 {
                     "characterCount": 2,
                     "colorizeIcons": true,
@@ -93,15 +96,20 @@
                 {
                     "icon": "rocket",
                     "iconColor": "secondary",
-                    "id": "Launcher",
-                    "usePrimaryColor": false
+                    "id": "Launcher"
                 },
                 {
-                    "id": "plugin:catwalk"
+                    "hideWhenZero": false,
+                    "hideWhenZeroUnread": false,
+                    "iconColor": "none",
+                    "id": "NotificationHistory",
+                    "showUnreadBadge": true,
+                    "unreadBadgeColor": "primary"
                 },
                 {
                     "compactMode": true,
                     "diskPath": "/",
+                    "iconColor": "none",
                     "id": "SystemMonitor",
                     "showCpuFreq": false,
                     "showCpuTemp": true,
@@ -115,8 +123,8 @@
                     "showMemoryUsage": true,
                     "showNetworkStats": false,
                     "showSwapUsage": false,
-                    "useMonospaceFont": true,
-                    "usePrimaryColor": false
+                    "textColor": "none",
+                    "useMonospaceFont": true
                 },
                 {
                     "colorizeIcons": false,
@@ -125,6 +133,7 @@
                     "maxWidth": 145,
                     "scrollingMode": "hover",
                     "showIcon": true,
+                    "textColor": "none",
                     "useFixedWidth": false
                 }
             ],
@@ -138,19 +147,13 @@
                 {
                     "blacklist": [
                     ],
+                    "chevronColor": "none",
                     "colorizeIcons": false,
                     "drawerEnabled": true,
                     "hidePassive": false,
                     "id": "Tray",
                     "pinned": [
                     ]
-                },
-                {
-                    "hideWhenZero": false,
-                    "hideWhenZeroUnread": false,
-                    "id": "NotificationHistory",
-                    "showUnreadBadge": true,
-                    "unreadBadgeColor": "primary"
                 },
                 {
                     "deviceNativePath": "__default__",
@@ -170,7 +173,9 @@
                 },
                 {
                     "displayMode": "onhover",
-                    "id": "Brightness"
+                    "iconColor": "none",
+                    "id": "Brightness",
+                    "textColor": "none"
                 },
                 {
                     "colorizeDistroLogo": false,
@@ -304,7 +309,7 @@
         "allowPanelsOnScreenWithoutBar": true,
         "allowPasswordWithFprintd": false,
         "animationDisabled": false,
-        "animationSpeed": 1,
+        "animationSpeed": 1.4000000000000001,
         "autoStartAuth": false,
         "avatarImage": "/home/simon/.face",
         "boxRadiusRatio": 1,
@@ -524,7 +529,7 @@
     },
     "wallpaper": {
         "automationEnabled": false,
-        "directory": "/home/simon/Pictures",
+        "directory": "/home/simon/Pictures/Wallpapers",
         "enableMultiMonitorDirectories": false,
         "enabled": true,
         "fillColor": "#000000",
