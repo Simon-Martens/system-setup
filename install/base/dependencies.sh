@@ -1,4 +1,5 @@
 yay -S --noconfirm --needed \
+	linux-headers \
 	uwsm \
 	xdg-desktop-portal-gtk \
 	libnewt \
