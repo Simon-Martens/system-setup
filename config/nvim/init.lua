@@ -47,25 +47,25 @@ rtp:prepend(lazypath)
 
 local plugins = {
   -- Miscellaneous plugins
-  'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
-  require 'custom.plugins.autotag', -- Close Tags automatically
-  require 'custom.plugins.bbye', -- Shortcuts for deleting buffers
-  require 'custom.plugins.bigfile', -- Handle large files
+  -- require 'custom.plugins.autotag', -- Close Tags automatically
+  -- require 'custom.plugins.bbye', -- Shortcuts for deleting buffers
   -- require 'custom.plugins.biscuits', -- Show opening and closing lines on brackets
+  -- require 'custom.plugins.grug-far', -- Search and replace tool
+  -- require 'custom.plugins.tmux', -- Tmux integration
+  'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  require 'custom.plugins.bigfile', -- Handle large files
   require 'custom.plugins.copilot', -- GitHub Copilot
-  -- require 'custom.plugins.supermaven', left for nostalgia purposes
   require 'custom.plugins.gitsigns', -- Git signs in the gutter
-  require 'custom.plugins.grug-far', -- Search and replace tool
   require 'custom.plugins.mini', -- Mini plugins for various enhancements
   require 'custom.plugins.multiselect', -- Multi-select functionality
   require 'custom.plugins.noneckpain', -- Make the window not too wide
   require 'custom.plugins.telescope', -- Fuzzy Finder for files, buffers, etc.
-  require 'custom.plugins.tmux', -- Tmux integration
   require 'custom.plugins.todo-comments', -- Highlight TODO comments
   require 'custom.plugins.treesitter', -- Syntax highlighting & more
   require 'custom.plugins.whichkey', -- Keybindings helper
   require 'custom.plugins.typst', -- Typst document preview
   require 'custom.plugins.lazydev', -- Better LSP experience with lua configs
+  require 'custom.plugins.dart', -- Dart & Flutter support, may conflict with lspconfig
 
   -- LSP plugins & dependent features
   require 'custom.lsp.lspconfig', -- LSP configuration
