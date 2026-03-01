@@ -10,6 +10,12 @@ gestures {
     hot-corners {
         off
     }
+
+	dnd-edge-workspace-switch {
+        trigger-height 50
+        delay-ms 100
+        max-speed 1500
+    }
 }
 
 // Input device configuration.
@@ -49,7 +55,8 @@ input {
         // drag false
         // drag-lock
         // natural-scroll
-        accel-speed 0.9
+        accel-speed 0.99
+				scroll-factor 1.4
         // accel-profile "flat"
         // scroll-method "two-finger"
         // disabled-on-external-mouse
