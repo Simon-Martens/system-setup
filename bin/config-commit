@@ -32,4 +32,6 @@ fi
 
 git commit -m "$COMMIT_MESSAGE"
 
+git push
+
 popd >/dev/null
