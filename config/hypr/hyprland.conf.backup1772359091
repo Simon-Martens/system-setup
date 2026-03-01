@@ -73,5 +73,3 @@ source = ~/.config/hypr/places/laptop.conf
 
 
 source = ./dms/cursor.conf
-
-source = ./dms/outputs.conf
