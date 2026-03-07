@@ -48,23 +48,33 @@ rtp:prepend(lazypath)
 local plugins = {
   -- Miscellaneous plugins
   -- require 'custom.plugins.autotag', -- Close Tags automatically
-  -- require 'custom.plugins.bbye', -- Shortcuts for deleting buffers
   -- require 'custom.plugins.biscuits', -- Show opening and closing lines on brackets
   -- require 'custom.plugins.grug-far', -- Search and replace tool
   -- require 'custom.plugins.tmux', -- Tmux integration
+  -- require 'kickstart.plugins.debug',
+  -- require 'kickstart.plugins.indent_line',
+  -- require 'kickstart.plugins.lint',
+  -- require 'kickstart.plugins.autopairs',
+  -- require 'kickstart.plugins.neo-tree',
+  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  -- require 'custom.plugins.noneckpain', -- Make the window not too wide
+  -- require 'custom.plugins.whichkey', -- Keybindings helper
+
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
-  require 'custom.plugins.bigfile', -- Handle large files
-  require 'custom.plugins.copilot', -- GitHub Copilot
+  require 'custom.plugins.bbye', -- Shortcuts for deleting buffers used ith <Space>q
+  require 'custom.plugins.bigfile', -- Handle large files, auto-disables some features to prevent lag
+  require 'custom.plugins.copilot', -- GitHub Copilot, Ctrl+U to accept recommendations
   require 'custom.plugins.gitsigns', -- Git signs in the gutter
-  require 'custom.plugins.mini', -- Mini plugins for various enhancements
+  require 'custom.plugins.mini', -- Mini plugins for various enhancements, see there
   require 'custom.plugins.multiselect', -- Multi-select functionality
-  require 'custom.plugins.noneckpain', -- Make the window not too wide
   require 'custom.plugins.telescope', -- Fuzzy Finder for files, buffers, etc.
-  require 'custom.plugins.todo-comments', -- Highlight TODO comments
-  require 'custom.plugins.treesitter', -- Syntax highlighting & more
-  require 'custom.plugins.whichkey', -- Keybindings helper
+  require 'custom.plugins.todo-comments', -- Highlight TODO, BUG, etc. comments
+  require 'custom.plugins.treesitter', -- Basic syntax highlighting & more
+
+  -- Languages
+  -- require 'custom.plugins.go', -- Go configuration, may conflict with lspconfig
+  -- require 'custom.plugins.lazydev', -- Better LSP experience with lua configs LUA only
   require 'custom.plugins.typst', -- Typst document preview
-  require 'custom.plugins.lazydev', -- Better LSP experience with lua configs
   require 'custom.plugins.dart', -- Dart & Flutter support, may conflict with lspconfig
 
   -- LSP plugins & dependent features
@@ -73,24 +83,12 @@ local plugins = {
   require 'custom.lsp.blink', -- Autocompletion
 
   { import = 'custom.lsp' },
-
-  -- require 'custom.plugins.go', -- Go configuration, may conflict with lspconfig
-
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 }
 
 -- Define the path to your theme file
--- lua/theme.lua is usually a link to a file
--- It is controlled by the os theme
+-- Whether this is copnrolled by you or your system depends on the system
+-- If theme file exists, add it to the list of plugins to be loaded
 local theme_path = vim.fn.stdpath 'config' .. '/lua/theme.lua'
-
--- Check if the theme file exists and is readable
--- If it exists, add it to the list of plugins to be loaded
 if vim.fn.filereadable(theme_path) == 1 then
   table.insert(plugins, require 'theme')
 end
@@ -101,26 +99,12 @@ require('lazy').setup(plugins, {
     timeout = 3000,
   },
   ui = {
-    -- If you are using a Nerd Font: set icons to an empty table which will use the
-    -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
-    icons = vim.g.have_nerd_font and {} or {
-      cmd = '⌘',
-      config = '🛠',
-      event = '📅',
-      ft = '📂',
-      init = '⚙',
-      keys = '🗝',
-      plugin = '🔌',
-      runtime = '💻',
-      require = '🌙',
-      source = '📄',
-      start = '🚀',
-      task = '📌',
-      lazy = '💤 ',
-    },
+    -- We need nerd fonts for the icons to work!
+    icons = {},
   },
 })
 
+-- Adds a file extention for go template files
 vim.filetype.add {
   extension = {
     gotmpl = 'gotmpl',

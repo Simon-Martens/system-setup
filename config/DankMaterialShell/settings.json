@@ -426,11 +426,21 @@
         ],
         "createdAt": 1772464824087,
         "updatedAt": 1772464824087
+      },
+      "profile_1772890468250_8c1e1w": {
+        "id": "profile_1772890468250_8c1e1w",
+        "name": "Home",
+        "outputSet": [
+          "DP-3",
+          "HDMI-A-2"
+        ],
+        "createdAt": 1772890468250,
+        "updatedAt": 1772890468250
       }
     }
   },
   "activeDisplayProfile": {
-    "hyprland": "profile_1772464824087_mummtl"
+    "hyprland": "profile_1772890468250_8c1e1w"
   },
   "displayProfileAutoSelect": false,
   "displayShowDisconnected": false,

@@ -16,9 +16,9 @@ vim.g.copilot_no_tab_map = true
 
 -- Make line numbers default
 vim.opt.number = true
+vim.opt.relativenumber = true
 -- You can also add relative line numbers, for help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -32,6 +32,7 @@ vim.opt.showmode = false
 vim.opt.clipboard = 'unnamedplus'
 
 -- Enable break indent
+-- This will keep the indentation of a line when it wraps, making it look nicer on the left
 vim.opt.breakindent = true
 
 -- Save undo history
@@ -45,7 +46,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
 -- Keep signcolumn on by default
-vim.opt.signcolumn = 'number'
+vim.opt.signcolumn = 'yes'
 
 -- Decrease update time
 vim.opt.updatetime = 250
@@ -67,7 +68,7 @@ vim.opt.listchars = { tab = '  ', trail = '·', nbsp = '␣', multispace = '·',
 vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 16
@@ -82,7 +83,7 @@ vim.opt.et = false
 
 -- Relative line numbers
 -- See `:help 'relativenumber'`
-vim.opt.relativenumber = true
+vim.opt.relativenumber = trueoptions
 
 -- Disable folding, we don't need it
 vim.opt.fen = false
@@ -92,7 +93,7 @@ vim.opt.fen = false
 -- Set highlight on search,
 vim.opt.hlsearch = true
 
--- Reset the cursor
+-- Reset the cursor on tmux
 -- BUG: this is still not working for tmux with ghostty
 vim.cmd.normal ':set guicursor='
 vim.cmd.normal ':autocmd OptionSet guicursor noautocmd set guicursor='
