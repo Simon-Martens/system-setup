@@ -43,23 +43,82 @@ vim.pack.add({
   { src = "https://github.com/nvim-treesitter/nvim-treesitter" }, -- Syntax highlighting
 	{ src = "https://github.com/vague2k/vague.nvim" }, -- Theme
 	{ src = "https://github.com/neovim/nvim-lspconfig" }, -- Prepackaged LSP configurations
-	{ src = "https://github.com/echasnovski/mini.nvim" }, -- Prepackaged LSP configurations
+	{ src = "https://github.com/echasnovski/mini.nvim" }, -- Some mini-plugins for commonly needed things
 })
 
-
 -- Plugin configuration
-require('mini.pick').setup({
-	mappings = {
-		move_down = '<Tab>',
-		move_up = '<S-Tab>',
-	}
-}) -- Enable mini.pick
+-- Enable mini functions
+require('mini.pick').setup() -- File Search, Picker, Buffer Picker
+require('mini.surround').setup() -- [s]urround [a]dd [r]eplace or [d]elete
+require('mini.ai').setup { n_lines = 500 } -- better around/inside visual selections
+-- require('mini.indentscope').setup() -- Shows the scope of an indentation
+-- require('mini.pairs').setup() -- If wanted mini auto-pairing
+-- require('mini.tabline').setup() -- If wanted mini tabline
+-- require('mini.visits.).setup() -- TODO: this shound interesting
+require('mini.cursorword').setup() -- all occurances of the current word are highlighhted
+require('mini.jump').setup() -- f and t works across lines
+require('mini.git').setup() -- Git integration
+require('mini.bracketed').setup() -- go forward anmd backeards with []
+require('mini.bufremove').setup() -- remove buffers
+require('mini.cmdline').setup() -- mini command line
 
+local miniclue = require('mini.clue')
+miniclue.setup({
+  triggers = {
+    { mode = { 'n', 'x' }, keys = '<Leader>' }, -- Leader triggers
+    { mode = 'n', keys = '[' }, -- `[` and `]` keys to go forward and back
+    { mode = 'n', keys = ']' },
+    { mode = 'i', keys = '<C-x>' }, -- Built-in completion
+    { mode = { 'n', 'x' }, keys = 'g' }, -- 'g' key
+    { mode = { 'n', 'x' }, keys = "'" }, -- Marks
+    { mode = { 'n', 'x' }, keys = '`' },
+    { mode = { 'n', 'x' }, keys = '"' }, -- Registers
+    { mode = { 'i', 'c' }, keys = '<C-r>' },
+    { mode = 'n', keys = '<C-w>' }, -- Window commands
+    -- { mode = { 'n', 'x' }, keys = 'z' }, -- z Key (folds, Depreracted)
+  },
+  clues = {
+    miniclue.gen_clues.square_brackets(),
+    miniclue.gen_clues.builtin_completion(),
+    miniclue.gen_clues.g(),
+    miniclue.gen_clues.marks(),
+    miniclue.gen_clues.registers(),
+    miniclue.gen_clues.windows(),
+    miniclue.gen_clues.z(),
+  },
+})
+
+-- Deprecated Mini Statusbar:
+-- local statusline = require 'mini.statusline'
+-- statusline.setup { use_icons = vim.g.have_nerd_font }
+--
+-- -- You can configure sections in the statusline by overriding their
+-- -- default behavior. For example, here we set the section for
+-- -- cursor location to LINE:COLUMN
+-- ---@diagnostic disable-next-line: duplicate-set-field
+-- statusline.section_location = function()
+-- 	return '%2l:%-2v'
+-- end
+
+local hipatterns = require('mini.hipatterns') -- Highlight standalone BUG, TODO, NOTE, HACK
+hipatterns.setup{
+	highlighters = {
+			bug  = { pattern = "%f[%w]()BUG:()",  group = "MiniHipatternsFixme" },
+			hack = { pattern = "%f[%w]()HACK:()", group = "MiniHipatternsHack"  },
+			todo = { pattern = "%f[%w]()TODO:()", group = "MiniHipatternsTodo"  },
+			note = { pattern = "%f[%w]()NOTE:()", group = "MiniHipatternsNote"  },
+		},
+
+    hex_color = hipatterns.gen_highlighter.hex_color(), -- Highlight hex color strings (`#rrggbb`) using that color
+}
+
+vim.lsp.enable({"lua_ls", "tinymist", "rust_analyzer", "gopls"})
 
 -- 3. Looks
 -- ----------------------------------------------------------------------------------------------
 vim.cmd("colorscheme vague") -- Sets the volorscheme
 vim.cmd(":hi statusline guibg=NONE") -- No background on the status line
+vim.o.winborder = 'single'
 
 
 -- 4. Autocommands
@@ -96,8 +155,18 @@ vim.api.nvim_create_autocmd({ 'CursorHold' }, {
   end,
 })
 
+-- autocomplete
+vim.api.nvim_create_autocmd('LspAttach', {
+	callback = function(ev)
+		local client = vim.lsp.get_client_by_id(ev.data.client_id)
+		if client:supports_method('textDocument/completion') then
+			vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+		end
+	end,
+})
+vim.opt.completeopt = {'menu', 'menuone', 'noinsert', 'noselect'}
 
--- 2. Keymaps
+-- 5. Keymaps
 -- -----------------------------------------------------------------------------------------------
 -- Plugin independent keybinds
 -- Behavior of j, k in wrapped lines, so they stay navigable whemn wrapped:
@@ -139,6 +208,10 @@ vim.keymap.set('n', 'gt', '<cmd>tabnext<CR>', { desc = '[G]oto to next [t]ab' })
 vim.keymap.set('n', '<Leader>t', '<cmd>tabnew<CR>', { remap = true, desc = 'Open a new tab' })
 vim.keymap.set('n', '<Leader><S-Tab>', '<cmd>tabprevious<CR>', { desc = '[G]oto previous [T]ab' })
 vim.keymap.set('n', '<Leader><Tab>', '<cmd>tabnext<CR>', { desc = '[G]oto next [T]ab' })
+-- Enable or disable line numbers
+vim.keymap.set({'n', 'v'}, '<Leader>l', function()
+	vim.wo.number = not vim.wo.number
+end, { desc = 'Toggle [L]ine numbers' })
 
 -- Plugin dependendent keybinds
 -- Pickers
@@ -154,3 +227,8 @@ vim.keymap.set({'n', 'v'}, '<Leader>sf', function()
 end, { desc = '[S]earch [F]iles' })
 vim.keymap.set({'n', 'v'}, '<Leader><Leader>', '<cmd>:Pick buffers<CR>', { desc = 'Pick Buffers' })
 vim.keymap.set({'n', 'v'}, '<Leader>sg', '<cmd>:Pick grep_live<CR>', { desc = '[S]earch [G]rep' })
+
+-- Buffer removal
+vim.keymap.set({'n', 'v'}, '<Leader>q', function()
+	MiniBufremove.unshow()
+end, { desc = '[S]earch [F]iles' })
