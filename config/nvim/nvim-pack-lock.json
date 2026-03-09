@@ -1,5 +1,13 @@
 {
   "plugins": {
+    "conform.nvim": {
+      "rev": "40dcec5555f960b0a04340d76eabdf4efe78599d",
+      "src": "https://github.com/stevearc/conform.nvim"
+    },
+    "mason.nvim": {
+      "rev": "44d1e90e1f66e077268191e3ee9d2ac97cc18e65",
+      "src": "https://github.com/mason-org/mason.nvim"
+    },
     "mini.nvim": {
       "rev": "9d359222b3643f1fccbd8f3180445842e1cae00b",
       "src": "https://github.com/echasnovski/mini.nvim"
