@@ -1,1 +1,0 @@
-/home/simon/.config/system-setup/current/theme/neovim.lua

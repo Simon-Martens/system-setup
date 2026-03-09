@@ -1,5 +1,5 @@
 # General
-custom-shader = "./cursor_smear.glsl"
+# custom-shader = "./cursor_smear.glsl"
 mouse-hide-while-typing = true
 cursor-style-blink = true
 cursor-style = "bar"
