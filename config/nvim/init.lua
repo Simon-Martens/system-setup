@@ -18,6 +18,7 @@
 -- |;;;;;| |___|         |;;;;;||
 -- \_____|_______________|_____||
 --  ~~~~~^^^^^^^^^^^^^^^^^~~~~~~~
+
 -- 0. Expternal files
 require("lsp") -- All LSP setup code, setup is done and available after this
 
@@ -56,6 +57,8 @@ vim.o.et = false -- Same
 vim.o.fen = false -- Disable folding, we don't need it
 -- vim.o.textwidth = 100 -- Visible line at the right side
 vim.o.hlsearch = true -- Set highlight on search,
+vim.o.wildmode = "noselect:lastused,full"
+vim.o.wildoptions = "pum"
 vim.cmd.normal(":set guicursor=") -- Reset the cursor on tmux BUG: doesn't work
 vim.cmd.normal(":autocmd OptionSet guicursor noautocmd set guicursor=") -- Same
 
@@ -84,6 +87,14 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
 	callback = function()
 		vim.highlight.on_yank()
+	end,
+})
+
+-- show wildmenu when we type in the cmd line
+vim.api.nvim_create_autocmd({ "CmdlineChanged" }, {
+	pattern = ":*",
+	callback = function()
+		vim.fn.wildtrigger()
 	end,
 })
 
@@ -156,8 +167,15 @@ vim.keymap.set("n", "<Leader><Tab>", "<cmd>tabnext<CR>", { desc = "[G]oto next [
 vim.keymap.set({ "n", "v" }, "<Leader>l", function()
 	vim.wo.number = not vim.wo.number
 end, { desc = "Toggle [L]ine numbers" })
+-- Search with a hitlist in all open files
+vim.keymap.set("n", "<leader>/", function()
+	local pattern = vim.fn.input("Search: ")
+	vim.cmd("vimgrep /" .. pattern .. "/g ##")
+	vim.cmd("copen")
+end)
 
 -- Plugin dependendent keybinds
+-- -> Other lsp-related functions and keybinds in lsp config
 -- Pickers
 vim.keymap.set({ "n", "v" }, "<Leader>sf", function()
 	local in_git_repo = vim.fn.system("git rev-parse --is-inside-work-tree 2>/dev/null")
@@ -176,5 +194,3 @@ vim.keymap.set({ "n", "v" }, "<Leader>sg", "<cmd>:Pick grep_live<CR>", { desc = 
 vim.keymap.set({ "n", "v" }, "<Leader>q", function()
 	MiniBufremove.unshow()
 end, { desc = "[Q]uit Buffer" })
-
--- -> Other lsp-related functions and keybinds in lsp config
