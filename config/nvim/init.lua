@@ -72,11 +72,15 @@ vim.pack.add({
 
 -- Mini: small tools for everyday use
 require("plugins.mini")
+require("plugins.snacks")
 
 -- 3. Looks
 -- ----------------------------------------------------------------------------------------------
 vim.cmd("colorscheme vague")         -- Sets the volorscheme
 vim.cmd(":hi statusline guibg=NONE") -- No background on the status line
+vim.cmd(":hi WinSeparator guifg=NONE guibg=NONE ctermfg=NONE ctermbg=NONE")
+vim.cmd(":hi VertSplit guifg=NONE guibg=NONE ctermfg=NONE ctermbg=NONE")
+vim.opt.fillchars:append({ vert = " " })
 vim.o.winborder = "single"
 
 -- 4. Autocommands

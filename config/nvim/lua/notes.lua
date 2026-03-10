@@ -79,8 +79,154 @@ local function focus_notes_tab()
 	return tabpage
 end
 
-local function files_picker_opts(root)
-	return { source = { cwd = root } }
+local function has_snacks()
+	return pcall(require, "snacks")
+end
+
+local function is_snacks_window(winid)
+	if not vim.api.nvim_win_is_valid(winid) then
+		return false
+	end
+
+	local bufnr = vim.api.nvim_win_get_buf(winid)
+	return vim.w[winid].snacks_layout == true or vim.bo[bufnr].filetype:find("^snacks") ~= nil
+end
+
+local function apply_notes_window_options(tabpage)
+	for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabpage or 0)) do
+		if not is_snacks_window(winid) then
+			vim.wo[winid].wrap = true
+			vim.wo[winid].linebreak = true
+			vim.wo[winid].breakindent = true
+		end
+	end
+end
+
+local function apply_notes_explorer_keymaps(tabpage)
+	for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabpage or 0)) do
+		if is_snacks_window(winid) then
+			local bufnr = vim.api.nvim_win_get_buf(winid)
+			vim.keymap.set("n", "<Esc>", function()
+				focus_main_notes_window()
+			end, {
+				buffer = bufnr,
+				silent = true,
+				desc = "Return to notes text window",
+			})
+		end
+	end
+end
+
+local function get_main_notes_window(tabpage)
+	for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabpage or 0)) do
+		local bufnr = vim.api.nvim_win_get_buf(winid)
+		if not is_snacks_window(winid) and vim.bo[bufnr].buftype == "" then
+			return winid
+		end
+	end
+end
+
+local function focus_main_notes_window()
+	local winid = get_main_notes_window(0)
+	if winid ~= nil then
+		vim.api.nvim_set_current_win(winid)
+		return true
+	end
+
+	return false
+end
+
+function M.focus_text_window()
+	return focus_main_notes_window()
+end
+
+local function get_notes_explorer()
+	local ok, snacks = pcall(require, "snacks")
+	if not ok then
+		return nil
+	end
+
+	return snacks.picker.get({ source = "explorer" })[1]
+end
+
+local function focus_notes_explorer()
+	local explorer = get_notes_explorer()
+	if explorer ~= nil then
+		explorer:focus("input", { show = true })
+		return true
+	end
+
+	return false
+end
+
+local function focus_notes_explorer_later()
+	vim.schedule(function()
+		if is_notes_tab(0) then
+			focus_notes_explorer()
+		end
+	end)
+end
+
+local function open_path_in_current_tab(path)
+	vim.cmd.edit(vim.fn.fnameescape(path))
+end
+
+local function ensure_default_note_buffer(root)
+	local winid = get_main_notes_window(0)
+	if winid ~= nil then
+		vim.api.nvim_set_current_win(winid)
+		local bufnr = vim.api.nvim_win_get_buf(winid)
+		if is_notes_buffer(bufnr) then
+			return
+		end
+	end
+
+	local default_note = root .. "/note.md"
+	if vim.fn.filereadable(default_note) == 1 then
+		open_path_in_current_tab(default_note)
+		return
+	end
+
+	vim.cmd.enew()
+end
+
+local function open_notes_explorer(root)
+	local ok, snacks = pcall(require, "snacks")
+	if not ok then
+		return false
+	end
+
+	local explorer = get_notes_explorer()
+	local opened_now = false
+	if explorer == nil then
+		explorer = snacks.explorer({
+			cwd = root,
+			follow_file = true,
+			layout = {
+				layout = { position = "right" },
+			},
+		})
+		opened_now = true
+	end
+
+	if explorer == nil or explorer.closed then
+		return false
+	end
+
+	if explorer:cwd() ~= root then
+		explorer:set_cwd(root)
+		explorer:find()
+	end
+
+	local main_win = get_main_notes_window(0)
+	local main_buf = main_win and vim.api.nvim_win_get_buf(main_win) or nil
+	if not opened_now and main_buf ~= nil and is_notes_buffer(main_buf) then
+		pcall(function()
+			snacks.explorer.reveal({ buf = main_buf })
+		end)
+	end
+
+	return true
 end
 
 local function ensure_notes_tab()
@@ -112,6 +258,34 @@ local function choose_in_notes_tab(item)
 	MiniPick.default_choose(item)
 end
 
+local function ensure_notes_layout(opts)
+	local root = ensure_notes_root()
+	if root == nil then
+		return nil
+	end
+
+	if ensure_notes_tab() == nil then
+		return nil
+	end
+
+	ensure_default_note_buffer(root)
+	open_notes_explorer(root)
+	apply_notes_window_options(0)
+	apply_notes_explorer_keymaps(0)
+
+	if opts ~= nil and opts.focus_explorer then
+		focus_notes_explorer_later()
+	elseif opts ~= nil and opts.focus_main then
+		vim.schedule(function()
+			if is_notes_tab(0) then
+				focus_main_notes_window()
+			end
+		end)
+	end
+
+	return root
+end
+
 local function replace_current_window_buffer()
 	local alternate = vim.fn.bufnr("#")
 	if alternate > 0 and vim.api.nvim_buf_is_valid(alternate) and not is_notes_buffer(alternate) then
@@ -131,10 +305,6 @@ local function ensure_regular_tab()
 	end
 
 	vim.cmd.tabnew()
-end
-
-local function open_path_in_current_tab(path)
-	vim.cmd.edit(vim.fn.fnameescape(path))
 end
 
 local function enforce_buffer_isolation(args)
@@ -248,12 +418,12 @@ function M.pick_files()
 		return
 	end
 
-	MiniPick.builtin.files(nil, {
-		source = {
-			cwd = root,
-			choose = choose_in_notes_tab,
-		},
-	})
+	if has_snacks() then
+		ensure_notes_layout({ focus_explorer = true })
+		return
+	end
+
+	MiniPick.builtin.files(nil, { source = { cwd = root, choose = choose_in_notes_tab } })
 end
 
 function M.grep()
@@ -271,11 +441,7 @@ function M.grep()
 end
 
 function M.open_workspace()
-	if ensure_notes_tab() == nil then
-		return
-	end
-
-	M.pick_files()
+	ensure_notes_layout({ focus_explorer = true })
 end
 
 function M.setup(opts)
@@ -292,6 +458,29 @@ function M.setup(opts)
 		group = group,
 		callback = function(args)
 			enforce_buffer_isolation(args)
+		end,
+	})
+	vim.api.nvim_create_autocmd("TabEnter", {
+		group = group,
+		callback = function()
+			if is_notes_tab(0) and has_snacks() then
+				vim.schedule(function()
+					ensure_notes_layout()
+				end)
+			end
+		end,
+	})
+	vim.api.nvim_create_autocmd("WinEnter", {
+		group = group,
+		callback = function()
+			if not is_notes_tab(0) or not has_snacks() then
+				return
+			end
+
+			local current_win = vim.api.nvim_get_current_win()
+			if is_snacks_window(current_win) then
+				focus_notes_explorer_later()
+			end
 		end,
 	})
 
