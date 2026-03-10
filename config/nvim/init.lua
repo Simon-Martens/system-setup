@@ -24,8 +24,8 @@ require("lsp") -- All LSP setup code, setup is done and available after this
 
 -- 1. Options
 -----------------------------------------------------------------------------------------------
-vim.g.mapleader = " " -- Leader key
-vim.g.maplocalleader = " " -- Local leader key (idk i just do it)
+vim.g.mapleader = " "           -- Leader
+vim.g.maplocalleader = " "      -- Local leader key (idk i just do it)
 vim.g.copilot_no_tab_map = true -- Dont use the tab key for copilot suggestions
 -- vim.o.number = true -- show line numbers
 -- vim.o.relativenumber = true -- relativve line numbers
@@ -59,7 +59,7 @@ vim.o.fen = false -- Disable folding, we don't need it
 vim.o.hlsearch = true -- Set highlight on search,
 vim.o.wildmode = "noselect:lastused,full"
 vim.o.wildoptions = "pum"
-vim.cmd.normal(":set guicursor=") -- Reset the cursor on tmux BUG: doesn't work
+vim.cmd.normal(":set guicursor=")                                       -- Reset the cursor on tmux BUG: doesn't work
 vim.cmd.normal(":autocmd OptionSet guicursor noautocmd set guicursor=") -- Same
 
 -- 2. Plugins
@@ -67,7 +67,7 @@ vim.cmd.normal(":autocmd OptionSet guicursor noautocmd set guicursor=") -- Same
 -- -> Other lsp-related functions and plugins in lsp config
 vim.pack.add({
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" }, -- Syntax highlighting
-	{ src = "https://github.com/vague2k/vague.nvim" }, -- Theme
+	{ src = "https://github.com/vague2k/vague.nvim" },             -- Theme
 })
 
 -- Mini: small tools for everyday use
@@ -75,7 +75,7 @@ require("plugins.mini")
 
 -- 3. Looks
 -- ----------------------------------------------------------------------------------------------
-vim.cmd("colorscheme vague") -- Sets the volorscheme
+vim.cmd("colorscheme vague")         -- Sets the volorscheme
 vim.cmd(":hi statusline guibg=NONE") -- No background on the status line
 vim.o.winborder = "single"
 
@@ -160,6 +160,8 @@ vim.keymap.set({ "n", "i", "v" }, "<C-k>", "<C-w><C-k>", { desc = "Move focus to
 -- Some tab creation and managemnent keybinds, seldomly used
 vim.keymap.set("n", "gT", "<cmd>tabprevious<CR>", { desc = "[G]oto previous [T]ab" })
 vim.keymap.set("n", "gt", "<cmd>tabnext<CR>", { desc = "[G]oto to next [t]ab" })
+vim.keymap.set("n", "<S-Tab>", "<cmd>tabprevious<CR>", { desc = "[G]oto previous [T]ab" })
+vim.keymap.set("n", "<Tab>", "<cmd>tabnext<CR>", { desc = "[G]oto next [T]ab" })
 vim.keymap.set("n", "<Leader>t", "<cmd>tabnew<CR>", { remap = true, desc = "Open a new tab" })
 vim.keymap.set("n", "<Leader><S-Tab>", "<cmd>tabprevious<CR>", { desc = "[G]oto previous [T]ab" })
 vim.keymap.set("n", "<Leader><Tab>", "<cmd>tabnext<CR>", { desc = "[G]oto next [T]ab" })
@@ -194,3 +196,5 @@ vim.keymap.set({ "n", "v" }, "<Leader>sg", "<cmd>:Pick grep_live<CR>", { desc = 
 vim.keymap.set({ "n", "v" }, "<Leader>q", function()
 	MiniBufremove.unshow()
 end, { desc = "[Q]uit Buffer" })
+
+require("notes").setup()
