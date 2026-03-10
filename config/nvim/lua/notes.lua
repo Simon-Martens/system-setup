@@ -171,6 +171,46 @@ local function open_path_in_current_tab(path)
 	vim.cmd.edit(vim.fn.fnameescape(path))
 end
 
+local function get_journal_dir(root)
+	return root .. "/journal"
+end
+
+local function current_journal_path(root)
+	return string.format("%s/%s.md", get_journal_dir(root), os.date("%Y-%d-%m"))
+end
+
+local function latest_journal_path(root)
+	local journal_dir = get_journal_dir(root)
+	if vim.fn.isdirectory(journal_dir) == 0 then
+		return nil
+	end
+
+	local latest_path, latest_mtime = nil, nil
+	local handle = vim.uv.fs_scandir(journal_dir)
+	if handle == nil then
+		return nil
+	end
+
+	while true do
+		local name, entry_type = vim.uv.fs_scandir_next(handle)
+		if name == nil then
+			break
+		end
+
+		if entry_type == "file" and name:match("%.md$") then
+			local path = journal_dir .. "/" .. name
+			local stat = vim.uv.fs_stat(path)
+			local mtime = stat and stat.mtime and stat.mtime.sec or 0
+			if latest_mtime == nil or mtime > latest_mtime then
+				latest_path = path
+				latest_mtime = mtime
+			end
+		end
+	end
+
+	return latest_path
+end
+
 local function ensure_default_note_buffer(root)
 	local winid = get_main_notes_window(0)
 	if winid ~= nil then
@@ -284,6 +324,15 @@ local function ensure_notes_layout(opts)
 	end
 
 	return root
+end
+
+local function open_note_in_workspace(path)
+	if ensure_notes_layout({ focus_main = true }) == nil then
+		return
+	end
+
+	open_path_in_current_tab(path)
+	apply_notes_window_options(0)
 end
 
 local function replace_current_window_buffer()
@@ -444,6 +493,36 @@ function M.open_workspace()
 	ensure_notes_layout({ focus_explorer = true })
 end
 
+function M.open_journal()
+	local root = ensure_notes_root()
+	if root == nil then
+		return
+	end
+
+	local path = latest_journal_path(root)
+	if path == nil then
+		vim.notify("No journal entries found in " .. get_journal_dir(root), vim.log.levels.INFO)
+		return
+	end
+
+	open_note_in_workspace(path)
+end
+
+function M.new_journal_entry()
+	local root = ensure_notes_root()
+	if root == nil then
+		return
+	end
+
+	local journal_dir = get_journal_dir(root)
+	vim.fn.mkdir(journal_dir, "p")
+	local path = current_journal_path(root)
+	if vim.fn.filereadable(path) == 0 then
+		vim.fn.writefile({}, path)
+	end
+	open_note_in_workspace(path)
+end
+
 function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 	if not notes_root_exists() then
@@ -499,6 +578,20 @@ function M.setup(opts)
 	vim.api.nvim_create_user_command("NotesBuffers", function()
 		M.pick_buffers()
 	end, { desc = "Pick buffers for the current workspace" })
+	vim.api.nvim_create_user_command("Journal", function(opts)
+		if opts.args == "new" then
+			M.new_journal_entry()
+			return
+		end
+
+		M.open_journal()
+	end, {
+		desc = "Open the latest journal entry or create today's entry",
+		nargs = "?",
+		complete = function()
+			return { "new" }
+		end,
+	})
 
 	vim.keymap.set("n", "<Leader>o", function()
 		M.open_workspace()
