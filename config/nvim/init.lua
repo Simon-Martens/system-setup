@@ -72,7 +72,6 @@ vim.pack.add({
 
 -- Mini: small tools for everyday use
 require("plugins.mini")
-require("plugins.snacks")
 
 -- 3. Looks
 -- ----------------------------------------------------------------------------------------------
