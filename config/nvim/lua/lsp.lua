@@ -9,7 +9,7 @@ vim.pack.add({
 -- Plugin config
 -- ------------------------------------------------------------------------------------
 require("blink.cmp").setup({
-	keymap = { preset = "super-tab" },
+	keymap = { preset = "default" },
 	appearance = {
 		nerd_font_variant = "mono",
 	},
