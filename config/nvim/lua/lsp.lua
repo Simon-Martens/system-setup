@@ -1,14 +1,38 @@
 -- NVIM LSP SETUP
--- Currently, no completion engine is used; sth like blink can be installed if needed
 vim.pack.add({
 	{ src = "https://github.com/stevearc/conform.nvim" }, -- Format files
 	{ src = "https://github.com/neovim/nvim-lspconfig" }, -- Prepackaged LSP configurations
 	{ src = "https://github.com/mason-org/mason.nvim" }, -- Install language servers
+	{ src = "https://github.com/Saghen/blink.cmp" }, -- Completion engine
 })
 
 -- Plugin config
 -- ------------------------------------------------------------------------------------
-vim.lsp.enable({ "lua_ls", "tinymist", "rust_analyzer", "gopls" })
+require("blink.cmp").setup({
+	keymap = { preset = "super-tab" },
+	appearance = {
+		nerd_font_variant = "mono",
+	},
+	completion = {
+		documentation = { auto_show = false },
+	},
+	sources = {
+		default = { "lsp", "path", "buffer" },
+	},
+	-- Avoid the Rust/curl dependency path for the fuzzy matcher.
+	fuzzy = { implementation = "lua" },
+})
+
+local servers = { "lua_ls", "tinymist", "rust_analyzer", "gopls", "zls" }
+local capabilities = require("blink.cmp").get_lsp_capabilities()
+
+for _, server in ipairs(servers) do
+	vim.lsp.config(server, {
+		capabilities = capabilities,
+	})
+end
+
+vim.lsp.enable(servers)
 require("mason").setup()
 
 -- Conform config
@@ -34,19 +58,6 @@ require("conform").setup({
 	},
 	notify_on_error = false,
 })
-
--- Autocommands
--- ------------------------------------------------------------------------------------
--- autocomplete
-vim.api.nvim_create_autocmd("LspAttach", {
-	callback = function(ev)
-		local client = vim.lsp.get_client_by_id(ev.data.client_id)
-		if client:supports_method("textDocument/completion") then
-			vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-		end
-	end,
-})
-vim.opt.completeopt = { "menu", "menuone", "noinsert", "noselect" }
 
 -- Keybinds
 -- ------------------------------------------------------------------------------------
