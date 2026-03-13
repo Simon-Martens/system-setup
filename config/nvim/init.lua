@@ -27,6 +27,7 @@ require("lsp") -- All LSP setup code, setup is done and available after this
 vim.g.mapleader = " "           -- Leader
 vim.g.maplocalleader = " "      -- Local leader key (idk i just do it)
 vim.g.copilot_no_tab_map = true -- Dont use the tab key for copilot suggestions
+vim.g.copilot_assume_mapped = true
 -- vim.o.number = true -- show line numbers
 -- vim.o.relativenumber = true -- relativve line numbers
 vim.o.mouse = "a" -- Enable mouse mode, can be useful for resizing splits for example!
@@ -68,6 +69,7 @@ vim.cmd.normal(":autocmd OptionSet guicursor noautocmd set guicursor=") -- Same
 vim.pack.add({
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" }, -- Syntax highlighting
 	{ src = "https://github.com/vague2k/vague.nvim" },             -- Theme
+	{ src = "https://github.com/github/copilot.vim" },             -- Copilot suggestions
 })
 
 -- Mini: small tools for everyday use
@@ -80,7 +82,7 @@ vim.cmd(":hi statusline guibg=NONE") -- No background on the status line
 vim.cmd(":hi WinSeparator guifg=NONE guibg=NONE ctermfg=NONE ctermbg=NONE")
 vim.cmd(":hi VertSplit guifg=NONE guibg=NONE ctermfg=NONE ctermbg=NONE")
 vim.opt.fillchars:append({ vert = " " })
-vim.o.winborder = "single"
+-- vim.o.winborder = "single"
 
 -- 4. Autocommands
 -- -----------------------------------------------------------------------------------------------
@@ -160,6 +162,11 @@ vim.keymap.set({ "n", "i", "v" }, "<C-h>", "<C-w><C-h>", { desc = "Move focus to
 vim.keymap.set({ "n", "i", "v" }, "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window", silent = true })
 vim.keymap.set({ "n", "i", "v" }, "<C-j>", "<C-w><C-j>", { desc = "Move focus to the window below", silent = true })
 vim.keymap.set({ "n", "i", "v" }, "<C-k>", "<C-w><C-k>", { desc = "Move focus to the window up", silent = true })
+vim.keymap.set("i", "<C-y>", 'copilot#Accept("\\<CR>")', {
+	expr = true,
+	replace_keycodes = false,
+	desc = "Accept Copilot suggestion",
+})
 -- Some tab creation and managemnent keybinds, seldomly used
 vim.keymap.set("n", "gT", "<cmd>tabprevious<CR>", { desc = "[G]oto previous [T]ab" })
 vim.keymap.set("n", "gt", "<cmd>tabnext<CR>", { desc = "[G]oto to next [t]ab" })

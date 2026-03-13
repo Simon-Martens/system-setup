@@ -8,13 +8,61 @@ vim.pack.add({
 
 -- Plugin config
 -- ------------------------------------------------------------------------------------
+local has_words_before = function()
+	local col = vim.api.nvim_win_get_cursor(0)[2]
+	if col == 0 then
+		return false
+	end
+
+	local line = vim.api.nvim_get_current_line()
+	return line:sub(col, col):match("%s") == nil
+end
+
 require("blink.cmp").setup({
-	keymap = { preset = "default" },
+	keymap = {
+		preset = "default",
+		["<C-y>"] = false,
+		["<Tab>"] = false,
+		["<S-Tab>"] = false,
+		["<C-Tab>"] = {
+			function(cmp)
+				if cmp.is_visible() then
+					return cmp.select_next({ auto_insert = true })
+				end
+
+				if has_words_before() then
+					return cmp.show_and_insert()
+				end
+			end,
+			"fallback",
+		},
+		["<C-S-Tab>"] = {
+			function(cmp)
+				if cmp.is_visible() then
+					return cmp.select_prev({ auto_insert = true })
+				end
+			end,
+			"fallback",
+		},
+	},
 	appearance = {
 		nerd_font_variant = "mono",
 	},
 	completion = {
 		documentation = { auto_show = false },
+		list = {
+			selection = {
+				preselect = false,
+				auto_insert = true,
+			},
+		},
+		menu = {
+			draw = {
+				columns = {
+					{ "label", "label_description", gap = 1 },
+				},
+			},
+		},
 	},
 	sources = {
 		default = { "lsp", "path", "buffer" },
