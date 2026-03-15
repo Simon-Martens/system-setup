@@ -162,10 +162,10 @@ vim.keymap.set({ "n", "i", "v" }, "<C-h>", "<C-w><C-h>", { desc = "Move focus to
 vim.keymap.set({ "n", "i", "v" }, "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window", silent = true })
 vim.keymap.set({ "n", "i", "v" }, "<C-j>", "<C-w><C-j>", { desc = "Move focus to the window below", silent = true })
 vim.keymap.set({ "n", "i", "v" }, "<C-k>", "<C-w><C-k>", { desc = "Move focus to the window up", silent = true })
-vim.keymap.set("i", "<C-y>", 'copilot#Accept("\\<CR>")', {
+vim.keymap.set("i", "<C-y>", 'copilot#AcceptLine()', {
 	expr = true,
 	replace_keycodes = false,
-	desc = "Accept Copilot suggestion",
+	desc = "Accept one Copilot line",
 })
 -- Some tab creation and managemnent keybinds, seldomly used
 vim.keymap.set("n", "gT", "<cmd>tabprevious<CR>", { desc = "[G]oto previous [T]ab" })

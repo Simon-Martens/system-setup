@@ -22,26 +22,26 @@ require("blink.cmp").setup({
 	keymap = {
 		preset = "default",
 		["<C-y>"] = false,
-		["<Tab>"] = false,
-		["<S-Tab>"] = false,
-		["<C-Tab>"] = {
+		["<Tab>"] = {
 			function(cmp)
 				if cmp.is_visible() then
 					return cmp.select_next({ auto_insert = true })
 				end
 
 				if has_words_before() then
-					return cmp.show_and_insert()
+					return cmp.show_and_insert_or_accept_single()
 				end
 			end,
+			"snippet_forward",
 			"fallback",
 		},
-		["<C-S-Tab>"] = {
+		["<S-Tab>"] = {
 			function(cmp)
 				if cmp.is_visible() then
 					return cmp.select_prev({ auto_insert = true })
 				end
 			end,
+			"snippet_backward",
 			"fallback",
 		},
 	},
@@ -71,7 +71,7 @@ require("blink.cmp").setup({
 	fuzzy = { implementation = "lua" },
 })
 
-local servers = { "lua_ls", "tinymist", "rust_analyzer", "gopls", "zls" }
+local servers = { "lua_ls", "tinymist", "gopls", "zls" }
 local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 for _, server in ipairs(servers) do
@@ -80,7 +80,26 @@ for _, server in ipairs(servers) do
 	})
 end
 
-vim.lsp.enable(servers)
+vim.lsp.config("rust_analyzer", {
+	capabilities = capabilities,
+	settings = {
+		["rust-analyzer"] = {
+			completion = {
+				autoimport = {
+					enable = true,
+				},
+			},
+			imports = {
+				granularity = {
+					group = "module",
+				},
+				prefix = "self",
+			},
+		},
+	},
+})
+
+vim.lsp.enable(vim.list_extend(servers, { "rust_analyzer" }))
 require("mason").setup()
 
 -- Conform config
@@ -113,3 +132,5 @@ require("conform").setup({
 vim.keymap.set({ "n", "v" }, "<Leader>f", function()
 	require("conform").format({ async = true, lsp_format = "fallback" })
 end, { desc = "[F]ormat file" })
+
+vim.keymap.set("n", "<Leader>ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ction" })
