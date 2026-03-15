@@ -19,13 +19,16 @@
 -- \_____|_______________|_____||
 --  ~~~~~^^^^^^^^^^^^^^^^^~~~~~~~
 
--- 0. Expternal files
-require("lsp") -- All LSP setup code, setup is done and available after this
-
--- 1. Options
------------------------------------------------------------------------------------------------
+-- 0. Leader keys
+-- Set these before loading modules that define mappings.
 vim.g.mapleader = " "           -- Leader
 vim.g.maplocalleader = " "      -- Local leader key (idk i just do it)
+
+-- 1. Expternal files
+require("lsp") -- All LSP setup code, setup is done and available after this
+
+-- 2. Options
+-----------------------------------------------------------------------------------------------
 vim.g.copilot_no_tab_map = true -- Dont use the tab key for copilot suggestions
 vim.g.copilot_assume_mapped = true
 -- vim.o.number = true -- show line numbers
