@@ -5,6 +5,7 @@ vim.pack.add({
 -- Plugin configuration
 -- Enable mini functions
 require("mini.pick").setup() -- File Search, Picker, Buffer Picker
+require("mini.extra").setup() -- Extra pickers, including LSP symbols
 require("mini.surround").setup() -- [s]urround [a]dd [r]eplace or [d]elete
 -- require("mini.ai").setup({ n_lines = 500 }) -- better around/inside visual selections
 -- require('mini.indentscope').setup() -- Shows the scope of an indentation

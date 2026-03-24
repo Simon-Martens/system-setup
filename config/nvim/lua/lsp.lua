@@ -1,10 +1,12 @@
 -- NVIM LSP SETUP
 vim.pack.add({
-	{ src = "https://github.com/stevearc/conform.nvim" }, -- Format files
-	{ src = "https://github.com/neovim/nvim-lspconfig" }, -- Prepackaged LSP configurations
-	{ src = "https://github.com/mason-org/mason.nvim" }, -- Install language servers
-	{ src = "https://github.com/Saghen/blink.cmp" }, -- Completion engine
+	{ src = "https://github.com/stevearc/conform.nvim" },         -- Format files
+	{ src = "https://github.com/neovim/nvim-lspconfig" },         -- Prepackaged LSP configurations
+	{ src = "https://github.com/mason-org/mason.nvim" },          -- Install language servers
+	{ src = "https://github.com/mason-org/mason-lspconfig.nvim" }, -- Mason LSPConfig -- auitop configues the LSP to start appropriate language servers
+	{ src = "https://github.com/Saghen/blink.cmp" },              -- Completion engine
 })
+
 
 -- Plugin config
 -- ------------------------------------------------------------------------------------
@@ -71,37 +73,41 @@ require("blink.cmp").setup({
 	fuzzy = { implementation = "lua" },
 })
 
-local servers = { "lua_ls", "tinymist", "gopls", "zls" }
 local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-for _, server in ipairs(servers) do
-	vim.lsp.config(server, {
-		capabilities = capabilities,
-	})
-end
-
-vim.lsp.config("rust_analyzer", {
-	capabilities = capabilities,
-	settings = {
-		["rust-analyzer"] = {
-			completion = {
-				autoimport = {
-					enable = true,
+local servers = {
+	lua_ls = {},
+	tinymist = {},
+	gopls = {},
+	zls = {},
+	rust_analyzer = {
+		settings = {
+			["rust-analyzer"] = {
+				completion = {
+					autoimport = { enable = true },
 				},
-			},
-			imports = {
-				granularity = {
-					group = "module",
+				imports = {
+					granularity = { group = "module" },
+					prefix = "self",
 				},
-				prefix = "self",
 			},
 		},
 	},
-})
+}
 
-vim.lsp.enable(vim.list_extend(servers, { "rust_analyzer" }))
+for name, config in pairs(servers) do
+	vim.lsp.config(name, vim.tbl_deep_extend("force", {
+		capabilities = capabilities,
+	}, config))
+end
+
 require("mason").setup()
 
+require("mason-lspconfig").setup({
+	ensure_installed = vim.tbl_keys(servers),
+	automatic_enable = true,
+})
+--
 -- Conform config
 require("conform").setup({
 	format_on_save = function(bufnr)
@@ -126,6 +132,18 @@ require("conform").setup({
 	notify_on_error = false,
 })
 
+local lsp_picker = function(scope, method)
+	return function()
+		local clients = vim.lsp.get_clients({ bufnr = 0, method = method })
+		if vim.tbl_isempty(clients) then
+			vim.notify("No LSP client with " .. scope .. " support for this buffer", vim.log.levels.WARN)
+			return
+		end
+
+		MiniExtra.pickers.lsp({ scope = scope })
+	end
+end
+
 -- Keybinds
 -- ------------------------------------------------------------------------------------
 -- Format document
@@ -134,3 +152,15 @@ vim.keymap.set({ "n", "v" }, "<Leader>f", function()
 end, { desc = "[F]ormat file" })
 
 vim.keymap.set("n", "<Leader>ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ction" })
+vim.keymap.set(
+	"n",
+	"<Leader>ss",
+	lsp_picker("document_symbol", vim.lsp.protocol.Methods.textDocument_documentSymbol),
+	{ desc = "[S]earch document [S]ymbols" }
+)
+vim.keymap.set(
+	"n",
+	"<Leader>sS",
+	lsp_picker("workspace_symbol_live", vim.lsp.protocol.Methods.workspace_symbol),
+	{ desc = "[S]earch workspace [S]ymbols" }
+)
