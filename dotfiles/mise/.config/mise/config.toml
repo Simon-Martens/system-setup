@@ -1,5 +1,6 @@
 [tools]
 air = "latest"
+codex = "latest"
 go = "latest"
 node = "latest"
 python = "latest"

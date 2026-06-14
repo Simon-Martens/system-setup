@@ -113,11 +113,6 @@
 ## default history list format - can also be specified with the --format arg
 # history_format = "{time}\t{command}\t{duration}"
 
-## Defaults to true. If enabled, strip trailing spaces and tabs from commands
-## before saving them to history.
-## Escaped trailing spaces (for example `printf foo\\ `) are preserved.
-# strip_trailing_whitespace = true
-
 ## prevent commands matching any of these regexes from being written to history.
 ## Note that these regular expressions are unanchored, i.e. if they don't start
 ## with ^ or end with $, they'll match anywhere in the command.
@@ -170,7 +165,6 @@
 ## If set to false, both enter and tab will place the command in the prompt for editing.
 ## This applies for new installs. Old installs will keep the old behaviour unless configured otherwise.
 enter_accept = true
-search_mode = "daemon-fuzzy"
 
 ## Defaults to false. If enabled, when triggered after &&, || or |, Atuin will complete commands to chain rather than replace the current line.
 # command_chaining = false
@@ -265,14 +259,8 @@ records = true
 # strategy = "auto"
 
 [daemon]
-enabled = true
-autostart = true
-## Enables using the daemon to sync.
-# enabled = false
-
-## Automatically start and manage the daemon when needed.
-## Not compatible with `systemd_socket = true`.
-# autostart = false
+## Enables using the daemon to sync. Requires the daemon to be running in the background. Start it with `atuin daemon`
+enabled = false
 
 ## How often the daemon should sync in seconds
 # sync_frequency = 300
@@ -281,10 +269,6 @@ autostart = true
 ## linux/mac: ~/.local/share/atuin/atuin.sock
 ## windows: Not Supported
 # socket_path = "~/.local/share/atuin/atuin.sock"
-
-## The daemon pidfile used for lifecycle management.
-## Defaults to the Atuin data directory.
-# pidfile_path = "~/.local/share/atuin/atuin-daemon.pid"
 
 ## Use systemd socket activation rather than opening the given path (the path must still be correct for the client)
 ## linux: false

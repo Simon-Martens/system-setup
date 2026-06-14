@@ -7,7 +7,7 @@
 # Instead, edit the individual .sh files in /home/simon/.local/share/system-setup/scripts/rc
 # and then re-run the generation script: ./generate_shell_rc.sh bash
 #
-# Generated on: 2026-06-14 18:32:33 CEST
+# Generated on: 2026-06-14 23:14:12 CEST
 # ==============================================================================
 
 
@@ -610,7 +610,9 @@ alias lsa='ls -a'
 # ==============================================================================
 
 if [[ $- == *i* ]] && command -v atuin &> /dev/null; then
-	. "$HOME/.atuin/bin/env"
+	if [ -f "$HOME/.atuin/bin/env" ]; then
+		. "$HOME/.atuin/bin/env"
+	fi
   eval "$(atuin init bash --disable-up-arrow)"
 fi
 
@@ -945,9 +947,7 @@ fi
 # Tip: Source this file in your interactive bash sessions or ensure it's
 # automatically sourced by your shell's main configuration.
 
-export SHELL_RC_GENERATED_ON="2026-06-14 18:32:33 CEST"
-eval "$(mise activate bash)"
-eval "$(mise activate bash)"
+export SHELL_RC_GENERATED_ON="2026-06-14 23:14:12 CEST"
 eval "$(mise activate bash)"
 eval "$(mise activate bash)"
 eval "$(mise activate bash)"
