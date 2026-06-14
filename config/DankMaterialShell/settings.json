@@ -1,8 +1,10 @@
 {
-  "currentThemeName": "cyan",
-  "currentThemeCategory": "generic",
-  "customThemeFile": "",
-  "registryThemeVariants": {},
+  "currentThemeName": "custom",
+  "currentThemeCategory": "registry",
+  "customThemeFile": "/home/simon/.config/DankMaterialShell/themes/peaceAndQuiet/theme.json",
+  "registryThemeVariants": {
+    "peaceAndQuiet": "blue"
+  },
   "matugenScheme": "scheme-tonal-spot",
   "runUserMatugenTemplates": true,
   "matugenTargetMonitor": "",
@@ -12,7 +14,7 @@
   "widgetColorMode": "default",
   "controlCenterTileColorMode": "primary",
   "buttonColorMode": "primary",
-  "cornerRadius": 2,
+  "cornerRadius": 4,
   "niriLayoutGapsOverride": -1,
   "niriLayoutRadiusOverride": -1,
   "niriLayoutBorderSize": -1,
@@ -29,7 +31,7 @@
   "windSpeedUnit": "kmh",
   "nightModeEnabled": false,
   "animationSpeed": 1,
-  "customAnimationDuration": 48,
+  "customAnimationDuration": 500,
   "syncComponentAnimationSpeeds": true,
   "popoutAnimationSpeed": 1,
   "popoutCustomAnimationDuration": 150,
@@ -74,7 +76,7 @@
   "controlCenterShowBrightnessIcon": false,
   "controlCenterShowBrightnessPercent": false,
   "controlCenterShowMicIcon": false,
-  "controlCenterShowMicPercent": false,
+  "controlCenterShowMicPercent": true,
   "controlCenterShowBatteryIcon": false,
   "controlCenterShowPrinterIcon": false,
   "controlCenterShowScreenSharingIcon": true,
@@ -125,10 +127,10 @@
     }
   ],
   "showWorkspaceIndex": false,
-  "showWorkspaceName": false,
+  "showWorkspaceName": true,
   "showWorkspacePadding": false,
   "workspaceScrolling": false,
-  "showWorkspaceApps": false,
+  "showWorkspaceApps": true,
   "workspaceDragReorder": true,
   "maxWorkspaceIcons": 3,
   "workspaceAppIconSizeOffset": 0,
@@ -163,36 +165,10 @@
   "appsDockEnlargePercentage": 125,
   "appsDockIconSizePercentage": 100,
   "keyboardLayoutNameCompactMode": false,
-  "runningAppsCurrentWorkspace": false,
+  "runningAppsCurrentWorkspace": true,
   "runningAppsGroupByApp": false,
   "runningAppsCurrentMonitor": false,
-  "appIdSubstitutions": [
-    {
-      "pattern": "Spotify",
-      "replacement": "spotify",
-      "type": "exact"
-    },
-    {
-      "pattern": "beepertexts",
-      "replacement": "beeper",
-      "type": "exact"
-    },
-    {
-      "pattern": "home assistant desktop",
-      "replacement": "homeassistant-desktop",
-      "type": "exact"
-    },
-    {
-      "pattern": "com.transmissionbt.transmission",
-      "replacement": "transmission-gtk",
-      "type": "contains"
-    },
-    {
-      "pattern": "^steam_app_(\\d+)$",
-      "replacement": "steam_icon_$1",
-      "type": "regex"
-    }
-  ],
+  "appIdSubstitutions": [],
   "centeringMode": "index",
   "clockDateFormat": "",
   "lockDateFormat": "",
@@ -222,11 +198,11 @@
   "dankLauncherV2UnloadOnClose": false,
   "useAutoLocation": false,
   "weatherEnabled": true,
-  "networkPreference": "wifi",
+  "networkPreference": "auto",
   "iconTheme": "System Default",
   "cursorSettings": {
     "theme": "System Default",
-    "size": 34,
+    "size": 24,
     "niri": {
       "hideWhenTyping": false,
       "hideAfterInactiveMs": 0
@@ -273,7 +249,7 @@
   "batterySuspendBehavior": 0,
   "batteryProfileName": "",
   "batteryChargeLimit": 100,
-  "lockBeforeSuspend": false,
+  "lockBeforeSuspend": true,
   "loginctlLockIntegration": true,
   "fadeToLockEnabled": true,
   "fadeToLockGracePeriod": 5,
@@ -281,11 +257,7 @@
   "fadeToDpmsGracePeriod": 5,
   "launchPrefix": "",
   "brightnessDevicePins": {},
-  "wifiNetworkPins": {
-    "preferredWifi": [
-      "holod3ck"
-    ]
-  },
+  "wifiNetworkPins": {},
   "bluetoothDevicePins": {},
   "audioInputDevicePins": {},
   "audioOutputDevicePins": {},
@@ -313,7 +285,7 @@
   "matugenTemplateKitty": true,
   "matugenTemplateFoot": true,
   "matugenTemplateAlacritty": true,
-  "matugenTemplateNeovim": true,
+  "matugenTemplateNeovim": false,
   "matugenTemplateWezterm": true,
   "matugenTemplateDgop": true,
   "matugenTemplateKcolorscheme": true,
@@ -349,7 +321,7 @@
   "notificationOverlayEnabled": false,
   "notificationPopupShadowEnabled": true,
   "notificationPopupPrivacyMode": false,
-  "modalDarkenBackground": false,
+  "modalDarkenBackground": true,
   "lockScreenShowPowerActions": true,
   "lockScreenShowSystemIcons": true,
   "lockScreenShowTime": true,
@@ -381,7 +353,7 @@
   "notificationHistorySaveNormal": true,
   "notificationHistorySaveCritical": true,
   "notificationRules": [],
-  "osdAlwaysShowValue": true,
+  "osdAlwaysShowValue": false,
   "osdPosition": 5,
   "osdVolumeEnabled": true,
   "osdMediaVolumeEnabled": true,
@@ -390,7 +362,7 @@
   "osdIdleInhibitorEnabled": true,
   "osdMicMuteEnabled": true,
   "osdCapsLockEnabled": true,
-  "osdPowerProfileEnabled": false,
+  "osdPowerProfileEnabled": true,
   "osdAudioOutputEnabled": true,
   "powerActionConfirm": true,
   "powerActionHoldDuration": 0.5,
@@ -415,26 +387,14 @@
   "updaterCustomCommand": "",
   "updaterTerminalAdditionalParams": "",
   "displayNameMode": "system",
-  "screenPreferences": {},
+  "screenPreferences": {
+    "wallpaper": []
+  },
   "showOnLastDisplay": {},
   "niriOutputSettings": {},
   "hyprlandOutputSettings": {},
-  "displayProfiles": {
-    "hyprland": {
-      "profile_1773092212733_k46qlj": {
-        "id": "profile_1773092212733_k46qlj",
-        "name": "Home",
-        "outputSet": [
-          "eDP-1"
-        ],
-        "createdAt": 1773092212733,
-        "updatedAt": 1773092212733
-      }
-    }
-  },
-  "activeDisplayProfile": {
-    "hyprland": "profile_1773092212733_k46qlj"
-  },
+  "displayProfiles": {},
+  "activeDisplayProfile": {},
   "displayProfileAutoSelect": false,
   "displayShowDisconnected": false,
   "displaySnapToEdge": true,
@@ -449,7 +409,6 @@
       ],
       "showOnLastDisplay": true,
       "leftWidgets": [
-        "launcherButton",
         "workspaceSwitcher",
         "focusedWindow"
       ],
@@ -460,39 +419,52 @@
       ],
       "rightWidgets": [
         "systemTray",
-        "clipboard",
         "cpuUsage",
         "memUsage",
         "notificationButton",
         "battery",
         "controlCenterButton"
       ],
-      "spacing": 0,
+      "spacing": 4,
       "innerPadding": 4,
       "bottomGap": 0,
       "transparency": 1,
       "widgetTransparency": 1,
       "squareCorners": false,
       "noBackground": false,
-      "gothCornersEnabled": true,
+      "maximizeWidgetIcons": false,
+      "maximizeWidgetText": false,
+      "removeWidgetPadding": false,
+      "widgetPadding": 8,
+      "gothCornersEnabled": false,
       "gothCornerRadiusOverride": false,
       "gothCornerRadiusValue": 12,
       "borderEnabled": false,
       "borderColor": "surfaceText",
       "borderOpacity": 1,
       "borderThickness": 1,
+      "widgetOutlineEnabled": false,
+      "widgetOutlineColor": "primary",
+      "widgetOutlineOpacity": 1,
+      "widgetOutlineThickness": 1,
       "fontScale": 1,
+      "iconScale": 1,
       "autoHide": false,
       "autoHideDelay": 250,
+      "showOnWindowsOpen": false,
       "openOnOverview": false,
       "visible": true,
       "popupGapsAuto": true,
       "popupGapsManual": 4,
-      "maximizeDetection": false,
+      "maximizeDetection": true,
+      "scrollEnabled": true,
+      "scrollXBehavior": "column",
+      "scrollYBehavior": "workspace",
       "shadowIntensity": 0,
-      "shadowColorMode": "surface",
-      "shadowOpacity": 10,
-      "widgetOutlineEnabled": false
+      "shadowOpacity": 60,
+      "shadowColorMode": "text",
+      "shadowCustomColor": "#000000",
+      "clickThrough": false
     }
   ],
   "desktopClockEnabled": false,

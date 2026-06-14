@@ -1,43 +1,15 @@
 {
   "plugins": {
-    "blink.cmp": {
-      "rev": "658d0ec1d93646ff999fe6044098af89d81428ed",
-      "src": "https://github.com/Saghen/blink.cmp"
-    },
-    "conform.nvim": {
-      "rev": "40dcec5555f960b0a04340d76eabdf4efe78599d",
-      "src": "https://github.com/stevearc/conform.nvim"
-    },
-    "copilot.vim": {
-      "rev": "a12fd5672110c8aa7e3c8419e28c96943ca179be",
-      "src": "https://github.com/github/copilot.vim"
-    },
-    "mason-lspconfig.nvim": {
-      "rev": "a979821a975897b88493843301950c456a725982",
-      "src": "https://github.com/mason-org/mason-lspconfig.nvim"
-    },
-    "mason.nvim": {
-      "rev": "44d1e90e1f66e077268191e3ee9d2ac97cc18e65",
-      "src": "https://github.com/mason-org/mason.nvim"
-    },
     "mini.nvim": {
-      "rev": "9d359222b3643f1fccbd8f3180445842e1cae00b",
+      "rev": "a59a9b7fb0a42cbcf022938ee5f0724320b66f63",
       "src": "https://github.com/echasnovski/mini.nvim"
     },
-    "nvim-lspconfig": {
-      "rev": "faa403f95fd82cc24ebd0cee6af41b0de2dae00c",
-      "src": "https://github.com/neovim/nvim-lspconfig"
-    },
     "nvim-treesitter": {
-      "rev": "5cb05e1b0fa3c469958a2b26f36b3fe930af221c",
+      "rev": "4916d6592ede8c07973490d9322f187e07dfefac",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
-    "snacks.nvim": {
-      "rev": "9912042fc8bca2209105526ac7534e9a0c2071b2",
-      "src": "https://github.com/folke/snacks.nvim"
-    },
     "vague.nvim": {
-      "rev": "8c4643f8a5106dbc492918f86ff6b5c81111ce9a",
+      "rev": "49fe06ad33d8847b931ba4279197bda222374cd1",
       "src": "https://github.com/vague2k/vague.nvim"
     }
   }

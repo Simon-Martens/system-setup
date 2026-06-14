@@ -25,7 +25,7 @@ vim.g.mapleader = " "           -- Leader
 vim.g.maplocalleader = " "      -- Local leader key (idk i just do it)
 
 -- 1. Expternal files
-require("lsp") -- All LSP setup code, setup is done and available after this
+-- require("lsp") -- All LSP setup code, setup is done and available after this
 
 -- 2. Options
 -----------------------------------------------------------------------------------------------
@@ -72,7 +72,6 @@ vim.cmd.normal(":autocmd OptionSet guicursor noautocmd set guicursor=") -- Same
 vim.pack.add({
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" }, -- Syntax highlighting
 	{ src = "https://github.com/vague2k/vague.nvim" },             -- Theme
-	{ src = "https://github.com/github/copilot.vim" },             -- Copilot suggestions
 })
 
 -- Mini: small tools for everyday use
@@ -209,5 +208,3 @@ vim.keymap.set({ "n", "v" }, "<Leader>sg", "<cmd>:Pick grep_live<CR>", { desc = 
 vim.keymap.set({ "n", "v" }, "<Leader>q", function()
 	MiniBufremove.unshow()
 end, { desc = "[Q]uit Buffer" })
-
-require("notes").setup()
