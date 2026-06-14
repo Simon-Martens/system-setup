@@ -7,7 +7,7 @@
 # Instead, edit the individual .sh files in /home/simon/.local/share/system-setup/scripts/rc
 # and then re-run the generation script: ./generate_shell_rc.sh bash
 #
-# Generated on: 2026-06-14 16:11:17 CEST
+# Generated on: 2026-06-14 18:32:33 CEST
 # ==============================================================================
 
 
@@ -819,6 +819,19 @@ bind 'set colored-stats on'
 
 
 # ==============================================================================
+# START OF COMMON CONFIG FROM: mise.sh
+# ==============================================================================
+
+if [[ $- == *i* ]] && command -v mise &> /dev/null; then
+	echo 'eval "$(mise activate bash)"' >> ~/.bashrc
+fi
+
+# ==============================================================================
+# End of mise.sh
+# ==============================================================================
+
+
+# ==============================================================================
 # START OF COMMON CONFIG FROM: prompt.sh
 # ==============================================================================
 
@@ -932,4 +945,8 @@ fi
 # Tip: Source this file in your interactive bash sessions or ensure it's
 # automatically sourced by your shell's main configuration.
 
-export SHELL_RC_GENERATED_ON="2026-06-14 16:11:17 CEST"
+export SHELL_RC_GENERATED_ON="2026-06-14 18:32:33 CEST"
+eval "$(mise activate bash)"
+eval "$(mise activate bash)"
+eval "$(mise activate bash)"
+eval "$(mise activate bash)"

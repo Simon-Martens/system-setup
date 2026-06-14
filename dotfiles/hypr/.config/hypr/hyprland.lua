@@ -372,7 +372,7 @@ hl.bind(mainMod .. " + ALT + 1", function ()
     
     hl.config({
         general = {
-            gaps_in = 0, gaps_out = 5, -- Disable gaps  
+            gaps_in = 2, gaps_out = 2, -- Disable gaps  
             border_size = 0,
         },
 
