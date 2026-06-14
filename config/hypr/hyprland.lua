@@ -22,22 +22,30 @@
 ------------------
 
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
+-- Laptop
+hl.monitor({
+		output = "desc:LG Display 0x05EA",
+    mode     = "highres",
+    position = "auto",
+    scale    = "1.2",
+    position = "0x0"
+})
+
+-- Home
 hl.monitor({
     output   = "DP-1",
-    mode     = "preferred",
-    position = "auto",
+    mode     = "highres",
     scale    = "auto",
-    position = "0x0"
+    position = "0x0",
 })
 
 hl.monitor({
     output   = "HDMI-A-1",
-    mode     = "preferred",
-    position = "auto",
+    mode     = "highres",
     scale    = "auto",
-    position = "auto"
+    position = "auto",
+		supports_hdr = 1,
 })
-
 
 ---------------------
 ---- MY PROGRAMS ----
@@ -155,6 +163,10 @@ hl.config({
     animations = {
         enabled = true,
     },
+
+		gestures = {
+				workspace_swipe_invert = true,
+		},
 })
 
 -- Default curves and animations, see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Animations/
@@ -232,6 +244,10 @@ hl.config({
     misc = {
         force_default_wallpaper = -1,    -- Set to 0 or 1 to disable the anime mascot wallpapers disable_hyprland_logo   = false, -- If true disables the random hyprland logo / anime girl background. :(
     },
+		-- This is cool but not usable in any case
+		-- layout = {
+		-- 	single_window_aspect_ratio = {4,3}
+		-- },
 })
 
 
@@ -256,11 +272,16 @@ hl.config({
 })
 
 hl.gesture({
-    fingers = 3,
+    fingers = 4,
     direction = "horizontal",
     action = "workspace"
 })
 
+hl.gesture({
+    fingers = 3,
+    direction = "horizontal",
+    action = "workspace"
+})
 
 ---------------------
 ---- KEYBINDINGS ----
@@ -282,6 +303,9 @@ hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))    -- dwindle only
 
+-- ALT + TAB
+hl.bind("ALT + TAB",  hl.dsp.window.cycle_next())
+
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + H",  hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + L", hl.dsp.focus({ direction = "right" }))
@@ -300,7 +324,7 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + SHIFT + " .. key,     hl.dsp.window.move({ workspace = i }))
 end
 
--- Example special workspace (scratchpad)
+-- Special workspace
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
 
@@ -308,8 +332,8 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:mag
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "r+1" }))
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "r-1" }))
 hl.bind(mainMod .. " + X", hl.dsp.focus({ workspace = "r+1" }))
-hl.bind(mainMod .. " + Z",   hl.dsp.focus({ workspace = "r-1" }))
 hl.bind(mainMod .. " + SHIFT + X", hl.dsp.window.move({ workspace = "r+1" }))
+hl.bind(mainMod .. " + Z",   hl.dsp.focus({ workspace = "r-1" }))
 hl.bind(mainMod .. " + SHIFT + Z",   hl.dsp.window.move({ workspace = "r-1" }))
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging
@@ -329,6 +353,10 @@ hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = tr
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
+
+-- Monitor Swap
+hl.bind(mainMod .. " + CTRL + H", hl.dsp.workspace.swap_monitors({ monitor1 = "current", monitor2 = "left" }))
+hl.bind(mainMod .. " + CTRL + L", hl.dsp.workspace.swap_monitors({ monitor1 = "current", monitor2 = "right" }))
 
 
 --------------------------------
@@ -379,4 +407,78 @@ hl.window_rule({
 
     move  = "20 monitor_h-120",
     float = true,
+})
+
+
+-- Special rule to make terminals 4:3 if they have a single window on a WS
+local function is_terminal(win)
+  if win == nil or win.class == nil then
+    return false
+  end
+
+  -- Adjust these to what `hyprctl clients` reports on your system.
+  return win.class == "kitty"
+      or win.class == "Alacritty"
+      or win.class == "foot"
+      or win.class == "footclient"
+      or win.class == "org.wezfurlong.wezterm"
+end
+
+local function centered_with_side_margins(area)
+  local margin = area.w * 0.1666
+
+  return {
+    x = area.x + margin,
+    y = area.y,
+    w = area.w - margin * 2,
+    h = area.h,
+  }
+end
+
+local function centered_4_3(area)
+  local w = area.h * 4 / 3
+  local h = area.h
+
+  if w > area.w then
+    w = area.w
+    h = area.w * 3 / 4
+  end
+
+  return {
+    x = area.x + (area.w - w) / 2,
+    y = area.y + (area.h - h) / 2,
+    w = w,
+    h = h,
+  }
+end
+
+hl.layout.register("term43", {
+  recalculate = function(ctx)
+    local n = #ctx.targets
+
+    if n == 0 then
+      return
+    end
+
+    if n == 1 then
+      local target = ctx.targets[1]
+      local win = target.window
+
+      if is_terminal(win) then
+        target:place(centered_with_side_margins(ctx.area))
+        return
+      end
+    end
+
+    -- Fallback layout. Replace with a better custom layout if desired.
+    for i, target in ipairs(ctx.targets) do
+      target:place(ctx:column(i, n))
+    end
+  end,
+})
+
+hl.config({
+  general = {
+    layout = "lua:term43",
+  },
 })
