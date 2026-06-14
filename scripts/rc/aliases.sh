@@ -1,44 +1,10 @@
 # File system
-alias cat='bat'
-alias ls='eza -alh --group-directories-first --icons=auto'
+# Let's not use bat and/or eza
+# alias cat='bat'
+# alias ls='eza -alh --group-directories-first --icons=auto'
+# alias lt='eza --tree --level=2 --long --icons --git'
+# alias lta='lt -a'
+# alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
+
+alias ls='ls -alh'
 alias lsa='ls -a'
-alias lt='eza --tree --level=2 --long --icons --git'
-alias lta='lt -a'
-alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
-alias cd="zd"
-zd() {
-  if [ $# -eq 0 ]; then
-    builtin cd ~ && return
-  elif [ -d "$1" ]; then
-    builtin cd "$1"
-  else
-    z "$@" && printf " \U000F17A9 " && pwd || echo "Error: Directory not found"
-  fi
-}
-open() {
-  xdg-open "$@" >/dev/null 2>&1
-}
-
-# Directories
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-
-# Tools
-alias n='nvim'
-alias g='git'
-alias d='docker'
-alias r='rails'
-
-# Git
-alias gcm='git commit -m'
-alias gcam='git commit -a -m'
-alias gcad='git commit -a --amend'
-
-# Find packages without leaving the terminal
-alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=down:75% | xargs -ro yay -S"
-
-# Other
-alias e='nvim'
-
-alias t='~/.config/tmux/plugins/tmux-session-wizard-rewired/bin/t'

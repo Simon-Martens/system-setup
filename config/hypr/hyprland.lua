@@ -33,14 +33,16 @@ hl.monitor({
 
 -- Home
 hl.monitor({
-    output   = "DP-1",
+    output   = "desc:Dell Inc. DELL U2412M YPPY07B71CTL",
     mode     = "highres",
-    scale    = "auto",
+    scale    = "1",
     position = "0x0",
+		supports_hdr = -1,
 })
 
+
 hl.monitor({
-    output   = "HDMI-A-1",
+    output   = "desc:Dell Inc. DELL S2722QC 8ZWNLD3",
     mode     = "highres",
     scale    = "auto",
     position = "auto",
@@ -355,8 +357,37 @@ hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = tr
 hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
 
 -- Monitor Swap
-hl.bind(mainMod .. " + CTRL + H", hl.dsp.workspace.swap_monitors({ monitor1 = "current", monitor2 = "left" }))
-hl.bind(mainMod .. " + CTRL + L", hl.dsp.workspace.swap_monitors({ monitor1 = "current", monitor2 = "right" }))
+hl.bind(mainMod .. " + CTRL + H", hl.dsp.workspace.swap_monitors({ monitor1 = "current", monitor2 = "l" }))
+hl.bind(mainMod .. " + CTRL + L", hl.dsp.workspace.swap_monitors({ monitor1 = "current", monitor2 = "r" }))
+
+
+-- Disable animations and shadows
+hl.bind(mainMod .. " + ALT + 1", function ()
+    local game_mode = (hl.get_config("animations.enabled") == false)
+
+    if game_mode then
+        hl.exec_cmd("hyprctl reload")
+        return
+    end
+    
+    hl.config({
+        general = {
+            gaps_in = 0, gaps_out = 5, -- Disable gaps  
+            border_size = 0,
+        },
+
+        animations = {
+            enabled = false, -- Disable animations
+        },
+        
+        -- Disable blur, shadow and window rounding
+        decoration = {
+            shadow = { enabled = false },
+            blur = { enabled = false },
+            rounding = 0,
+        }
+    })
+end)
 
 
 --------------------------------
@@ -392,93 +423,3 @@ hl.window_rule({
     no_focus = true,
 })
 
--- Layer rules also return a handle.
--- local overlayLayerRule = hl.layer_rule({
---     name  = "no-anim-overlay",
---     match = { namespace = "^my-overlay$" },
---     no_anim = true,
--- })
--- overlayLayerRule:set_enabled(false)
-
--- Hyprland-run windowrule
-hl.window_rule({
-    name  = "move-hyprland-run",
-    match = { class = "hyprland-run" },
-
-    move  = "20 monitor_h-120",
-    float = true,
-})
-
-
--- Special rule to make terminals 4:3 if they have a single window on a WS
-local function is_terminal(win)
-  if win == nil or win.class == nil then
-    return false
-  end
-
-  -- Adjust these to what `hyprctl clients` reports on your system.
-  return win.class == "kitty"
-      or win.class == "Alacritty"
-      or win.class == "foot"
-      or win.class == "footclient"
-      or win.class == "org.wezfurlong.wezterm"
-end
-
-local function centered_with_side_margins(area)
-  local margin = area.w * 0.1666
-
-  return {
-    x = area.x + margin,
-    y = area.y,
-    w = area.w - margin * 2,
-    h = area.h,
-  }
-end
-
-local function centered_4_3(area)
-  local w = area.h * 4 / 3
-  local h = area.h
-
-  if w > area.w then
-    w = area.w
-    h = area.w * 3 / 4
-  end
-
-  return {
-    x = area.x + (area.w - w) / 2,
-    y = area.y + (area.h - h) / 2,
-    w = w,
-    h = h,
-  }
-end
-
-hl.layout.register("term43", {
-  recalculate = function(ctx)
-    local n = #ctx.targets
-
-    if n == 0 then
-      return
-    end
-
-    if n == 1 then
-      local target = ctx.targets[1]
-      local win = target.window
-
-      if is_terminal(win) then
-        target:place(centered_with_side_margins(ctx.area))
-        return
-      end
-    end
-
-    -- Fallback layout. Replace with a better custom layout if desired.
-    for i, target in ipairs(ctx.targets) do
-      target:place(ctx:column(i, n))
-    end
-  end,
-})
-
-hl.config({
-  general = {
-    layout = "lua:term43",
-  },
-})
