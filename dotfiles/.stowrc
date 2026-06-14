@@ -1,0 +1,3 @@
+--target=$HOME
+--dir=$HOME/.local/share/system-setup/dotfiles
+--no-folding

@@ -2,8 +2,9 @@
 # 													 Generate bash or zsh RCs
 #
 # This script consolidates all .sh files from a specified source directory
-# into a target shell configuration file (~/.bashrc or ~/.zshrc),
-# with comments indicating the origin of each section.
+# into a target shell configuration file with comments indicating the origin
+# of each section. Bash output is written to dotfiles/bash/.bashrc so GNU Stow
+# can install it into $HOME.
 # Shell-specific files (bash-*.sh or zsh-*.sh) are included first,
 # followed by common .sh files.
 #
@@ -15,31 +16,24 @@
 
 # --- Configuration ---
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SOURCE_DIR="${SCRIPT_DIR}/rc" # Your script directory
 TARGET_SHELL_TYPE="$1"
-NON_INTERACTIVE=false
-
-# Check for non-interactive flag
-if [[ "$2" == "--non-interactive" ]]; then
-    NON_INTERACTIVE=true
-fi
 
 # --- Validate Input ---
 if [[ "$TARGET_SHELL_TYPE" != "bash" && "$TARGET_SHELL_TYPE" != "zsh" ]]; then
   echo "Error: Invalid shell type specified."
-  echo "Usage: $0 [bash|zsh] [--non-interactive]"
+  echo "Usage: $0 [bash|zsh]"
   exit 1
 fi
 
 # --- Set Variables Based on Shell Type ---
 TARGET_FILE=""
-BACKUP_FILE=""
 GENERATED_FILE_HEADER=""
 SPECIFIC_PREFIX=""
 
 if [ "$TARGET_SHELL_TYPE" = "bash" ]; then
-  TARGET_FILE="${HOME}/.bashrc"
-  BACKUP_FILE="${HOME}/.bashrc.bak.$(date +"%Y%m%d_%H%M%S")"
+  TARGET_FILE="${REPO_ROOT}/dotfiles/bash/.bashrc"
   SPECIFIC_PREFIX="bash-"
   GENERATED_FILE_HEADER=$(cat <<EOF
 #!/usr/bin/env bash
@@ -57,7 +51,6 @@ EOF
 )
 elif [ "$TARGET_SHELL_TYPE" = "zsh" ]; then
   TARGET_FILE="${HOME}/.zshrc"
-  BACKUP_FILE="${HOME}/.zshrc.bak.$(date +"%Y%m%d_%H%M%S")"
   SPECIFIC_PREFIX="zsh-"
   GENERATED_FILE_HEADER=$(cat <<EOF
 #!/usr/bin/env zsh
@@ -101,30 +94,9 @@ if [ ! -d "$SOURCE_DIR" ]; then
   exit 1
 fi
 
-echo "Generating new ${TARGET_FILE} from scripts in ${SOURCE_DIR} for ${TARGET_SHELL_TYPE}..."
+mkdir -p "$(dirname "$TARGET_FILE")"
 
-# Backup existing target file
-BACKUP_CREATED=false
-if [ -f "$TARGET_FILE" ]; then
-  echo "Existing ${TARGET_FILE} found."
-  
-  if [[ "$NON_INTERACTIVE" == true ]]; then
-    # In non-interactive mode, skip backup and proceed
-    echo "Non-interactive mode: Skipping backup and proceeding..."
-  else
-    read -p "Do you want to create a backup? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      echo "Backing up existing ${TARGET_FILE} to ${BACKUP_FILE}..."
-      cp "$TARGET_FILE" "$BACKUP_FILE"
-      if [ $? -ne 0 ]; then
-        echo "Error: Failed to create backup. Aborting."
-        exit 1
-      fi
-      BACKUP_CREATED=true
-    fi
-  fi
-fi
+echo "Generating new ${TARGET_FILE} from scripts in ${SOURCE_DIR} for ${TARGET_SHELL_TYPE}..."
 
 # Start with a clean target file and add the main header
 echo "$GENERATED_FILE_HEADER" > "$TARGET_FILE"
@@ -176,9 +148,6 @@ done
 
 echo ""
 echo "Successfully generated ${TARGET_FILE}!"
-if [[ "$BACKUP_CREATED" == true ]]; then
-  echo "A backup of the previous version was saved to ${BACKUP_FILE}"
-fi
 echo "Please review the new ${TARGET_FILE} and source it or open a new terminal."
 echo "Example: source ${TARGET_FILE}"
 
