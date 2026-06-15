@@ -85,6 +85,7 @@ local terminal    = "alacritty"
 local fileManager = "nautilus"
 local menu        = "dms ipc call spotlight toggle"
 local browser     = "helium"
+local hostname = io.popen("hostname"):read("*l")
 
 -------------------
 ---- AUTOSTART ----
@@ -464,13 +465,14 @@ hl.window_rule({
 })
 
 
+-- Workspace & window rules to hide borders and padding on fullscreen apps
 hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
 
 hl.window_rule({
     name  = "thin-white-border-single-window",
     match = { float = false, workspace = "w[tv1]" },
 
-    border_size  = 1,
+    border_size  = hostname == "laptop" and 0 or 1,
     border_color = "rgba(ffffffff) rgba(ffffffff)",
     rounding     = 1,
 })
