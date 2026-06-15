@@ -6,11 +6,11 @@ TERM = "xterm-256color"
 [font]
 normal = { family = "FiraCode Nerd Font", style = "Regular" }
 bold = { family = "FiraCode Nerd Font", style = "Bold" }
-size = 14
+size = 12
 
 [window]
-padding.x = 3
-padding.y = 4
+padding.x = 12
+padding.y = 8
 decorations = "None"
 opacity = 1.0
 title = "Terminal"
@@ -30,5 +30,16 @@ blinking = "Off"
 blink_interval = 501
 unfocused_hollow = true
 
+[colors.line_indicator]
+foreground = "#ffffff"
+background = "#333333"
+
 [keyboard]
-bindings = [{ key = "F11", action = "ToggleFullscreen" }]
+bindings = [
+  { key = "F11", action = "ToggleFullscreen" },
+  { key = "Space", mods = "Control", mode = "Vi", action = "ScrollToBottom" },
+  { key = "Space", mods = "Control", action = "ToggleViMode" },
+]
+
+[mouse]
+hide_when_typing = true
