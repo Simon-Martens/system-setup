@@ -111,8 +111,10 @@ local hostname = io.popen("hostname"):read("*l")
 
 hl.env("XCURSOR_SIZE", "36")
 hl.env("HYPRCURSOR_SIZE", "36")
--- hl.env("LIBVA_DRIVER_NAME", "nvidia")
--- hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+if hostname == "home" then
+    hl.env("LIBVA_DRIVER_NAME", "nvidia")
+    hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+end
 hl.env("QT_QPA_PLATFORM", "wayland")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 hl.env("QT_QPA_PLATFORMTHEME", "gtk3")
