@@ -1,6 +1,6 @@
 {
-  "currentThemeName": "custom",
-  "currentThemeCategory": "registry",
+  "currentThemeName": "blue",
+  "currentThemeCategory": "generic",
   "customThemeFile": "/home/simon/.config/DankMaterialShell/themes/peaceAndQuiet/theme.json",
   "registryThemeVariants": {
     "peaceAndQuiet": "blue"
