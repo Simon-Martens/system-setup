@@ -163,7 +163,7 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 4,
+        rounding       = 2,
         rounding_power = 2,
 
         -- Change transparency of focused and unfocused windows
@@ -275,9 +275,9 @@ hl.config({
         force_default_wallpaper = -1,    -- Set to 0 or 1 to disable the anime mascot wallpapers disable_hyprland_logo   = false, -- If true disables the random hyprland logo / anime girl background. :(
     },
 		-- This is cool but not usable in any case
-		-- layout = {
-		-- 	single_window_aspect_ratio = {4,3}
-		-- },
+		layout = {
+				-- single_window_aspect_ratio = {4,3}
+		},
 })
 
 
@@ -463,3 +463,14 @@ hl.window_rule({
     no_focus = true,
 })
 
+
+hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
+
+hl.window_rule({
+    name  = "thin-white-border-single-window",
+    match = { float = false, workspace = "w[tv1]" },
+
+    border_size  = 1,
+    border_color = "rgba(ffffffff) rgba(ffffffff)",
+    rounding     = 1,
+})
