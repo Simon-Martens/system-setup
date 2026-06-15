@@ -194,7 +194,8 @@ hl.config({
     },
 
 		gestures = {
-				workspace_swipe_invert = true,
+			workspace_swipe_touch_invert = false,
+			workspace_swipe_invert = false,
 		},
 })
 
@@ -312,6 +313,18 @@ hl.gesture({
     action = "workspace"
 })
 
+hl.gesture({
+    fingers = 4,
+    direction = "vertical",
+    action = "workspace"
+})
+
+
+hl.gesture({
+    fingers = 3,
+    direction = "vertical",
+    action = "workspace"
+})
 ---------------------
 ---- KEYBINDINGS ----
 ---------------------
