@@ -63,5 +63,5 @@ EOF
 	web2app "TouTube Music" https://music.youtube.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/youtube-music.png
 	web2app "Telegram" https://web.telegram.org https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/telegram.png
   web2app "Microsft Admin Center" https://admin.microsoft.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/microsoft-365-admin-center.png
-
+	web2app "Figma" https://figma.com https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/figma.png 
 fi
