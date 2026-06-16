@@ -7,7 +7,7 @@
 # Instead, edit the individual .sh files in /home/simon/.local/share/system-setup/scripts/rc
 # and then re-run the generation script: ./generate_shell_rc.sh bash
 #
-# Generated on: 2026-06-15 20:28:43 CEST
+# Generated on: 2026-06-16 15:38:24 CEST
 # ==============================================================================
 
 
@@ -679,59 +679,6 @@ export SUDO_EDITOR="$EDITOR"
 compress() { tar -czf "${1%/}.tar.gz" "${1%/}"; }
 alias decompress="tar -xzf"
 
-# Create a desktop launcher for a web app
-if command -v helium &> /dev/null; then
-	web2app() {
-		if [ "$#" -ne 3 ]; then
-			echo "Usage: web2app <AppName> <AppURL> <IconURL> (IconURL must be in PNG -- use https://dashboardicons.com)"
-			return 1
-		fi
-
-		local APP_NAME="$1"
-		local APP_URL="$2"
-		local ICON_URL="$3"
-		local ICON_DIR="$HOME/.local/share/applications/icons"
-		local DESKTOP_FILE="$HOME/.local/share/applications/${APP_NAME}.desktop"
-		local ICON_PATH="${ICON_DIR}/${APP_NAME}.png"
-
-		mkdir -p "$ICON_DIR"
-
-		if ! curl -sL -o "$ICON_PATH" "$ICON_URL"; then
-			echo "Error: Failed to download icon."
-			return 1
-		fi
-
-		cat > "$DESKTOP_FILE" <<EOF
-[Desktop Entry]
-Version=1.0
-Name=$APP_NAME
-Comment=$APP_NAME
-Exec=helium --new-window --ozone-platform=wayland --app="$APP_URL" --name="$APP_NAME" --class="$APP_NAME"
-Terminal=false
-Type=Application
-Icon=$ICON_PATH
-StartupNotify=true
-EOF
-
-		chmod +x "$DESKTOP_FILE"
-	}
-
-	web2app-remove() {
-		if [ "$#" -ne 1 ]; then
-			echo "Usage: web2app-remove <AppName>"
-			return 1
-		fi
-
-		local APP_NAME="$1"
-		local ICON_DIR="$HOME/.local/share/applications/icons"
-		local DESKTOP_FILE="$HOME/.local/share/applications/${APP_NAME}.desktop"
-		local ICON_PATH="${ICON_DIR}/${APP_NAME}.png"
-
-		rm "$DESKTOP_FILE"
-		rm "$ICON_PATH"
-	}
-fi
-
 open() {
   xdg-open "$@" >/dev/null 2>&1
 }
@@ -947,4 +894,4 @@ fi
 # Tip: Source this file in your interactive bash sessions or ensure it's
 # automatically sourced by your shell's main configuration.
 
-export SHELL_RC_GENERATED_ON="2026-06-15 20:28:43 CEST"
+export SHELL_RC_GENERATED_ON="2026-06-16 15:38:24 CEST"
