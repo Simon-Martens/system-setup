@@ -410,7 +410,11 @@
       "showOnLastDisplay": true,
       "leftWidgets": [
         "workspaceSwitcher",
-        "focusedWindow"
+        {
+          "id": "focusedWindow",
+          "enabled": true,
+          "focusedWindowCompactMode": false
+        }
       ],
       "centerWidgets": [
         "music",

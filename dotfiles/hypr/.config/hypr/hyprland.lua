@@ -17,6 +17,7 @@
 -- require("myColors")
 
 
+
 ------------------
 ---- MONITORS ----
 ------------------
@@ -348,6 +349,8 @@ hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))    -- dwindle only
 
+
+
 -- ALT + TAB
 hl.bind("ALT + TAB",  hl.dsp.window.cycle_next())
 
@@ -478,3 +481,62 @@ hl.window_rule({
     border_color = "rgba(ffffffff) rgba(ffffffff)",
     rounding     = 1,
 })
+
+-- Custom layouts: side-by-side (N) and stacked (B)
+hl.layout.register("side-by-side", {
+  recalculate = function(ctx)
+    local n = #ctx.targets
+    if n == 0 then return end
+    for i, target in ipairs(ctx.targets) do
+      target:place(ctx:column(i, n))
+    end
+  end,
+})
+
+hl.layout.register("stacked", {
+  recalculate = function(ctx)
+    local n = #ctx.targets
+    if n == 0 then return end
+    for i, target in ipairs(ctx.targets) do
+      target:place(ctx:row(i, n))
+    end
+  end,
+})
+
+hl.layout.register("master-80", {
+  recalculate = function(ctx)
+    local n = #ctx.targets
+    if n == 0 then return end
+    local a = ctx.area
+    local mw = a.w * 4 / 5
+    local sw = a.w - mw
+    ctx.targets[1]:place({ x = a.x, y = a.y, w = mw, h = a.h })
+    for i = 2, n do
+      local sy = a.y + (a.h / (n - 1)) * (i - 2)
+      local sh = a.h / (n - 1)
+      ctx.targets[i]:place({ x = a.x + mw, y = sy, w = sw, h = sh })
+    end
+  end,
+})
+
+local default_layout = "dwindle"
+local function toggle_layout(name)
+  if hl.get_config("general.layout") == name then
+    hl.config({ general = { layout = default_layout } })
+  else
+    hl.config({ general = { layout = name } })
+  end
+end
+
+hl.bind("CTRL + " .. mainMod .. " + N", function() toggle_layout("lua:side-by-side") end)
+hl.bind("CTRL + " .. mainMod .. " + B", function() toggle_layout("lua:stacked") end)
+hl.bind("CTRL + " .. mainMod .. " + D", function() hl.config({ general = { layout = default_layout } }) end)
+hl.bind("CTRL + " .. mainMod .. " + M", function()
+  if hl.get_config("general.layout") ~= "master" then
+    hl.config({ general = { layout = "master" } })
+    hl.dsp.layout("master")
+  else
+    hl.config({ general = { layout = default_layout } })
+  end
+end)
+hl.bind("CTRL + " .. mainMod .. " + S", function() toggle_layout("lua:master-80") end)
