@@ -4,10 +4,10 @@ vim.pack.add({
 
 -- Plugin configuration
 -- Enable mini functions
-require("mini.pick").setup() -- File Search, Picker, Buffer Picker
-require("mini.extra").setup() -- Extra pickers, including LSP symbols
+-- require("mini.pick").setup() -- File Search, Picker, Buffer Picker
+-- require("mini.extra").setup() -- Extra pickers, including LSP symbols
 require("mini.surround").setup() -- [s]urround [a]dd [r]eplace or [d]elete
--- require("mini.ai").setup({ n_lines = 500 }) -- better around/inside visual selections
+require("mini.ai").setup({ n_lines = 500 }) -- better around/inside visual selections
 -- require('mini.indentscope').setup() -- Shows the scope of an indentation
 -- require('mini.pairs').setup() -- If wanted mini auto-pairing
 -- require('mini.tabline').setup() -- If wanted mini tabline
@@ -67,3 +67,23 @@ hipatterns.setup({
 
 	hex_color = hipatterns.gen_highlighter.hex_color(), -- Highlight hex color strings (`#rrggbb`) using that color
 })
+
+
+-- vim.keymap.set({ "n", "v" }, "<Leader>sf", function()
+-- 	local in_git_repo = vim.fn.system("git rev-parse --is-inside-work-tree 2>/dev/null")
+-- 	in_git_repo = vim.v.shell_error == 0
+--
+-- 	if in_git_repo then
+-- 		MiniPick.builtin.files({ tool = "git" })
+-- 	else
+-- 		MiniPick.builtin.files()
+-- 	end
+-- end, { desc = "[S]earch [F]iles" })
+-- vim.keymap.set({ "n", "v" }, "<Leader><Leader>", "<cmd>:Pick buffers<CR>", { desc = "Pick Buffers" })
+-- vim.keymap.set({ "n", "v" }, "<Leader>sg", "<cmd>:Pick grep_live<CR>", { desc = "[S]earch [G]rep" })
+
+
+vim.keymap.set({ "n", "v" }, "<Leader>q", function()
+	MiniBufremove.unshow()
+end, { desc = "[Q]uit Buffer" })
+

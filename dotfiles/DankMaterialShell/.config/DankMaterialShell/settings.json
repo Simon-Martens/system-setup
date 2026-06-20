@@ -198,7 +198,7 @@
   "dankLauncherV2UnloadOnClose": false,
   "useAutoLocation": false,
   "weatherEnabled": true,
-  "networkPreference": "auto",
+  "networkPreference": "wifi",
   "iconTheme": "System Default",
   "cursorSettings": {
     "theme": "System Default",
@@ -410,11 +410,7 @@
       "showOnLastDisplay": true,
       "leftWidgets": [
         "workspaceSwitcher",
-        {
-          "id": "focusedWindow",
-          "enabled": true,
-          "focusedWindowCompactMode": false
-        }
+        "focusedWindow"
       ],
       "centerWidgets": [
         "music",

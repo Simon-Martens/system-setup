@@ -29,13 +29,18 @@ vim.g.maplocalleader = " "      -- Local leader key (idk i just do it)
 
 -- 2. Options
 -----------------------------------------------------------------------------------------------
+vim.loader.enable() -- Daster startup, caches pre-compiled lua objects
+
 vim.g.copilot_no_tab_map = true -- Dont use the tab key for copilot suggestions
 vim.g.copilot_assume_mapped = true
+vim.g.have_nerd_font = true
 -- vim.o.number = true -- show line numbers
 -- vim.o.relativenumber = true -- relativve line numbers
+vim.o.signcolumn = "no" -- Keep signcolumn on by default
 vim.o.mouse = "a" -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.showmode = true -- Don't show the mode, since it's already in status line
-vim.o.clipboard = "unnamedplus" -- Sync clipboard between OS and Neovim.
+vim.schedule(function() vim.o.clipboard = 'unnamedplus' end) -- Sync clipboard between OS and Neovim. Scheduled bc it increases startup time
+vim.o.clipboard = "unnamedplus" 
 vim.o.wrap = false -- Don't wrap text
 vim.o.breakindent = true -- Keep indentation of a line when it wraps, looks nicer
 vim.o.swapfile = false -- no swapfile, ew
@@ -44,7 +49,6 @@ vim.o.undodir = vim.fn.stdpath("data") .. "/undo" -- location of undofile
 vim.o.undofile = true -- keep an undo file to shae history
 vim.o.ignorecase = true -- Case-insensitive searching
 vim.o.smartcase = true -- UNLESS \C or capital in search
-vim.o.signcolumn = "yes" -- Keep signcolumn on by default
 vim.o.updatetime = 250 -- Decrease update time, swap every 250 chars
 vim.o.timeoutlen = 300 -- Time when the help popup will appear
 vim.o.splitright = true -- Configure how new splits should be opened
@@ -66,16 +70,101 @@ vim.o.wildoptions = "pum"
 vim.cmd.normal(":set guicursor=")                                       -- Reset the cursor on tmux BUG: doesn't work
 vim.cmd.normal(":autocmd OptionSet guicursor noautocmd set guicursor=") -- Same
 
+
 -- 2. Plugins
 -- -----------------------------------------------------------------------------------------------
+-- First, we set up vim.pack, the nvim plugin managger
+do
+  -- [[ Intro to `vim.pack` ]]
+  -- `vim.pack` is a new plugin manager built into Neovim,
+  --  which provides a Lua interface for installing and managing plugins.
+  --
+  --  See `:help vim.pack`, `:help vim.pack-examples` or the
+  --  excellent blog post from the creator of vim.pack and mini.nvim:
+  --  https://echasnovski.com/blog/2026-03-13-a-guide-to-vim-pack
+  --
+  --  To inspect plugin state and pending updates, run
+  --    :lua vim.pack.update(nil, { offline = true })
+  --
+  --  To update plugins, run
+  --    :lua vim.pack.update()
+  --
+  --
+  --  Throughout the rest of the config there will be examples
+  --  of how to install and configure plugins using `vim.pack`.
+  --
+  --  In this section we set up some autocommands to run build
+  --  steps for certain plugins after they are installed or updated.
+
+  local function run_build(name, cmd, cwd)
+    local result = vim.system(cmd, { cwd = cwd }):wait()
+    if result.code ~= 0 then
+      local stderr = result.stderr or ''
+      local stdout = result.stdout or ''
+      local output = stderr ~= '' and stderr or stdout
+      if output == '' then output = 'No output from build command.' end
+      vim.notify(('Build failed for %s:\n%s'):format(name, output), vim.log.levels.ERROR)
+    end
+  end
+
+  -- This autocommand runs after a plugin is installed or updated and
+  --  runs the appropriate build command for that plugin if necessary.
+  --
+  -- See `:help vim.pack-events`
+  vim.api.nvim_create_autocmd('PackChanged', {
+    callback = function(ev)
+      local name = ev.data.spec.name
+      local kind = ev.data.kind
+      if kind ~= 'install' and kind ~= 'update' then return end
+
+      if name == 'telescope-fzf-native.nvim' and vim.fn.executable 'make' == 1 then
+        run_build(name, { 'make' }, ev.data.path)
+        return
+      end
+
+      if name == 'LuaSnip' then
+        if vim.fn.has 'win32' ~= 1 and vim.fn.executable 'make' == 1 then run_build(name, { 'make', 'install_jsregexp' }, ev.data.path) end
+        return
+      end
+
+      if name == 'nvim-treesitter' then
+        if not ev.data.active then vim.cmd.packadd 'nvim-treesitter' end
+        vim.cmd 'TSUpdate'
+        return
+      end
+    end,
+  })
+end
+
+---Because most plugins are hosted on GitHub, you can use the helper
+---function to have less repetition in the following sections.
+---@param repo string
+---@return string
+local function gh(repo) return 'https://github.com/' .. repo end
+
 -- -> Other lsp-related functions and plugins in lsp config
 vim.pack.add({
-	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" }, -- Syntax highlighting
-	{ src = "https://github.com/vague2k/vague.nvim" },             -- Theme
+	{ src = gh "/nvim-treesitter/nvim-treesitter" }, -- Syntax highlighting
+	{ src = gh "/vague2k/vague.nvim" },             -- Theme
 })
+
+-- Adds git related signs to the gutter, as well as utilities for managing changes
+vim.pack.add { gh 'lewis6991/gitsigns.nvim' }
+require('gitsigns').setup {
+	signs = {
+		add = { text = '+' }, ---@diagnostic disable-line: missing-fields
+		change = { text = '~' }, ---@diagnostic disable-line: missing-fields
+		delete = { text = '_' }, ---@diagnostic disable-line: missing-fields
+		topdelete = { text = '‾' }, ---@diagnostic disable-line: missing-fields
+		changedelete = { text = '~' }, ---@diagnostic disable-line: missing-fields
+	},
+}
 
 -- Mini: small tools for everyday use
 require("plugins.mini")
+
+-- Telescope: main picker
+require("plugins.telescope")
 
 -- 3. Looks
 -- ----------------------------------------------------------------------------------------------
@@ -84,6 +173,8 @@ vim.cmd(":hi statusline guibg=NONE") -- No background on the status line
 vim.cmd(":hi WinSeparator guifg=NONE guibg=NONE ctermfg=NONE ctermbg=NONE")
 vim.cmd(":hi VertSplit guifg=NONE guibg=NONE ctermfg=NONE ctermbg=NONE")
 vim.opt.fillchars:append({ vert = " " })
+vim.o.list = true
+vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 -- vim.o.winborder = "single"
 
 -- 4. Autocommands
@@ -178,9 +269,13 @@ vim.keymap.set("n", "<Leader>t", "<cmd>tabnew<CR>", { remap = true, desc = "Open
 vim.keymap.set("n", "<Leader><S-Tab>", "<cmd>tabprevious<CR>", { desc = "[G]oto previous [T]ab" })
 vim.keymap.set("n", "<Leader><Tab>", "<cmd>tabnext<CR>", { desc = "[G]oto next [T]ab" })
 -- Enable or disable line numbers
-vim.keymap.set({ "n", "v" }, "<Leader>l", function()
+vim.keymap.set({ "n", "v" }, "<Leader>tl", function()
 	vim.wo.number = not vim.wo.number
 end, { desc = "Toggle [L]ine numbers" })
+
+vim.keymap.set({ "n", "v" }, "<Leader>tc", function()
+	vim.wo.signcolumn = vim.wo.signcolumn == "no" and "auto" or "no"
+end, { desc = "Toggle sign [C]olumn" })
 -- Search with a hitlist in all open files
 vim.keymap.set("n", "<leader>/", function()
 	local pattern = vim.fn.input("Search: ")
@@ -188,23 +283,34 @@ vim.keymap.set("n", "<leader>/", function()
 	vim.cmd("copen")
 end)
 
--- Plugin dependendent keybinds
--- -> Other lsp-related functions and keybinds in lsp config
--- Pickers
-vim.keymap.set({ "n", "v" }, "<Leader>sf", function()
-	local in_git_repo = vim.fn.system("git rev-parse --is-inside-work-tree 2>/dev/null")
-	in_git_repo = vim.v.shell_error == 0
+-- Clear search when ESC in normal mode
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
-	if in_git_repo then
-		MiniPick.builtin.files({ tool = "git" })
-	else
-		MiniPick.builtin.files()
-	end
-end, { desc = "[S]earch [F]iles" })
-vim.keymap.set({ "n", "v" }, "<Leader><Leader>", "<cmd>:Pick buffers<CR>", { desc = "Pick Buffers" })
-vim.keymap.set({ "n", "v" }, "<Leader>sg", "<cmd>:Pick grep_live<CR>", { desc = "[S]earch [G]rep" })
 
--- Buffer removal
-vim.keymap.set({ "n", "v" }, "<Leader>q", function()
-	MiniBufremove.unshow()
-end, { desc = "[Q]uit Buffer" })
+--  See `:help vim.diagnostic.Opts`
+vim.diagnostic.config {
+	update_in_insert = false,
+	severity_sort = true,
+	float = { border = 'rounded', source = 'if_many' },
+	underline = { severity = { min = vim.diagnostic.severity.WARN } },
+
+	-- Can switch between these as you prefer
+	virtual_text = true, -- Text shows up at the end of the line
+	virtual_lines = false, -- Text shows up underneath the line, with virtual lines
+
+	-- Auto open the float, so you can easily read the errors when jumping with `[d` and `]d`
+	jump = {
+		on_jump = function(_, bufnr)
+			vim.diagnostic.open_float {
+				bufnr = bufnr,
+				scope = 'cursor',
+				focus = false,
+			}
+		end,
+	},
+}
+
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
+-- 6. LSP
+require("lsp")
