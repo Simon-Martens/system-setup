@@ -117,7 +117,7 @@ do
     --
     -- But for many setups, the LSP (`ts_ls`) will work just fine
     -- ts_ls = {},
-
+		--
     stylua = {}, -- Used to format Lua code
 
     -- Special Lua Config, as recommended by neovim help docs
@@ -183,6 +183,24 @@ do
     vim.lsp.config(name, server)
     vim.lsp.enable(name)
   end
+
+  vim.keymap.set('n', '<leader>l', function()
+    local clients = vim.lsp.get_active_clients()
+    if #clients == 0 then
+      local ft = vim.bo.filetype
+      for name, _ in pairs(servers) do
+        local cfg = vim.lsp.config[name]
+        if cfg and cfg.filetypes and vim.tbl_contains(cfg.filetypes, ft) then
+          vim.lsp.start(cfg, { bufnr = 0 })
+          return
+        end
+      end
+      vim.notify('No LSP for filetype: ' .. ft, vim.log.levels.WARN)
+      return
+    end
+    vim.lsp.stop_client(clients, true)
+    vim.notify('All LSP clients deactivated', vim.log.levels.INFO)
+  end, { desc = 'Toggle LSP active clients' })
 end
 
 -- ============================================================

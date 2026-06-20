@@ -16,7 +16,6 @@ require("mini.ai").setup({ n_lines = 500 }) -- better around/inside visual selec
 require("mini.jump").setup() -- f and t works across lines
 require("mini.git").setup() -- Git integration
 require("mini.bracketed").setup() -- go forward anmd backeards with []
-require("mini.bufremove").setup() -- remove buffers
 
 local miniclue = require("mini.clue")
 miniclue.setup({
@@ -83,7 +82,9 @@ hipatterns.setup({
 -- vim.keymap.set({ "n", "v" }, "<Leader>sg", "<cmd>:Pick grep_live<CR>", { desc = "[S]earch [G]rep" })
 
 
-vim.keymap.set({ "n", "v" }, "<Leader>q", function()
-	MiniBufremove.unshow()
+local bufremove = require("mini.bufremove")
+bufremove.setup()
+vim.keymap.set({ "n", "v" }, "<leader>q", function()
+	bufremove.unshow()
 end, { desc = "[Q]uit Buffer" })
 
