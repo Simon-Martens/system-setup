@@ -260,7 +260,11 @@ do
   -- require('luasnip.loaders.from_vscode').lazy_load()
 
   -- [[ Autocomplete Engine ]]
-  vim.pack.add { { src = gh 'saghen/blink.cmp' } }
+  vim.pack.add {
+  	{ src = gh 'saghen/blink.lib' },
+		{ src = gh 'saghen/blink.cmp' },
+	}
+
   require('blink.cmp').setup {
     keymap = {
       -- 'default' (recommended) for mappings similar to built-in completions
