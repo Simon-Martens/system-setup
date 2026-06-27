@@ -1,0 +1,285 @@
+#!/bin/bash
+
+set -euo pipefail
+
+require_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        printf 't: required command not found: %s\n' "$1" >&2
+        exit 1
+    fi
+}
+
+field_separator=$'\037'
+
+tmux_target_arg() {
+    printf '=%s' "$1"
+}
+
+open_session() {
+    local session_name="$1"
+
+    if [ -n "${TMUX:-}" ]; then
+        tmux switch-client -t "$(tmux_target_arg "$session_name")"
+    else
+        tmux attach-session -t "$(tmux_target_arg "$session_name")"
+    fi
+}
+
+create_session() {
+    local session_name="$1"
+    local session_dir="$2"
+    local rename_base="${3:-}"
+
+    if [[ "$session_name" == *:* ]]; then
+        printf 't: tmux session names cannot contain colons: %s\n' "$session_name" >&2
+        exit 1
+    fi
+
+    if [ -n "$rename_base" ] && [ "$rename_base" != "$session_name" ]; then
+        if tmux has-session -t "$(tmux_target_arg "$rename_base")" 2>/dev/null && ! tmux has-session -t "$(tmux_target_arg "$rename_base-1")" 2>/dev/null; then
+            tmux rename-session -t "$(tmux_target_arg "$rename_base")" "$rename_base-1"
+        fi
+    fi
+
+    if tmux has-session -t "$(tmux_target_arg "$session_name")" 2>/dev/null; then
+        open_session "$session_name"
+        return
+    fi
+
+    if [ -n "${TMUX:-}" ]; then
+        tmux new-session -d -s "$session_name" -c "$session_dir"
+        tmux switch-client -t "$(tmux_target_arg "$session_name")"
+    else
+        tmux new-session -s "$session_name" -c "$session_dir"
+    fi
+}
+
+session_name_from_path() {
+    local path="${1%/}"
+    local session_name="${path##*/}"
+
+    if [ -z "$session_name" ]; then
+        session_name="root"
+    fi
+
+    session_name="${session_name// /-}"
+    session_name="${session_name//$'\t'/-}"
+    session_name="${session_name//:/-}"
+
+    printf '%s' "$session_name"
+}
+
+session_name_taken() {
+    local session_name="$1"
+    local existing_session
+
+    if [ -z "${sessions_all:-}" ]; then
+        return 1
+    fi
+
+    while IFS= read -r existing_session; do
+        if [ "$existing_session" = "$session_name" ]; then
+            return 0
+        fi
+    done <<< "$sessions_all"
+
+    if [ -n "${generated_session_names:-}" ]; then
+        while IFS= read -r existing_session; do
+            if [ "$existing_session" = "$session_name" ]; then
+                return 0
+            fi
+        done <<< "$generated_session_names"
+    fi
+
+    return 1
+}
+
+available_session_name() {
+    local base_name="$1"
+    local existing_session suffix highest_suffix=0 prefix
+
+    prefix="$base_name-"
+
+    if session_name_taken "$base_name"; then
+        highest_suffix=1
+    fi
+
+    if [ -n "${sessions_all:-}" ]; then
+        while IFS= read -r existing_session; do
+            if [[ "$existing_session" == "$prefix"* ]]; then
+                suffix="${existing_session#"$prefix"}"
+                if [[ ! "$suffix" =~ ^[0-9]+$ ]]; then
+                    continue
+                fi
+
+                if [ "$suffix" -gt "$highest_suffix" ]; then
+                    highest_suffix="$suffix"
+                fi
+            fi
+        done <<< "$sessions_all"
+    fi
+
+    if [ -n "${generated_session_names:-}" ]; then
+        while IFS= read -r existing_session; do
+            if [[ "$existing_session" == "$prefix"* ]]; then
+                suffix="${existing_session#"$prefix"}"
+                if [[ ! "$suffix" =~ ^[0-9]+$ ]]; then
+                    continue
+                fi
+
+                if [ "$suffix" -gt "$highest_suffix" ]; then
+                    highest_suffix="$suffix"
+                fi
+            fi
+        done <<< "$generated_session_names"
+    fi
+
+    if [ "$highest_suffix" -eq 0 ]; then
+        printf '%s' "$base_name"
+        return
+    fi
+
+    printf '%s' "$base_name-$((highest_suffix + 1))"
+}
+
+zoxide_items() {
+    local query="${1:-}"
+    local count=0
+    local path base_session_name session_name rename_base
+    local generated_session_names=""
+
+    if [ -z "$query" ] || [ "${zoxide_available:-false}" != "true" ]; then
+        return
+    fi
+
+    while IFS= read -r path; do
+        if [ -z "$path" ]; then
+            continue
+        fi
+
+        base_session_name=$(session_name_from_path "$path")
+        session_name=$(available_session_name "$base_session_name")
+        rename_base=""
+        if [ "$session_name" != "$base_session_name" ]; then
+            rename_base="$base_session_name"
+        fi
+
+        printf '"%s" | new | %s%screate%s%s%s%s%s%s\n' "$session_name" "$path" "$field_separator" "$field_separator" "$session_name" "$field_separator" "$path" "$field_separator" "$rename_base"
+
+        generated_session_names="${generated_session_names}${generated_session_names:+$'\n'}${session_name}"
+
+        count=$((count + 1))
+        if [ "$count" -ge 3 ]; then
+            break
+        fi
+    done < <(zoxide query -l -- "$query" 2>/dev/null || true)
+}
+
+base_items() {
+    local query="${1:-}"
+    local line
+
+    if [ -n "${session_lines:-}" ]; then
+        while IFS= read -r line; do
+            printf '%s\n' "$line"
+        done <<< "$session_lines"
+    fi
+
+    zoxide_items "$query"
+}
+
+render_fzf_items() {
+    local query="${1:-}"
+
+    if [ -n "$query" ]; then
+        base_items "$query" | fzf --filter="$query" --delimiter="$field_separator" --with-nth='1' || true
+    else
+        base_items
+    fi
+
+    if [ -n "$query" ]; then
+        printf '"%s" | new | %s%screate%s%s%s%s%s\n' "$query" "${current_pwd:-$PWD}" "$field_separator" "$field_separator" "$query" "$field_separator" "${current_pwd:-$PWD}" "$field_separator"
+    fi
+}
+
+session_list() {
+    local session_name window_index window_name pane_path tmux_format
+
+    tmux_format="#{?window_active,#{session_name}${field_separator}#{window_index}${field_separator}#{window_name}${field_separator}#{pane_current_path},}"
+
+    while IFS="$field_separator" read -r session_name window_index window_name pane_path; do
+        if [ -z "$session_name" ] || [ -z "$window_index" ]; then
+            continue
+        fi
+
+        printf '%s | %s:%s | %s%sopen%s%s%s%s\n' "$session_name" "$window_index" "$window_name" "$pane_path" "$field_separator" "$field_separator" "$session_name" "$field_separator" "$field_separator"
+    done < <(tmux list-windows -a -F "$tmux_format" 2>/dev/null || true)
+}
+
+sorted_session_list() {
+    local current_session="${1:-}"
+    local line session_name current_lines="" other_lines=""
+
+    while IFS= read -r line; do
+        session_name="${line%% | *}"
+
+        if [ -n "$current_session" ] && [ "$session_name" = "$current_session" ]; then
+            current_lines="${current_lines}${current_lines:+$'\n'}${line}"
+        else
+            other_lines="${other_lines}${other_lines:+$'\n'}${line}"
+        fi
+    done < <(session_list | sort)
+
+    if [ -n "$current_lines" ]; then
+        printf '%s\n' "$current_lines"
+    fi
+
+    if [ -n "$other_lines" ]; then
+        printf '%s\n' "$other_lines"
+    fi
+}
+
+require_command tmux
+require_command fzf
+
+current_session=""
+if [ -n "${TMUX:-}" ]; then
+    current_session=$(tmux display-message -p '#S')
+fi
+
+session_lines=$(sorted_session_list "$current_session")
+zoxide_available=false
+if command -v zoxide >/dev/null 2>&1; then
+    zoxide_available=true
+fi
+current_pwd="$PWD"
+sessions_all=$(tmux list-sessions -F '#S' 2>/dev/null || true)
+
+export -f available_session_name
+export -f base_items
+export -f render_fzf_items
+export -f session_name_from_path
+export -f session_name_taken
+export -f zoxide_items
+export sessions_all
+export session_lines
+export zoxide_available
+export current_pwd
+export field_separator
+
+selected_line=$(render_fzf_items | fzf --prompt='tmux> ' --height=40% --reverse --disabled --no-sort --delimiter="$field_separator" --with-nth='1' --bind 'change:reload:bash -c '\''render_fzf_items "$1"'\'' _ {q}' || true)
+
+if [ -z "$selected_line" ]; then
+    exit 0
+fi
+
+IFS="$field_separator" read -r _ selected_action selected_session selected_dir selected_rename_base <<< "$selected_line"
+
+case "$selected_action" in
+    create)
+        create_session "$selected_session" "$selected_dir" "$selected_rename_base"
+        ;;
+    open)
+        open_session "$selected_session"
+        ;;
+esac

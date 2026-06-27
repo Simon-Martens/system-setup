@@ -7,7 +7,7 @@
 # Instead, edit the individual .sh files in /home/simon/.local/share/system-setup/scripts/rc
 # and then re-run the generation script: ./generate_shell_rc.sh bash
 #
-# Generated on: 2026-06-27 16:12:27 CEST
+# Generated on: 2026-06-27 17:12:58 CEST
 # ==============================================================================
 
 
@@ -824,6 +824,29 @@ GRC_ALIASES=true
 
 
 # ==============================================================================
+# START OF COMMON CONFIG FROM: tmux.sh
+# ==============================================================================
+
+# Auto-start tmux for interactive shells.
+#
+# Conditions:
+# - only in an interactive shell
+# - only when not already inside tmux
+# - only when tmux is installed
+#
+# Behavior:
+# - attach to session "home" if it exists
+# - otherwise create session "home" starting in ~
+if [[ $- == *i* ]] && [[ -z "$TMUX" ]] && command -v tmux >/dev/null 2>&1; then
+    tmux new-session -A -s home -c "$HOME"
+fi
+
+# ==============================================================================
+# End of tmux.sh
+# ==============================================================================
+
+
+# ==============================================================================
 # START OF COMMON CONFIG FROM: zoxide.sh
 # ==============================================================================
 
@@ -891,4 +914,4 @@ fi
 # Tip: Source this file in your interactive bash sessions or ensure it's
 # automatically sourced by your shell's main configuration.
 
-export SHELL_RC_GENERATED_ON="2026-06-27 16:12:27 CEST"
+export SHELL_RC_GENERATED_ON="2026-06-27 17:12:58 CEST"
