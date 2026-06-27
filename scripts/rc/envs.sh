@@ -2,6 +2,7 @@
 export EDITOR="nvim"
 export SUDO_EDITOR="$EDITOR"
 export PATH=$HOME/bin:$PATH
+export PATH=$HOME/.local/bin/:$PATH
 
 
 # # GO

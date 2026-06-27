@@ -8,6 +8,6 @@
 # Behavior:
 # - attach to session "home" if it exists
 # - otherwise create session "home" starting in ~
-if [[ $- == *i* ]] && [[ -z "$TMUX" ]] && command -v tmux >/dev/null 2>&1; then
-    tmux new-session -A -s home -c "$HOME"
-fi
+# if [[ $- == *i* ]] && [[ -z "$TMUX" ]] && command -v tmux >/dev/null 2>&1; then
+#     tmux new-session -A -s home -c "$HOME"
+# fi

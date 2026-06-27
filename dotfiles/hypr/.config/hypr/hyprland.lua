@@ -150,7 +150,7 @@ hl.config({
         gaps_in  = 4,
         gaps_out = 4,
 
-        border_size = 2,
+        border_size = 1,
 
         col = {
             active_border   = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
@@ -477,8 +477,8 @@ hl.window_rule({
     name  = "thin-white-border-single-window",
     match = { float = false, workspace = "w[tv1]" },
 
-    border_size  = hostname == "laptop" and 0 or 1,
-    border_color = "rgba(ffffffff) rgba(ffffffff)",
+    -- border_size = 1,
+    -- border_color = "rgba(ffffffff) rgba(ffffffff)",
     rounding     = 1,
 })
 
