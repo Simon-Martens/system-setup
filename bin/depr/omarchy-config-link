@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# Link all the key config files to system-setup's internal versions for quicker testing
-ln -nsf ~/.local/share/system-setup/config/hypr/hyprland.conf ~/.config/hypr/
-ln -nsf ~/.local/share/system-setup/config/hypr/hypridle.conf ~/.config/hypr/
-ln -nsf ~/.local/share/system-setup/config/hypr/hyprlock.conf ~/.config/hypr/
-ln -nsf ~/.local/share/system-setup/config/waybar/config ~/.config/waybar/
-ln -nsf ~/.local/share/system-setup/config/wofi/config ~/.config/wofi/

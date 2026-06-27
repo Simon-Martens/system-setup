@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# Terminal wrapper for theme menu using gum
-alacritty \
-  --class=menu \
-  --title="Theme Selection" \
-  --option 'window.decorations="none"' \
-  --option window.opacity=0.95 \
-  -e "$HOME/.local/share/system-setup/bin/system-setup-theme-menu-gum"

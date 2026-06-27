@@ -1,6 +1,0 @@
-#!/bin/bash
-
-if gum confirm "Refresh Plymouth theme? This will replace your current startup screen with system-setup defaults."; then
-  sudo cp ~/.local/share/system-setup/default/plymouth/* /usr/share/plymouth/themes/system-setup/
-  sudo plymouth-set-default-theme -R system-setup
-fi

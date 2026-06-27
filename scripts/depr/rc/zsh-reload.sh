@@ -1,1 +1,0 @@
-alias relaod='source ~/.zshrc'

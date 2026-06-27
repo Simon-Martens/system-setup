@@ -1,6 +1,8 @@
 # Editor used by CLI
 export EDITOR="nvim"
+export ABDUCO_CMD="$SHELL"
 export SUDO_EDITOR="$EDITOR"
+export PATH=$HOME/bin:$PATH
 
 
 # # GO
@@ -36,4 +38,3 @@ export SUDO_EDITOR="$EDITOR"
 #
 # # Additional and custom executable paths
 # export PATH=$HOME/.local/bin:$PATH
-# export PATH=$HOME/bin:$PATH

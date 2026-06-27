@@ -7,7 +7,7 @@
 # Instead, edit the individual .sh files in /home/simon/.local/share/system-setup/scripts/rc
 # and then re-run the generation script: ./generate_shell_rc.sh bash
 #
-# Generated on: 2026-06-16 15:38:24 CEST
+# Generated on: 2026-06-27 15:29:08 CEST
 # ==============================================================================
 
 
@@ -628,7 +628,9 @@ fi
 
 # Editor used by CLI
 export EDITOR="nvim"
+export ABDUCO_CMD="$SHELL"
 export SUDO_EDITOR="$EDITOR"
+export PATH=$HOME/bin:$PATH
 
 
 # # GO
@@ -664,7 +666,6 @@ export SUDO_EDITOR="$EDITOR"
 #
 # # Additional and custom executable paths
 # export PATH=$HOME/.local/bin:$PATH
-# export PATH=$HOME/bin:$PATH
 
 # ==============================================================================
 # End of envs.sh
@@ -814,9 +815,6 @@ if [[ ! -v BASH_COMPLETION_VERSINFO && -f /usr/share/bash-completion/bash_comple
   source /usr/share/bash-completion/bash_completion
 fi
 
-# Set complete path
-export PATH="./bin:$HOME/.local/bin:$HOME/.local/share/system-setup/bin:$PATH"
-
 # GRC to get colors
 GRC_ALIASES=true
 [[ -s "/etc/profile.d/grc.sh" ]] && source /etc/grc.sh
@@ -894,4 +892,4 @@ fi
 # Tip: Source this file in your interactive bash sessions or ensure it's
 # automatically sourced by your shell's main configuration.
 
-export SHELL_RC_GENERATED_ON="2026-06-16 15:38:24 CEST"
+export SHELL_RC_GENERATED_ON="2026-06-27 15:29:08 CEST"
