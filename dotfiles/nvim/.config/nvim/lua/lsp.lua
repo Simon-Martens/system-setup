@@ -261,8 +261,10 @@ do
 
   -- [[ Autocomplete Engine ]]
   vim.pack.add {
-  	{ src = gh 'saghen/blink.lib' },
-		{ src = gh 'saghen/blink.cmp' },
+	 {
+			src = gh 'saghen/blink.cmp',
+			version = vim.version.range('1.*'),
+		},
 	}
 
   require('blink.cmp').setup {
