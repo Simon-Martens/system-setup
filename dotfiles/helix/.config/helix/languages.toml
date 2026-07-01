@@ -1,0 +1,13 @@
+[language-server]
+rust-analyzer = { command = "rust-analyzer" }
+gopls = { command = "gopls" }
+
+[[language]]
+name = "rust"
+language-servers = ["rust-analyzer"]
+auto-format = true
+
+[[language]]
+name = "go"
+language-servers = ["gopls"]
+auto-format = true

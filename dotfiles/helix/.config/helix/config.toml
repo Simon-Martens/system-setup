@@ -1,0 +1,37 @@
+theme = "adwaita-dark"
+
+[editor]
+line-number = "relative"
+cursorline = true
+auto-save = true
+auto-format = true
+completion-timeout = 5
+true-color = true
+color-modes = true
+indent-guides = { render = false, character = "╎" }
+default-yank-register = "+"
+
+[editor.lsp]
+display-messages = true
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.whitespace]
+render = "none"
+characters = { space = ".", tab = "→" }
+
+[editor.file-picker]
+hidden = false
+
+[keys.normal]
+"}" = "goto_next_paragraph"
+"{" = "goto_prev_paragraph"
+X = "extend_line_above"
+
+[keys.select]
+"}" = "goto_next_paragraph"
+"{" = "goto_prev_paragraph"
+X = "extend_line_above"
