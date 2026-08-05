@@ -23,12 +23,19 @@
 ------------------
 
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
--- Laptop
+-- Laptop x390
 hl.monitor({
 		output = "desc:LG Display 0x05EA",
     mode     = "highres",
-    position = "auto",
     scale    = "1.2",
+    position = "0x0"
+})
+
+-- Laptop T14
+hl.monitor({
+		output = "desc:AU Optronics 0x323D",
+    mode     = "highres",
+    scale    = "1",
     position = "0x0"
 })
 
