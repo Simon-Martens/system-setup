@@ -7,7 +7,7 @@
 # Instead, edit the individual .sh files in /home/simon/.local/share/system-setup/scripts/rc
 # and then re-run the generation script: ./generate_shell_rc.sh bash
 #
-# Generated on: 2026-06-28 00:12:38 CEST
+# Generated on: 2026-08-24 23:02:44 CEST
 # ==============================================================================
 
 
@@ -852,15 +852,25 @@ GRC_ALIASES=true
 # ==============================================================================
 
 if [[ $- == *i* ]] && command -v zoxide &> /dev/null; then
-  eval "$(zoxide init bash)"
+	eval "$(zoxide init bash)"
 	alias cd="zd"
 	zd() {
 		if [ $# -eq 0 ]; then
-			builtin cd ~ && return
+			builtin cd ~ || return
 		elif [ -d "$1" ]; then
-			builtin cd "$1"
+			builtin cd "$1" || return
 		else
-			z "$@" && printf " \U000F17A9 " && pwd || echo "Error: Directory not found"
+			if ! z "$@"; then
+				echo "Error: Directory not found"
+				return 1
+			fi
+			printf " \U000F17A9 "
+			pwd
+		fi
+
+		# The custom cd wrapper bypasses mise's cd function, so run its hook here.
+		if declare -F _mise_hook_chpwd >/dev/null; then
+			_mise_hook_chpwd
 		fi
 	}
 
@@ -870,10 +880,10 @@ if [[ $- == *i* ]] && command -v zoxide &> /dev/null; then
 				local selected_dir
 				selected_dir="$(zoxide query -l | fzf --reverse --preview 'ls -alh {}')"
 				if [ -n "$selected_dir" ]; then
-					cd "$selected_dir"
+					zd "$selected_dir"
 				fi
 			elif [ -d "$1" ]; then
-				builtin cd "$1"
+				zd "$1"
 			else
 				local matches
 				matches=$(zoxide query -l "$1")
@@ -887,12 +897,12 @@ if [[ $- == *i* ]] && command -v zoxide &> /dev/null; then
 				num_matches=$(echo "$matches" | wc -l)
 
 				if [ "$num_matches" -eq 1 ]; then
-					builtin cd "$matches" && printf " \U000F17A9 " && pwd
+					zd "$matches" && printf " \U000F17A9 " && pwd
 				else
 					local selected_dir
 					selected_dir="$(echo "$matches" | fzf --reverse --preview 'ls -alh {}' --query "$1")"
 					if [ -n "$selected_dir" ]; then
-						cd "$selected_dir"
+						zd "$selected_dir"
 					fi
 				fi
 			fi
@@ -900,7 +910,6 @@ if [[ $- == *i* ]] && command -v zoxide &> /dev/null; then
 	fi
 
 fi
-
 
 
 # ==============================================================================
@@ -915,4 +924,4 @@ fi
 # Tip: Source this file in your interactive bash sessions or ensure it's
 # automatically sourced by your shell's main configuration.
 
-export SHELL_RC_GENERATED_ON="2026-06-28 00:12:38 CEST"
+export SHELL_RC_GENERATED_ON="2026-08-24 23:02:44 CEST"

@@ -487,6 +487,14 @@ hl.window_rule({
     size  = "900 500",
 })
 
+hl.window_rule({
+    name  = "float-derk",
+    match = { class = "^dev[.]derk[.]derk$" },
+
+    workspace = "special:magic",
+    float     = true,
+})
+
 
 -- Workspace & window rules to hide borders and padding on fullscreen apps
 hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
