@@ -180,12 +180,13 @@ hl.config({
         -- Change transparency of focused and unfocused windows
         active_opacity   = 1.0,
         inactive_opacity = 1.0,
+        dim_special      = 0.5,
 
         shadow = {
-            enabled      = false,
-            range        = 4,
+            enabled      = true,
+            range        = 40,
             render_power = 3,
-            color        = 0xee1a1a1a,
+            color        = 0x991a1a1a,
         },
 
         blur = {
@@ -520,6 +521,10 @@ for _, workspace in ipairs({ "special:magic", "special:magic2", "special:agents"
 end
 
 hl.workspace_rule({ workspace = "w[tv1]s[false]", gaps_out = 0, gaps_in = 0 })
+
+hl.window_rule({ match = { class = ".*" }, no_shadow = true })
+hl.window_rule({ match = { workspace = "special:magic" }, no_shadow = false })
+hl.window_rule({ match = { workspace = "special:magic2" }, no_shadow = false })
 
 hl.window_rule({
     name  = "thin-white-border-single-window",
