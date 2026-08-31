@@ -16,9 +16,10 @@ local sidebar_window_ids = {}
 local window_orientations = {}
 local sidebar_origin_windows = {}
 local previous_buffers = {}
-local markdown_route_suspended = false
+local scrapbook_route_suspended = false
 local resize_generation = 0
 local refresh_scheduled = false
+local reflow_scheduled = false
 local current_view = "registers"
 local namespace = vim.api.nvim_create_namespace("register-scrapbook")
 
@@ -73,6 +74,24 @@ local function is_normal_window(window)
 		and vim.api.nvim_win_is_valid(window)
 		and not is_sidebar_window(window)
 		and vim.api.nvim_win_get_config(window).relative == ""
+end
+
+local function should_be_vertical(tabpage)
+	if vim.o.columns <= config.wide_threshold then
+		return false
+	end
+
+	local editor_windows = 0
+	for _, window in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
+		if is_normal_window(window) then
+			editor_windows = editor_windows + 1
+			if editor_windows >= 2 then
+				return false
+			end
+		end
+	end
+
+	return true
 end
 
 local function remember_editor_window(window)
@@ -564,9 +583,9 @@ local function display_view(window, context_bufnr, notes_bufnr)
 		local target = notes_bufnr or ensure_notes_buffer(context_bufnr)
 		last_notes_buffer = target
 		configure_notes_buffer(target)
-		markdown_route_suspended = true
+		scrapbook_route_suspended = true
 		local ok, error_message = pcall(vim.api.nvim_win_set_buf, window, target)
-		markdown_route_suspended = false
+		scrapbook_route_suspended = false
 		if not ok then
 			error(error_message)
 		end
@@ -584,9 +603,8 @@ local function display_view(window, context_bufnr, notes_bufnr)
 end
 
 function M.reflow()
-	local vertical = vim.o.columns > config.wide_threshold
-
 	for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+		local vertical = should_be_vertical(tabpage)
 		for _, window in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
 			if is_sidebar_window(window) then
 				if window_orientations[window] ~= vertical then
@@ -605,6 +623,18 @@ function M.reflow()
 		end
 	end
 	M.refresh()
+end
+
+local function schedule_reflow()
+	if reflow_scheduled then
+		return
+	end
+
+	reflow_scheduled = true
+	vim.schedule(function()
+		reflow_scheduled = false
+		M.reflow()
+	end)
 end
 
 function M.close()
@@ -650,11 +680,11 @@ function M.open(notes_bufnr, origin_window)
 
 	local origin = origin_window and vim.api.nvim_win_is_valid(origin_window) and origin_window or vim.api.nvim_get_current_win()
 	local context_bufnr = vim.api.nvim_win_get_buf(origin)
-	local vertical = vim.o.columns > config.wide_threshold
+	local vertical = should_be_vertical(vim.api.nvim_win_get_tabpage(origin))
 	local window
 
 	vim.api.nvim_win_call(origin, function()
-		vim.cmd(vertical and "rightbelow vsplit" or "rightbelow split")
+		vim.cmd(vertical and "rightbelow vsplit" or "botright split")
 		window = vim.api.nvim_get_current_win()
 	end)
 
@@ -730,27 +760,33 @@ function M.cycle_view(backwards)
 	reset_view_position()
 end
 
-local function is_markdown_buffer(bufnr)
+local function is_project_scrapbook(bufnr)
 	if not vim.api.nvim_buf_is_valid(bufnr) or vim.bo[bufnr].buftype ~= "" then
 		return false
 	end
-	local filename = vim.api.nvim_buf_get_name(bufnr):lower()
-	return filename:match("%.md$") ~= nil or filename:match("%.markdown$") ~= nil
+
+	local filename = vim.api.nvim_buf_get_name(bufnr)
+	if filename == "" then
+		return false
+	end
+
+	local expected = project_root(bufnr) .. "/scrapbook.md"
+	return vim.fs.normalize(vim.fn.fnamemodify(filename, ":p"))
+		== vim.fs.normalize(vim.fn.fnamemodify(expected, ":p"))
 end
 
-local function replacement_buffer(window, markdown_bufnr)
+local function replacement_buffer(window, scrapbook_bufnr)
 	local previous = previous_buffers[window]
-	if previous and previous ~= markdown_bufnr and vim.api.nvim_buf_is_valid(previous) and not is_markdown_buffer(previous) then
+	if previous and previous ~= scrapbook_bufnr and vim.api.nvim_buf_is_valid(previous) then
 		return previous
 	end
 
 	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-		if bufnr ~= markdown_bufnr
+		if bufnr ~= scrapbook_bufnr
 			and bufnr ~= register_buffer
 			and vim.api.nvim_buf_is_valid(bufnr)
 			and vim.api.nvim_buf_is_loaded(bufnr)
 			and vim.bo[bufnr].buflisted
-			and not is_markdown_buffer(bufnr)
 		then
 			return bufnr
 		end
@@ -759,7 +795,7 @@ local function replacement_buffer(window, markdown_bufnr)
 	return vim.api.nvim_create_buf(true, false)
 end
 
-local function route_markdown(bufnr, source_window)
+local function route_scrapbook(bufnr, source_window)
 	vim.schedule(function()
 		if not vim.api.nvim_buf_is_valid(bufnr) or not vim.api.nvim_win_is_valid(source_window) then
 			return
@@ -856,16 +892,16 @@ function M.setup(options)
 	})
 	vim.api.nvim_create_autocmd("BufWinEnter", {
 		group = group,
-		pattern = { "*.md", "*.markdown", "*.MD", "*.MARKDOWN" },
+		pattern = "scrapbook.md",
 		callback = function(event)
-			if markdown_route_suspended or not is_markdown_buffer(event.buf) then
+			if scrapbook_route_suspended or not is_project_scrapbook(event.buf) then
 				return
 			end
 			local window = vim.api.nvim_get_current_win()
 			if vim.api.nvim_win_get_config(window).relative ~= "" then
 				return
 			end
-			route_markdown(event.buf, window)
+			route_scrapbook(event.buf, window)
 		end,
 	})
 	vim.api.nvim_create_autocmd("WinClosed", {
@@ -878,7 +914,12 @@ function M.setup(options)
 				sidebar_origin_windows[window] = nil
 				previous_buffers[window] = nil
 			end
+			schedule_reflow()
 		end,
+	})
+	vim.api.nvim_create_autocmd("WinNew", {
+		group = group,
+		callback = schedule_reflow,
 	})
 	vim.api.nvim_create_autocmd("WinEnter", {
 		group = group,
@@ -897,9 +938,9 @@ function M.setup(options)
 	vim.api.nvim_create_autocmd("MarkSet", {
 		group = group,
 		callback = function()
-			if current_view == "marks" then
-				schedule_refresh()
-			end
+			vim.schedule(function()
+				M.show_view("marks")
+			end)
 		end,
 	})
 	vim.api.nvim_create_autocmd("FocusGained", {

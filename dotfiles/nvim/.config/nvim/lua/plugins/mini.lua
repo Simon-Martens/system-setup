@@ -85,6 +85,8 @@ hipatterns.setup({
 local bufremove = require("mini.bufremove")
 bufremove.setup()
 vim.keymap.set({ "n", "v" }, "<leader>q", function()
-	bufremove.unshow()
-end, { desc = "[Q]uit Buffer" })
-
+	bufremove.delete(0, false)
+end, { desc = "[Q]uit buffer" })
+vim.keymap.set({ "n", "v" }, "<leader>Q", function()
+	bufremove.delete(0, true)
+end, { desc = "Force [Q]uit buffer" })
