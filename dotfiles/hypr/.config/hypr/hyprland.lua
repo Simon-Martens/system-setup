@@ -495,6 +495,21 @@ hl.window_rule({
     float     = true,
 })
 
+-- Helium derives web-app classes from their URLs rather than the --class flag.
+hl.window_rule({
+    name  = "teams-on-magic2",
+    match = { class = "^chrome-teams[.]microsoft[.]com__-Default$" },
+
+    workspace = "special:magic2",
+})
+
+hl.window_rule({
+    name  = "outlook-on-magic2",
+    match = { class = "^chrome-outlook[.]office[.]com__mail_-Default$" },
+
+    workspace = "special:magic2",
+})
+
 
 -- Workspace & window rules to hide borders and padding on fullscreen apps
 hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
