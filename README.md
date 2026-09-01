@@ -1,5 +1,5 @@
 ## Install 
-To install clone this into ~/.local/share/system-setup/
+To install, clone this repository into `$HOME/source/system-setup`.
 All the paths are currently still under the name system-setup & it is important to keep it this way for now.
 
 ## License
@@ -12,4 +12,3 @@ curl -fsSL https://install.danklinux.com | sh
 ```
 
 System-Setup is licensed under the [MIT License](https://opensource.org/licenses/MIT).
-
