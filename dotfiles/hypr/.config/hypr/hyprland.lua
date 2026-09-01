@@ -233,9 +233,12 @@ hl.animation({ leaf = "layersIn",      enabled = true,  speed = 4,    bezier = "
 hl.animation({ leaf = "layersOut",     enabled = true,  speed = 1.5,  bezier = "linear",       style = "fade" })
 hl.animation({ leaf = "fadeLayersIn",  enabled = true,  speed = 1.79, bezier = "almostLinear" })
 hl.animation({ leaf = "fadeLayersOut", enabled = true,  speed = 1.39, bezier = "almostLinear" })
-hl.animation({ leaf = "workspaces",    enabled = true,  speed = 1.94, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "workspacesIn",  enabled = true,  speed = 1.21, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "workspacesOut", enabled = true,  speed = 1.94, bezier = "almostLinear", style = "fade" })
+hl.animation({ leaf = "workspaces",          enabled = false })
+hl.animation({ leaf = "workspacesIn",        enabled = false })
+hl.animation({ leaf = "workspacesOut",       enabled = false })
+hl.animation({ leaf = "specialWorkspace",    enabled = false })
+hl.animation({ leaf = "specialWorkspaceIn",  enabled = false })
+hl.animation({ leaf = "specialWorkspaceOut", enabled = false })
 hl.animation({ leaf = "zoomFactor",    enabled = true,  speed = 7,    bezier = "quick" })
 
 -- Ref https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
@@ -349,7 +352,6 @@ local closeWindowBind = hl.bind(mainMod .. " + C", hl.dsp.window.close())
 -- closeWindowBind:set_enabled(false)
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(terminal .. " --class cliamp -e cliamp"))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
@@ -385,6 +387,8 @@ hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
 hl.bind(mainMod .. " + D",         hl.dsp.workspace.toggle_special("magic2"))
 hl.bind(mainMod .. " + SHIFT + D", hl.dsp.window.move({ workspace = "special:magic2" }))
+hl.bind(mainMod .. " + A",         hl.dsp.workspace.toggle_special("agents"))
+hl.bind(mainMod .. " + A",         hl.dsp.exec_cmd("hyprctl clients -j | jq -e 'any(.[]; .class == \"Chatgpt\")' >/dev/null || chatgpt"))
 
 -- Scroll through existing workspaces with mainMod + scroll
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "r+1" }))
@@ -480,19 +484,18 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name  = "float-cliamp",
-    match = { class = "^cliamp$" },
-
-    float = true,
-    size  = "900 500",
-})
-
-hl.window_rule({
     name  = "float-derk",
     match = { class = "^dev[.]derk[.]derk$" },
 
     workspace = "special:magic",
     float     = true,
+})
+
+hl.window_rule({
+    name  = "chatgpt-on-agents-workspace",
+    match = { class = "^Chatgpt$" },
+
+    workspace = "special:agents",
 })
 
 -- Helium derives web-app classes from their URLs rather than the --class flag.
@@ -512,7 +515,11 @@ hl.window_rule({
 
 
 -- Workspace & window rules to hide borders and padding on fullscreen apps
-hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
+for _, workspace in ipairs({ "special:magic", "special:magic2", "special:agents" }) do
+    hl.workspace_rule({ workspace = workspace, gaps_out = 25, gaps_in = 8 })
+end
+
+hl.workspace_rule({ workspace = "w[tv1]s[false]", gaps_out = 0, gaps_in = 0 })
 
 hl.window_rule({
     name  = "thin-white-border-single-window",
