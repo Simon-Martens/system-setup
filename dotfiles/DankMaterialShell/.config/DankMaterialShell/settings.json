@@ -710,8 +710,8 @@
   "launcherPluginOrder": [],
   "frameEnabled": false,
   "frameThickness": 16,
-  "frameRounding": 23,
-  "frameColor": "",
+  "frameRounding": 0,
+  "frameColor": "primary",
   "frameOpacity": 1,
   "frameScreenPreferences": [
     "all"
