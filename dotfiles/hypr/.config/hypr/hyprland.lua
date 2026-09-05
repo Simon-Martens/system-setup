@@ -119,7 +119,7 @@ local hostname = io.popen("hostname"):read("*l")
 
 hl.env("XCURSOR_SIZE", "36")
 hl.env("HYPRCURSOR_SIZE", "36")
-if hostname == "base" then
+if hostname == "base.home.arpa" then
     hl.env("LIBVA_DRIVER_NAME", "nvidia")
     hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
 end
