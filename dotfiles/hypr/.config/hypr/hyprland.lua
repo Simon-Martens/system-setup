@@ -119,7 +119,7 @@ local hostname = io.popen("hostname"):read("*l")
 
 hl.env("XCURSOR_SIZE", "36")
 hl.env("HYPRCURSOR_SIZE", "36")
-if hostname == "home" then
+if hostname == "base" then
     hl.env("LIBVA_DRIVER_NAME", "nvidia")
     hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
 end
@@ -388,7 +388,7 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:mag
 hl.bind(mainMod .. " + D",         hl.dsp.workspace.toggle_special("magic2"))
 hl.bind(mainMod .. " + SHIFT + D", hl.dsp.window.move({ workspace = "special:magic2" }))
 hl.bind(mainMod .. " + A",         hl.dsp.workspace.toggle_special("agents"))
-hl.bind(mainMod .. " + A",         hl.dsp.exec_cmd("hyprctl clients -j | jq -e 'any(.[]; .class == \"Chatgpt\")' >/dev/null || chatgpt"))
+hl.bind(mainMod .. " + A",         hl.dsp.exec_cmd("hyprctl clients -j | jq -e 'any(.[]; .class == \"Chatgpt\")' >/dev/null || chatgpt --ozone-platform=wayland"))
 
 -- Scroll through existing workspaces with mainMod + scroll
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "r+1" }))
