@@ -30,42 +30,6 @@
     }
   },
   "lockBeforeSuspend": true,
-  "dankIslandBarId": "default",
-  "dankIslandReserveHeight": 45,
-  "dankIslandCompactHeight": 27,
-  "dankIslandOuterGap": 9,
-  "dankIslandInteractionMode": "click",
-  "dankIslandCornerRadius": 4,
-  "dankIslandHomeLayout": [
-    {
-      "id": "media",
-      "enabled": true
-    },
-    {
-      "id": "clock",
-      "enabled": true
-    },
-    {
-      "id": "weather",
-      "enabled": true
-    },
-    {
-      "id": "status",
-      "enabled": false
-    },
-    {
-      "id": "volume",
-      "enabled": false
-    },
-    {
-      "id": "brightness",
-      "enabled": false
-    },
-    {
-      "id": "notifications",
-      "enabled": true
-    }
-  ],
   "osdPowerProfileEnabled": true,
   "screenPreferences": {
     "wallpaper": [
@@ -84,7 +48,12 @@
       "showOnLastDisplay": true,
       "leftWidgets": [
         "workspaceSwitcher",
-        "focusedWindow"
+        {
+          "id": "focusedWindow",
+          "enabled": true,
+          "focusedWindowShowIcon": true,
+          "focusedWindowSize": 1
+        }
       ],
       "centerWidgets": [
         "music",
@@ -142,7 +111,52 @@
       "shadowOpacity": 60,
       "shadowColorMode": "text",
       "shadowCustomColor": "#000000",
-      "clickThrough": false
+      "clickThrough": false,
+      "barInsetPadding": 20,
+      "island": true,
+      "islandReserveThickness": 45,
+      "islandCompactThickness": 27,
+      "islandOuterGap": 9,
+      "islandInteractionMode": "click",
+      "islandCornerRadius": 4,
+      "islandHomeLayout": [
+        {
+          "id": "media",
+          "enabled": true
+        },
+        {
+          "id": "clock",
+          "enabled": true
+        },
+        {
+          "id": "weather",
+          "enabled": true
+        },
+        {
+          "id": "status",
+          "enabled": false
+        },
+        {
+          "id": "volume",
+          "enabled": false
+        },
+        {
+          "id": "brightness",
+          "enabled": false
+        },
+        {
+          "id": "notifications",
+          "enabled": true
+        }
+      ],
+      "islandFloating": false,
+      "islandAlongOffset": 0,
+      "islandHomeClockDisplay": "both",
+      "islandHomeCompactTight": false,
+      "islandPalette": "default",
+      "islandNotificationBadgeClearOnOpen": true,
+      "islandSatelliteBackground": false,
+      "islandSatellitePosition": "edges"
     }
   ],
   "desktopClockCustomColor": {
@@ -187,5 +201,5 @@
   },
   "frameRounding": 0,
   "frameColor": "primary",
-  "configVersion": 17
+  "configVersion": 18
 }
