@@ -19,7 +19,7 @@ stow ssh
 
 If `~/.ssh/config` already exists, merge any settings you want to keep into
 `dotfiles/ssh/.ssh/config`, then move the existing file aside before running Stow.
-The package configures `ssh nas` to use `~/.ssh/internal`. Keep private keys in
+The package configures `ssh nas`, `ssh work`, and `ssh laptop` to use `~/.ssh/internal`. Keep private keys in
 `~/.ssh`; they are not part of this package.
 
 ## License
