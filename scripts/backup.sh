@@ -26,7 +26,8 @@ EOF
 fail() { printf 'ERROR: %s\n' "$*" >&2; exit 2; }
 
 mode=backup
-source_dir=$HOME
+# Honor nonstandard home locations; fall back to the Linux username convention.
+source_dir=${HOME:-/home/${USER:?Set HOME or USER to locate the home directory}}
 repository=
 verbosity=1
 use_color=true

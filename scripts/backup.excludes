@@ -10,6 +10,15 @@ $BACKUP_HOME/.npm
 $BACKUP_HOME/.codex
 $BACKUP_HOME/.cache
 $BACKUP_HOME/.fontconfig
+$BACKUP_HOME/.pub-cache
+$BACKUP_HOME/.opencode
+$BACKUP_HOME/.atuin
+$BACKUP_HOME/.dartServer
+$BACKUP_HOME/.electron-gyp
+$BACKUP_HOME/.nv
+$BACKUP_HOME/.dart-tool
+$BACKUP_HOME/.node_repl_history
+$BACKUP_HOME/.abduco
 
 # Downloaded installers / OS images. Keep personal downloads such as PDFs.
 $BACKUP_HOME/Downloads/*.rpm

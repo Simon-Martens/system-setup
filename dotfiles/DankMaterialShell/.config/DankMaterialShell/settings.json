@@ -32,45 +32,6 @@
     }
   },
   "lockBeforeSuspend": true,
-  "dankIslandBarId": "default",
-  "dankIslandReserveHeight": 32,
-  "dankIslandCompactHeight": 40,
-  "dankIslandOuterGap": 11,
-  "dankIslandInteractionMode": "click",
-  "dankIslandCornerRadius": 6,
-  "dankIslandNotificationExpand": true,
-  "dankIslandHomeCompactTight": true,
-  "dankIslandHomeLayout": [
-    {
-      "id": "media",
-      "enabled": true
-    },
-    {
-      "id": "clock",
-      "enabled": true
-    },
-    {
-      "id": "weather",
-      "enabled": true
-    },
-    {
-      "id": "status",
-      "enabled": false
-    },
-    {
-      "id": "volume",
-      "enabled": false
-    },
-    {
-      "id": "brightness",
-      "enabled": false
-    },
-    {
-      "id": "notifications",
-      "enabled": true
-    }
-  ],
-  "dankIslandSpringDamping": 29,
   "osdPowerProfileEnabled": true,
   "screenPreferences": {
     "wallpaper": [
@@ -109,7 +70,7 @@
         "controlCenterButton"
       ],
       "spacing": 0,
-      "innerPadding": 7,
+      "innerPadding": 4,
       "bottomGap": 0,
       "transparency": 1,
       "widgetTransparency": 1,
@@ -149,7 +110,12 @@
       "shadowCustomColor": "#000000",
       "clickThrough": false,
       "attachToScreenEdge": false,
-      "barInsetPadding": 14
+      "barInsetPadding": 14,
+      "island": true,
+      "islandCompactThickness": 31,
+      "islandOuterGap": 8,
+      "islandReserveThickness": 46,
+      "islandInteractionMode": "click"
     }
   ],
   "desktopClockCustomColor": {
@@ -194,5 +160,5 @@
   },
   "frameRounding": 0,
   "frameColor": "primary",
-  "configVersion": 17
+  "configVersion": 18
 }
