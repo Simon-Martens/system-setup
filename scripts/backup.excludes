@@ -1,0 +1,40 @@
+# One restic pattern per line. backup.sh sets BACKUP_HOME to the source.
+# Keep .fonts and .config. Symlinks remain symlinks; source is restored separately.
+
+# Source checkouts, installed tools, application data, and home caches.
+$BACKUP_HOME/source
+$BACKUP_HOME/.local
+$BACKUP_HOME/.rustup
+$BACKUP_HOME/.cargo
+$BACKUP_HOME/.npm
+$BACKUP_HOME/.codex
+$BACKUP_HOME/.cache
+$BACKUP_HOME/.fontconfig
+
+# Downloaded installers / OS images. Keep personal downloads such as PDFs.
+$BACKUP_HOME/Downloads/*.rpm
+$BACKUP_HOME/Downloads/*.AppImage
+$BACKUP_HOME/Downloads/Armbian_*.img.xz
+*.iso
+*.ISO
+
+# Cache directories only within .config; preserve profiles, settings,
+# IndexedDB, Local Storage, extensions, cookies, bookmarks, and sessions.
+$BACKUP_HOME/.config/**/Cache
+$BACKUP_HOME/.config/**/cache
+$BACKUP_HOME/.config/**/.cache
+$BACKUP_HOME/.config/**/Code Cache
+$BACKUP_HOME/.config/**/GPUCache
+$BACKUP_HOME/.config/**/GPUPersistentCache
+$BACKUP_HOME/.config/**/ShaderCache
+$BACKUP_HOME/.config/**/GrShaderCache
+$BACKUP_HOME/.config/**/DawnCache
+$BACKUP_HOME/.config/**/DawnWebGPUCache
+$BACKUP_HOME/.config/**/DawnGraphiteCache
+$BACKUP_HOME/.config/**/component_crx_cache
+$BACKUP_HOME/.config/**/extensions_crx_cache
+$BACKUP_HOME/.config/**/optimization_guide_hint_cache_store
+$BACKUP_HOME/.config/**/AutofillAiModelCache
+$BACKUP_HOME/.config/**/Service Worker/CacheStorage
+$BACKUP_HOME/.config/**/Service Worker/ScriptCache
+$BACKUP_HOME/.config/**/WebStorage/*/CacheStorage
