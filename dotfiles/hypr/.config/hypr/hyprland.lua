@@ -302,8 +302,9 @@ hl.config({
 
 hl.config({
     input = {
-        kb_layout  = "us",
-        kb_variant = "altgr-intl",
+        -- Use the German layout only on this laptop.
+        kb_layout  = hostname == "dell-laptop" and "de" or "us",
+        kb_variant = hostname == "dell-laptop" and "" or "altgr-intl",
         kb_model   = "",
         kb_options = "ctrl:nocaps",
         kb_rules   = "", 
