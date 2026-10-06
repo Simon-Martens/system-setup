@@ -305,6 +305,8 @@ hl.config({
         -- Use the German layout only on this laptop.
         kb_layout  = hostname == "dell-laptop" and "de" or "us",
         kb_variant = hostname == "dell-laptop" and "" or "altgr-intl",
+        -- Match shortcuts to the symbols on the laptop's German keyboard.
+        resolve_binds_by_sym = hostname == "dell-laptop",
         kb_model   = "",
         kb_options = "ctrl:nocaps",
         kb_rules   = "", 
@@ -397,8 +399,10 @@ hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "r+1" }))
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "r-1" }))
 hl.bind(mainMod .. " + X", hl.dsp.focus({ workspace = "r+1" }))
 hl.bind(mainMod .. " + SHIFT + X", hl.dsp.window.move({ workspace = "r+1" }))
-hl.bind(mainMod .. " + Z",   hl.dsp.focus({ workspace = "r-1" }))
-hl.bind(mainMod .. " + SHIFT + Z",   hl.dsp.window.move({ workspace = "r-1" }))
+-- Keep the previous-workspace shortcuts beside X on the German laptop keyboard.
+local previousWorkspaceKey = hostname == "dell-laptop" and "Y" or "Z"
+hl.bind(mainMod .. " + " .. previousWorkspaceKey, hl.dsp.focus({ workspace = "r-1" }))
+hl.bind(mainMod .. " + SHIFT + " .. previousWorkspaceKey, hl.dsp.window.move({ workspace = "r-1" }))
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
