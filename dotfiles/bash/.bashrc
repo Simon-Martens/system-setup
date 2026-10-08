@@ -7,7 +7,7 @@
 # Instead, edit the individual .sh files in $HOME/source/system-setup/scripts/rc
 # and then re-run the generation script: ./generate_shell_rc.sh bash
 #
-# Generated on: 2026-08-24 23:02:44 CEST
+# Generated on: 2026-10-08 11:17:20 CEST
 # ==============================================================================
 
 
@@ -793,7 +793,7 @@ export PROMPT_COMMAND='EXIT_CODE=$?; if [ $EXIT_CODE -ne 0 ]; then EXIT_STATUS="
 # PS1='[\[\e[1m\]\u@\h\[\e[0m\] \[\e[2m\]\w\[\e[0m\]] '
 #
 #
-PS1='$(LAST_EXIT=$?; if [ $LAST_EXIT -ne 0 ]; then echo "\[\e[31m\][$LAST_EXIT!]\[\e[0m\] "; fi)[\[\e[1m\]\u@\h\[\e[0m\] \[\e[2m\]\w\[\e[0m\]] '
+PS1='$(LAST_EXIT=$?; if [ $LAST_EXIT -ne 0 ]; then echo "\[\e[31m\][$LAST_EXIT!]\[\e[0m\] "; fi)[\[\e[1m\]\u@\h\[\e[0m\] \[\e[2m\]\w\[\e[0m\]]: '
 
 # ==============================================================================
 # End of prompt.sh
@@ -924,4 +924,4 @@ fi
 # Tip: Source this file in your interactive bash sessions or ensure it's
 # automatically sourced by your shell's main configuration.
 
-export SHELL_RC_GENERATED_ON="2026-08-24 23:02:44 CEST"
+export SHELL_RC_GENERATED_ON="2026-10-08 11:17:20 CEST"

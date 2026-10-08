@@ -68,7 +68,7 @@ enable-switchable-authentication=false
 default-zoom-level='small'
 
 [org/gnome/nautilus/preferences]
-default-folder-viewer='icon-view'
+default-folder-viewer='list-view'
 migrated-gtk-settings=true
 show-hidden-files=true
 
@@ -88,11 +88,11 @@ welcome-dialog-last-shown-version='50.0'
 locations=@av []
 
 [org/gnome/software]
-check-timestamp=int64 1784812120
+check-timestamp=int64 1790321509
 first-run=false
-flatpak-purge-timestamp=int64 1784819289
+flatpak-purge-timestamp=int64 1790328645
 security-timestamp=int64 1784812156854249
-update-notification-timestamp=int64 1784812154
+update-notification-timestamp=int64 1790321562
 
 [org/gnome/system/location]
 enabled=true
@@ -103,7 +103,7 @@ sort-directories-first=false
 
 [org/gtk/settings/file-chooser]
 date-format='regular'
-location-mode='filename-entry'
+location-mode='path-bar'
 show-hidden=false
 show-size-column=true
 show-type-column=true
@@ -113,4 +113,15 @@ sort-directories-first=false
 sort-order='ascending'
 type-format='category'
 window-position=(0, 0)
-window-size=(1152, 1209)
+window-size=(1142, 1199)
+
+[org/gnome/deja-dup]
+periodic-timestamp='2026-09-21T12:56:56.125665+02'
+backend='google'
+prompt-check='2026-09-21T12:58:56.037665+02'
+
+[org/gnome/papers]
+night-mode=false
+
+[org/gnome/papers/default]
+window-maximized=true
